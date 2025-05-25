@@ -1,0 +1,144 @@
+<template>
+  <div id="app">
+    <!-- 应用初始化加载状态 -->
+    <div v-if="isInitializing" class="app-initializing">
+      <div class="loading-spinner">
+        <el-icon class="spin" :size="40">
+          <Loading />
+        </el-icon>
+        <p>正在初始化应用...</p>
+      </div>
+    </div>
+    
+    <!-- 主应用内容 -->
+    <router-view v-else />
+  </div>
+</template>
+
+<script setup>
+import { onMounted, ref, onUnmounted } from 'vue'
+import { useAuthStore } from '@/stores/auth'
+import { Loading } from '@element-plus/icons-vue'
+
+const authStore = useAuthStore()
+const isInitializing = ref(true)
+
+// 网络状态监听
+const handleOnline = () => {
+  console.log('🌐 网络已恢复')
+  if (authStore.authStatus === 'network_error') {
+    console.log('📡 尝试恢复认证状态...')
+    authStore.restoreFromNetworkError()
+    // 如果有token，尝试重新初始化认证状态
+    if (authStore.token) {
+      authStore.initAuth().then(success => {
+        if (success) {
+          console.log('✅ 认证状态已恢复')
+        } else {
+          console.log('❌ 认证状态恢复失败')
+        }
+      })
+    }
+  }
+}
+
+const handleOffline = () => {
+  console.log('📵 网络连接已断开')
+  // 设置网络错误状态，但保持认证信息
+  if (authStore.isAuthenticated) {
+    authStore.setNetworkError()
+  }
+}
+
+// 应用启动时初始化认证状态
+onMounted(async () => {
+  console.log('🚀 应用启动，初始化认证状态...')
+  
+  // 添加网络状态监听
+  window.addEventListener('online', handleOnline)
+  window.addEventListener('offline', handleOffline)
+  
+  try {
+    // 检查localStorage中是否有token
+    const hasToken = localStorage.getItem('token')
+    
+    if (hasToken && authStore.authStatus === 'unknown') {
+      console.log('📦 发现本地token，尝试初始化认证状态...')
+      
+      // 尝试初始化认证状态
+      const success = await authStore.initAuth()
+      if (success) {
+        console.log('✅ 认证状态初始化成功')
+      } else if (authStore.authStatus === 'network_error') {
+        console.log('🌐 网络错误导致初始化失败，将在网络恢复后重试')
+      } else {
+        console.log('❌ 认证状态初始化失败')
+      }
+    } else if (!hasToken) {
+      console.log('📭 未发现本地token，用户需要重新登录')
+      authStore.authStatus = 'unauthenticated'
+    } else {
+      console.log('🔄 认证状态已存在，跳过初始化')
+    }
+  } catch (error) {
+    console.error('💥 认证状态初始化失败:', error)
+    
+    // 判断错误类型
+    if (authStore.isNetworkErrorType(error)) {
+      console.log('🌐 网络错误，保持认证状态')
+      authStore.setNetworkError()
+    } else {
+      console.log('❌ 其他错误，可能需要重新登录')
+    }
+  } finally {
+    // 初始化完成，隐藏加载状态
+    isInitializing.value = false
+  }
+})
+
+// 组件卸载时清理事件监听
+onUnmounted(() => {
+  window.removeEventListener('online', handleOnline)
+  window.removeEventListener('offline', handleOffline)
+})
+</script>
+
+<style lang="scss">
+#app {
+  width: 100%;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.app-initializing {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  
+  .loading-spinner {
+    text-align: center;
+    color: white;
+    
+    .spin {
+      animation: spin 1s linear infinite;
+    }
+    
+    p {
+      margin-top: 16px;
+      font-size: 16px;
+      opacity: 0.9;
+    }
+  }
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+</style> 
