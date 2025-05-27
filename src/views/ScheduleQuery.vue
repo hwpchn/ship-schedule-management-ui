@@ -3,10 +3,10 @@
     <!-- 统一Header -->
     <el-header class="header">
       <div class="header-left">
-        <el-icon :size="24" color="#409eff">
-          <Ship />
+        <el-icon :size="24" color="#1f4e79">
+          <Van />
         </el-icon>
-        <span class="title">船期管理系统 - 船期查询</span>
+        <span class="title">环海运通管理系统 - 船期查询</span>
       </div>
       <div class="header-right">
         <el-button
@@ -125,13 +125,7 @@
 
         <!-- 右侧宣传海报轮播 -->
         <div class="banner-section">
-          <!-- 调试信息 -->
-          <div v-if="bannerItems.length === 0" style="padding: 20px; text-align: center; color: #666;">
-            海报数据加载中...
-          </div>
-
           <el-carousel
-            v-else
             height="300px"
             indicator-position="outside"
             :interval="4000"
@@ -250,7 +244,7 @@
               <div class="header-main">
                 <div class="carrier-section">
                   <span class="section-label">
-                    <el-icon><Ship /></el-icon>
+                    <el-icon><Van /></el-icon>
                     船司
                   </span>
                   <div class="carrier-tags">
@@ -386,7 +380,7 @@
         <div class="dialog-header">
           <div class="header-content">
             <div class="carrier-info">
-              <el-icon class="carrier-icon"><Ship /></el-icon>
+              <el-icon class="carrier-icon"><Van /></el-icon>
               <span class="carrier-label">船司：</span>
               <div class="carrier-tags">
                 <el-tag
@@ -576,7 +570,7 @@ import { ElMessage, ElMessageBox } from 'element-plus'
 import {
   Search,
   Refresh,
-  Ship,
+  Van,
   User,
   ArrowDown,
   ArrowLeft,
@@ -623,9 +617,9 @@ const pendingUpdates = ref([]) // 待保存的更新
 // 宣传海报数据
 const bannerItems = ref([
   {
-    title: '专业船期服务',
-    description: '提供全球航线船期查询，实时更新船舶动态信息',
-    background: 'linear-gradient(135deg, #409eff 0%, #67c23a 100%)',
+    title: '环海运通 - 全球海运专家',
+    description: '专业的国际海运服务，覆盖全球主要港口，为您提供最优航线选择',
+    background: 'linear-gradient(135deg, #1f4e79 0%, #2c5aa0 100%)',
     buttonText: '立即查询',
     action: () => {
       // 滚动到搜索区域
@@ -633,16 +627,16 @@ const bannerItems = ref([
     }
   },
   {
-    title: '智能货运管理',
-    description: '一站式货运解决方案，让您的物流更加便捷高效',
-    background: 'linear-gradient(135deg, #67c23a 0%, #e6a23c 100%)',
+    title: '智能物流管理',
+    description: '一站式国际货运解决方案，让您的全球物流更加便捷高效',
+    background: 'linear-gradient(135deg, #2c5aa0 0%, #4a90e2 100%)',
     buttonText: '了解更多'
   },
   {
-    title: '全球港口覆盖',
-    description: '覆盖全球主要港口，为您提供最优航线选择',
-    background: 'linear-gradient(135deg, #e6a23c 0%, #f56c6c 100%)',
-    buttonText: '查看港口'
+    title: '实时船期追踪',
+    description: '实时更新船舶动态信息，精准掌控货物运输状态',
+    background: 'linear-gradient(135deg, #4a90e2 0%, #6bb6ff 100%)',
+    buttonText: '查看详情'
   }
 ])
 
