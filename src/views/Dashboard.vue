@@ -4,10 +4,17 @@
       <!-- 头部 -->
       <el-header class="header">
         <div class="header-left">
-          <el-icon :size="24" color="#409eff">
-            <Ship />
-          </el-icon>
-          <span class="title">船期管理系统</span>
+          <div class="logo-container">
+            <svg class="logo-icon" viewBox="0 0 24 24" width="28" height="28">
+              <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    fill="none"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <span class="title">环海运通</span>
         </div>
         <div class="header-right">
           <el-dropdown trigger="click">
@@ -34,9 +41,9 @@
       <el-main class="main">
         <div class="welcome-card">
           <div class="welcome-content">
-            <h1>欢迎来到船期管理系统！</h1>
+            <h1>欢迎来到环海运通！</h1>
             <p>您已成功登录，现在可以开始使用我们的专业物流管理平台。</p>
-            
+
             <div class="feature-grid">
               <div class="feature-card" @click="navigateToFeature('shipping')">
                 <div class="feature-icon shipping">
@@ -45,7 +52,7 @@
                 <h3>船期管理</h3>
                 <p>查看和管理船期信息，跟踪货物运输状态</p>
               </div>
-              
+
               <div class="feature-card" @click="navigateToFeature('cargo')">
                 <div class="feature-icon cargo">
                   <el-icon :size="32"><Box /></el-icon>
@@ -53,7 +60,7 @@
                 <h3>货物管理</h3>
                 <p>管理货物信息，监控装载和卸载过程</p>
               </div>
-              
+
               <div class="feature-card" @click="navigateToFeature('documents')">
                 <div class="feature-icon documents">
                   <el-icon :size="32"><Document /></el-icon>
@@ -61,7 +68,7 @@
                 <h3>单据管理</h3>
                 <p>处理运输单据，生成相关报表和文档</p>
               </div>
-              
+
               <!-- 系统管理功能 -->
               <div
                 v-if="authStore.user?.is_superuser || authStore.user?.is_staff || authStore.user?.email === 'admin@example.com' || authStore.hasAnyPermission(['user.list', 'role.list', 'permission.list'])"
@@ -75,7 +82,7 @@
                 <p>用户管理、角色分配、权限配置</p>
               </div>
             </div>
-            
+
             <!-- 权限调试信息 -->
             <div v-if="authStore.user?.email === 'admin@example.com'" class="debug-info">
               <el-card class="debug-card">
@@ -85,43 +92,43 @@
                     <span>权限调试信息</span>
                   </div>
                 </template>
-                
+
                 <div class="debug-content">
                   <div class="debug-item">
                     <span class="debug-label">用户邮箱:</span>
                     <span class="debug-value">{{ authStore.user?.email }}</span>
                   </div>
-                  
+
                   <div class="debug-item">
                     <span class="debug-label">is_superuser:</span>
                     <span class="debug-value">{{ authStore.user?.is_superuser }}</span>
                   </div>
-                  
+
                   <div class="debug-item">
                     <span class="debug-label">is_staff:</span>
                     <span class="debug-value">{{ authStore.user?.is_staff }}</span>
                   </div>
-                  
+
                   <div class="debug-item">
                     <span class="debug-label">权限已加载:</span>
                     <span class="debug-value">{{ permissionStore.isPermissionsInitialized }}</span>
                   </div>
-                  
+
                   <div class="debug-item">
                     <span class="debug-label">是否管理员:</span>
                     <span class="debug-value">{{ permissionStore.isAdmin }}</span>
                   </div>
-                  
+
                   <div class="debug-item">
                     <span class="debug-label">vessel_info.update权限:</span>
                     <span class="debug-value">{{ permissionStore.hasPermission('vessel_info.update') }}</span>
                   </div>
-                  
+
                   <div class="debug-item">
                     <span class="debug-label">user.list权限:</span>
                     <span class="debug-value">{{ permissionStore.hasPermission('user.list') }}</span>
                   </div>
-                  
+
                   <div class="debug-item">
                     <span class="debug-label">canEditVesselInfo:</span>
                     <span class="debug-value">{{ permissionStore.canEditVesselInfo }}</span>
@@ -140,10 +147,10 @@
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { usePermissionStore } from '@/stores/permission'
-import { 
-  Ship, 
-  User, 
-  ArrowDown, 
+import {
+  Ship,
+  User,
+  ArrowDown,
   SwitchButton,
   Box,
   Document,
@@ -167,7 +174,7 @@ const handleLogout = async () => {
         type: 'warning',
       }
     )
-    
+
     await authStore.logout()
     router.push('/login')
   } catch (error) {
@@ -210,19 +217,39 @@ const navigateToFeature = (feature) => {
   justify-content: space-between;
   padding: 0 24px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  
+
   .header-left {
     display: flex;
     align-items: center;
     gap: 12px;
-    
+
+    .logo-container {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 40px;
+      height: 40px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+
+      .logo-icon {
+        color: white;
+        filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.2));
+      }
+    }
+
     .title {
       font-size: 18px;
       font-weight: 600;
       color: #333;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
     }
   }
-  
+
   .header-right {
     .user-info {
       display: flex;
@@ -232,16 +259,16 @@ const navigateToFeature = (feature) => {
       border-radius: 8px;
       cursor: pointer;
       transition: background 0.3s ease;
-      
+
       &:hover {
         background: #f5f5f5;
       }
-      
+
       .username {
         font-size: 14px;
         color: #333;
       }
-      
+
       .arrow {
         font-size: 12px;
         color: #666;
@@ -260,10 +287,10 @@ const navigateToFeature = (feature) => {
   padding: 40px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
   animation: slideIn 0.6s ease-out;
-  
+
   .welcome-content {
     text-align: center;
-    
+
     h1 {
       font-size: 32px;
       font-weight: 600;
@@ -273,20 +300,20 @@ const navigateToFeature = (feature) => {
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
     }
-    
+
     p {
       font-size: 16px;
       color: #666;
       margin-bottom: 48px;
       line-height: 1.6;
     }
-    
+
     .feature-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
       gap: 24px;
       margin-top: 48px;
-      
+
       .feature-card {
         text-align: center;
         padding: 32px 24px;
@@ -295,13 +322,13 @@ const navigateToFeature = (feature) => {
         transition: all 0.3s ease;
         cursor: pointer;
         border: 2px solid transparent;
-        
+
         &:hover {
           transform: translateY(-4px);
           box-shadow: 0 12px 32px rgba(0, 0, 0, 0.12);
           border-color: #409eff;
         }
-        
+
         .feature-icon {
           display: flex;
           justify-content: center;
@@ -310,35 +337,35 @@ const navigateToFeature = (feature) => {
           height: 64px;
           margin: 0 auto 20px;
           border-radius: 16px;
-          
+
           &.shipping {
             background: linear-gradient(135deg, #409eff, #5470c6);
             color: white;
           }
-          
+
           &.cargo {
             background: linear-gradient(135deg, #67c23a, #85ce61);
             color: white;
           }
-          
+
           &.documents {
             background: linear-gradient(135deg, #e6a23c, #f0b90b);
             color: white;
           }
-          
+
           &.admin {
             background: linear-gradient(135deg, #f56c6c, #f78989);
             color: white;
           }
         }
-        
+
         h3 {
           font-size: 18px;
           font-weight: 600;
           color: #333;
           margin-bottom: 12px;
         }
-        
+
         p {
           font-size: 14px;
           color: #666;
@@ -411,24 +438,24 @@ const navigateToFeature = (feature) => {
 @media (max-width: 768px) {
   .header {
     padding: 0 16px;
-    
+
     .header-left .title {
       display: none;
     }
   }
-  
+
   .main {
     padding: 16px;
   }
-  
+
   .welcome-card {
     padding: 24px 16px;
-    
+
     .welcome-content {
       h1 {
         font-size: 24px;
       }
-      
+
       .feature-grid {
         grid-template-columns: 1fr;
         gap: 16px;
@@ -436,9 +463,9 @@ const navigateToFeature = (feature) => {
       }
     }
   }
-  
+
   .debug-content {
     grid-template-columns: 1fr;
   }
 }
-</style> 
+</style>

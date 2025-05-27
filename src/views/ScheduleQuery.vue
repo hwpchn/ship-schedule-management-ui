@@ -3,10 +3,17 @@
     <!-- 统一Header -->
     <el-header class="header">
       <div class="header-left">
-        <el-icon :size="24" color="#409eff">
-          <Ship />
-        </el-icon>
-        <span class="title">船期管理系统 - 船期查询</span>
+        <div class="logo-container">
+          <svg class="logo-icon" viewBox="0 0 24 24" width="28" height="28">
+            <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  fill="none"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <span class="title">环海运通 - 船期查询</span>
       </div>
       <div class="header-right">
         <el-button
@@ -44,24 +51,18 @@
       <div class="top-section">
         <!-- 左侧搜索框 -->
         <div class="search-section">
-          <el-card class="search-card" shadow="never">
-            <template #header>
-              <div class="search-header">
-                <el-icon><Search /></el-icon>
-                <span>船期查询</span>
-              </div>
-            </template>
+          <div class="search-container">
 
-            <el-form
-              :model="queryForm"
-              label-width="80px"
-              @submit.prevent="handleSearch"
-            >
-              <el-form-item label="起运港" required>
+            <div class="search-form">
+              <div class="form-group">
+                <label class="form-label">
+                  <span class="label-text">起运港</span>
+                  <span class="required-mark">*</span>
+                </label>
                 <el-select
                   v-model="selectedCity"
-                  placeholder="请输入港口名称或国家搜索"
-                  style="width: 100%"
+                  placeholder="请选择起运港口"
+                  class="form-select"
                   filterable
                   clearable
                   remote
@@ -75,13 +76,17 @@
                     :value="port.code"
                   />
                 </el-select>
-              </el-form-item>
+              </div>
 
-              <el-form-item label="目的港" required>
+              <div class="form-group">
+                <label class="form-label">
+                  <span class="label-text">目的港</span>
+                  <span class="required-mark">*</span>
+                </label>
                 <el-select
                   v-model="queryForm.podCd"
-                  placeholder="请输入港口名称或国家搜索"
-                  style="width: 100%"
+                  placeholder="请选择目的港口"
+                  class="form-select"
                   filterable
                   clearable
                   remote
@@ -94,33 +99,26 @@
                     :value="port.code"
                   />
                 </el-select>
-              </el-form-item>
+              </div>
 
-              <el-form-item>
+              <div class="form-actions">
                 <el-button
                   type="primary"
                   @click="handleSearch"
                   :loading="loading"
                   :disabled="!selectedCity || !queryForm.podCd"
-                  style="width: 100%"
+                  class="search-btn"
                   size="large"
                 >
-                  <el-icon><Search /></el-icon>
+                  <svg class="btn-icon" viewBox="0 0 24 24" width="18" height="18">
+                    <circle cx="11" cy="11" r="8" stroke="currentColor" stroke-width="2" fill="none"/>
+                    <path d="m21 21-4.35-4.35" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                  </svg>
                   查询船期
                 </el-button>
-              </el-form-item>
-
-              <el-form-item>
-                <el-button
-                  @click="resetQuery"
-                  style="width: 100%"
-                >
-                  <el-icon><Refresh /></el-icon>
-                  重置
-                </el-button>
-              </el-form-item>
-            </el-form>
-          </el-card>
+              </div>
+            </div>
+          </div>
         </div>
 
         <!-- 右侧宣传海报轮播 -->
@@ -132,7 +130,7 @@
 
           <el-carousel
             v-else
-            height="300px"
+            height="260px"
             indicator-position="outside"
             :interval="4000"
             arrow="always"
@@ -1246,10 +1244,30 @@ onMounted(async () => {
     align-items: center;
     gap: 12px;
 
+    .logo-container {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 40px;
+      height: 40px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+
+      .logo-icon {
+        color: white;
+        filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.2));
+      }
+    }
+
     .title {
       font-size: 18px;
       font-weight: 600;
       color: #333;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
     }
   }
 
@@ -1305,22 +1323,113 @@ onMounted(async () => {
 .top-section {
   display: flex;
   gap: 20px;
-  margin-bottom: 20px;
-  height: 300px;
+  margin-bottom: 30px;
+  height: 260px;
 }
 
 .search-section {
   flex: 1;
   min-width: 320px;
 
-  .search-card {
+  .search-container {
+    background: white;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    border: 1px solid #e8e9ea;
     height: 100%;
+    display: flex;
+    flex-direction: column;
 
-    .search-header {
+    .search-form {
+      flex: 1;
       display: flex;
-      align-items: center;
-      gap: 8px;
-      font-weight: 600;
+      flex-direction: column;
+      gap: 16px;
+
+      .form-group {
+        .form-label {
+          display: flex;
+          align-items: center;
+          gap: 4px;
+          margin-bottom: 8px;
+          font-size: 14px;
+          font-weight: 500;
+          color: #333;
+
+          .label-text {
+            color: #333;
+          }
+
+          .required-mark {
+            color: #f56565;
+            font-weight: 600;
+          }
+        }
+
+        .form-select {
+          width: 100%;
+
+          :deep(.el-input__wrapper) {
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            transition: all 0.2s ease;
+
+            &:hover {
+              border-color: #667eea;
+              box-shadow: 0 2px 6px rgba(102, 126, 234, 0.15);
+            }
+
+            &.is-focus {
+              border-color: #667eea;
+              box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            }
+          }
+        }
+      }
+
+      .form-actions {
+        margin-top: auto;
+        padding-top: 20px;
+
+        .search-btn {
+          width: 100%;
+          height: 52px;
+          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+          border: none;
+          border-radius: 10px;
+          color: white;
+          font-size: 18px;
+          font-weight: 600;
+          box-shadow: 0 4px 16px rgba(102, 126, 234, 0.3);
+          transition: all 0.3s ease;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 10px;
+
+          .btn-icon {
+            color: white;
+          }
+
+          &:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+            background: linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%);
+          }
+
+          &:active {
+            transform: translateY(-1px);
+          }
+
+          &:disabled {
+            opacity: 0.6;
+            transform: none;
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.2);
+          }
+        }
+      }
     }
   }
 }
@@ -1328,7 +1437,7 @@ onMounted(async () => {
 .banner-section {
   flex: 2;
   min-width: 400px;
-  height: 300px;
+  height: 260px;
 
   :deep(.el-carousel) {
     height: 100%;
@@ -1393,7 +1502,8 @@ onMounted(async () => {
 
 /* 港口选择区域 */
 .port-selection-section {
-  margin: 16px 0;
+  margin: 20px 0;
+  clear: both;
 
   .port-selection-container {
     background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);

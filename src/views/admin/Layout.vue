@@ -4,21 +4,28 @@
       <!-- 头部 -->
       <el-header class="admin-header">
         <div class="header-left">
-          <el-icon :size="24" color="#409eff">
-            <Ship />
-          </el-icon>
-          <span class="title">船期管理系统 - 系统管理</span>
+          <div class="logo-container">
+            <svg class="logo-icon" viewBox="0 0 24 24" width="28" height="28">
+              <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    fill="none"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <span class="title">环海运通 - 系统管理</span>
         </div>
         <div class="header-right">
-          <el-button 
-            link 
+          <el-button
+            link
             @click="$router.push('/dashboard')"
             class="back-btn"
           >
             <el-icon><ArrowLeft /></el-icon>
             返回首页
           </el-button>
-          
+
           <el-dropdown trigger="click">
             <span class="user-info">
               <el-avatar :size="32" src="/default-avatar.png">
@@ -52,12 +59,12 @@
               <el-icon><User /></el-icon>
               <span>用户管理</span>
             </el-menu-item>
-            
+
             <el-menu-item index="/admin/roles" v-if="authStore.hasPermission('role.list')">
               <el-icon><UserFilled /></el-icon>
               <span>角色管理</span>
             </el-menu-item>
-            
+
             <el-menu-item index="/admin/permissions" v-if="authStore.hasPermission('permission.list')">
               <el-icon><Lock /></el-icon>
               <span>权限管理</span>
@@ -83,13 +90,13 @@
 <script setup>
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
-import { 
-  Ship, 
-  User, 
+import {
+  Ship,
+  User,
   UserFilled,
   Lock,
   ArrowLeft,
-  ArrowDown, 
+  ArrowDown,
   SwitchButton
 } from '@element-plus/icons-vue'
 import { ElMessageBox } from 'element-plus'
@@ -109,7 +116,7 @@ const handleLogout = async () => {
         type: 'warning',
       }
     )
-    
+
     await authStore.logout()
     router.push('/login')
   } catch (error) {
@@ -132,35 +139,55 @@ const handleLogout = async () => {
   padding: 0 24px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   z-index: 1000;
-  
+
   .header-left {
     display: flex;
     align-items: center;
     gap: 12px;
-    
+
+    .logo-container {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 40px;
+      height: 40px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+
+      .logo-icon {
+        color: white;
+        filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.2));
+      }
+    }
+
     .title {
       font-size: 18px;
       font-weight: 600;
       color: #333;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
     }
   }
-  
+
   .header-right {
     display: flex;
     align-items: center;
     gap: 16px;
-    
+
     .back-btn {
       display: flex;
       align-items: center;
       gap: 4px;
       color: #409eff;
-      
+
       &:hover {
         background: rgba(64, 158, 255, 0.1);
       }
     }
-    
+
     .user-info {
       display: flex;
       align-items: center;
@@ -169,16 +196,16 @@ const handleLogout = async () => {
       border-radius: 8px;
       cursor: pointer;
       transition: background 0.3s ease;
-      
+
       &:hover {
         background: #f5f5f5;
       }
-      
+
       .username {
         font-size: 14px;
         color: #333;
       }
-      
+
       .arrow {
         font-size: 12px;
         color: #666;
@@ -195,26 +222,26 @@ const handleLogout = async () => {
   background: white;
   border-right: 1px solid #e8e8e8;
   overflow: hidden;
-  
+
   .admin-menu {
     border: none;
     height: 100%;
-    
+
     :deep(.el-menu-item) {
       height: 56px;
       line-height: 56px;
       margin: 4px 8px;
       border-radius: 8px;
-      
+
       &:hover {
         background: rgba(64, 158, 255, 0.1);
         color: #409eff;
       }
-      
+
       &.is-active {
         background: #409eff;
         color: white;
-        
+
         &:hover {
           background: #337ecc;
         }
@@ -227,7 +254,7 @@ const handleLogout = async () => {
   padding: 24px;
   background: #f5f5f5;
   overflow-y: auto;
-  
+
   .content-wrapper {
     max-width: 1200px;
     margin: 0 auto;
@@ -250,13 +277,13 @@ const handleLogout = async () => {
   .admin-aside {
     width: 200px !important;
   }
-  
+
   .header-left .title {
     display: none;
   }
-  
+
   .admin-main {
     padding: 16px;
   }
 }
-</style> 
+</style>
