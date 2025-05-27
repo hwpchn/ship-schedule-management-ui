@@ -376,34 +376,34 @@
     >
       <div v-if="selectedGroup">
         <div class="dialog-header">
-          <div class="carrier-info">
-            <el-icon class="carrier-icon"><Ship /></el-icon>
-            <span class="carrier-label">船司：</span>
-            <div class="carrier-tags">
-              <el-tag
-                v-for="carrier in getDisplayCarrierCodes(selectedGroup)"
-                :key="carrier"
-                type="primary"
-                size="large"
-                class="carrier-tag"
-              >
-                {{ carrier }}
+          <div class="header-content">
+            <div class="carrier-info">
+              <el-icon class="carrier-icon"><Ship /></el-icon>
+              <span class="carrier-label">船司：</span>
+              <div class="carrier-tags">
+                <el-tag
+                  v-for="carrier in getDisplayCarrierCodes(selectedGroup)"
+                  :key="carrier"
+                  class="carrier-tag"
+                >
+                  {{ carrier }}
+                </el-tag>
+              </div>
+            </div>
+            <div class="route-summary">
+              <el-tag class="info-tag">
+                <el-icon><Calendar /></el-icon>
+                计划开船：{{ getWeekdayText(selectedGroup.plan_open) }}
+              </el-tag>
+              <el-tag class="info-tag">
+                <el-icon><Clock /></el-icon>
+                航程：{{ selectedGroup.plan_duration }}天
+              </el-tag>
+              <el-tag class="info-tag">
+                <el-icon><List /></el-icon>
+                航线数量：{{ selectedGroup.schedules?.length || 0 }}
               </el-tag>
             </div>
-          </div>
-          <div class="route-summary">
-            <el-tag type="success" size="large">
-              <el-icon><Calendar /></el-icon>
-              计划开船：{{ getWeekdayText(selectedGroup.plan_open) }}
-            </el-tag>
-            <el-tag type="warning" size="large">
-              <el-icon><Clock /></el-icon>
-              航程：{{ selectedGroup.plan_duration }}天
-            </el-tag>
-            <el-tag type="info" size="large">
-              <el-icon><List /></el-icon>
-              航线数量：{{ selectedGroup.schedules?.length || 0 }}
-            </el-tag>
           </div>
         </div>
 
@@ -1562,17 +1562,24 @@ onMounted(async () => {
 
 /* 弹窗样式 */
 .dialog-header {
-  margin-bottom: 24px;
-  padding: 20px;
+  margin-bottom: 20px;
+  padding: 12px 16px;
   background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-  border-radius: 12px;
+  border-radius: 8px;
   border: 1px solid #dee2e6;
+
+  .header-content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    flex-wrap: wrap;
+  }
 
   .carrier-info {
     display: flex;
     align-items: center;
     gap: 12px;
-    margin-bottom: 16px;
 
     .carrier-icon {
       font-size: 18px;
@@ -1611,46 +1618,32 @@ onMounted(async () => {
 
   .route-summary {
     display: flex;
-    gap: 12px;
+    gap: 16px;
+    align-items: center;
     flex-wrap: wrap;
 
-    .el-tag {
+    .info-tag {
       display: flex;
       align-items: center;
-      gap: 6px;
-      padding: 8px 14px;
-      border-radius: 6px;
+      gap: 4px;
+      padding: 6px 12px;
+      border-radius: 4px;
       font-weight: 500;
       background: #f4f4f5;
       border: 1px solid #d3d4d6;
       color: #606266;
+      font-size: 13px;
       transition: all 0.2s ease;
+      white-space: nowrap;
 
       &:hover {
         background: #e1e3e9;
         border-color: #b1b3b8;
       }
 
-             .el-icon {
-         font-size: 14px;
-         color: #909399;
-       }
-
-      &.el-tag--success,
-      &.el-tag--warning,
-      &.el-tag--info {
-        background: #f4f4f5;
-        border-color: #d3d4d6;
-        color: #606266;
-
-        .el-icon {
-          color: #909399;
-        }
-
-        &:hover {
-          background: #e1e3e9;
-          border-color: #b1b3b8;
-        }
+      .el-icon {
+        font-size: 14px;
+        color: #909399;
       }
     }
   }
@@ -1716,24 +1709,28 @@ onMounted(async () => {
   }
 
   .dialog-header {
-    padding: 16px !important;
+    padding: 12px !important;
+
+    .header-content {
+      flex-direction: column;
+      align-items: stretch;
+      gap: 12px;
+    }
 
     .carrier-info {
-      flex-direction: column;
-      align-items: flex-start;
       gap: 8px;
 
       .carrier-tags {
-        width: 100%;
+        flex-wrap: wrap;
       }
     }
 
     .route-summary {
-      flex-direction: column;
       gap: 8px;
+      justify-content: flex-start;
 
-      .el-tag {
-        justify-content: center;
+      .info-tag {
+        font-size: 12px;
       }
     }
   }
