@@ -408,13 +408,30 @@
         </div>
 
         <el-table
-          :data="selectedGroup.schedules || []"
+          :data="getSortedSchedules(selectedGroup.schedules)"
           border
           stripe
           max-height="400"
         >
           <el-table-column prop="vessel" label="船名" min-width="120" />
           <el-table-column prop="voyage" label="航次" width="100" />
+          <el-table-column label="截关时间" width="120">
+            <template #default="scope">
+              <div v-if="permissionStore.canEditVesselInfo && scope.row.vessel_info?.id">
+                <el-date-picker
+                  :model-value="getEditValue(scope.row, 'cut_off_time')"
+                  type="date"
+                  size="small"
+                  format="YYYY-MM-DD"
+                  value-format="YYYY-MM-DD"
+                  @update:model-value="updateVesselField(scope.row, 'cut_off_time', $event)"
+                  placeholder="截关时间"
+                  clearable
+                />
+              </div>
+              <span v-else>{{ scope.row.vessel_info?.cut_off_time || '-' }}</span>
+            </template>
+          </el-table-column>
           <el-table-column prop="etd" label="开船时间" width="120">
             <template #default="scope">
               <span>{{ formatDate(scope.row.etd) }}</span>
@@ -442,49 +459,32 @@
               <span v-else>{{ scope.row.vessel_info?.price || '-' }}</span>
             </template>
           </el-table-column>
-          <el-table-column label="20尺现舱" width="150">
+          <el-table-column label="20尺现舱" width="100">
             <template #default="scope">
               <div v-if="permissionStore.canEditVesselInfo && scope.row.vessel_info?.id">
                 <el-input
                   :model-value="getEditValue(scope.row, 'gp_20')"
                   size="small"
                   @input="updateVesselField(scope.row, 'gp_20', $event)"
-                  placeholder="20尺现舱"
+                  placeholder="20尺"
                   maxlength="50"
                 />
               </div>
               <span v-else>{{ scope.row.vessel_info?.gp_20 || '-' }}</span>
             </template>
           </el-table-column>
-          <el-table-column label="40尺现舱" width="150">
+          <el-table-column label="40尺现舱" width="100">
             <template #default="scope">
               <div v-if="permissionStore.canEditVesselInfo && scope.row.vessel_info?.id">
                 <el-input
                   :model-value="getEditValue(scope.row, 'hq_40')"
                   size="small"
                   @input="updateVesselField(scope.row, 'hq_40', $event)"
-                  placeholder="40尺现舱"
+                  placeholder="40尺"
                   maxlength="50"
                 />
               </div>
               <span v-else>{{ scope.row.vessel_info?.hq_40 || '-' }}</span>
-            </template>
-          </el-table-column>
-          <el-table-column label="截关时间" width="160">
-            <template #default="scope">
-              <div v-if="permissionStore.canEditVesselInfo && scope.row.vessel_info?.id">
-                <el-date-picker
-                  :model-value="getEditValue(scope.row, 'cut_off_time')"
-                  type="date"
-                  size="small"
-                  format="YYYY-MM-DD"
-                  value-format="YYYY-MM-DD"
-                  @update:model-value="updateVesselField(scope.row, 'cut_off_time', $event)"
-                  placeholder="截关时间"
-                  clearable
-                />
-              </div>
-              <span v-else>{{ scope.row.vessel_info?.cut_off_time || '-' }}</span>
             </template>
           </el-table-column>
           <el-table-column label="本地费用" width="100" align="center">
@@ -724,6 +724,18 @@ const filteredPolPorts = computed(() => {
 const filteredPodPorts = computed(() => {
   return searchPorts(podSearchValue.value)
 })
+
+// 按开船时间排序的航线数据
+const getSortedSchedules = (schedules) => {
+  if (!schedules || !Array.isArray(schedules)) return []
+
+  return [...schedules].sort((a, b) => {
+    // 将日期字符串转换为Date对象进行比较
+    const dateA = new Date(a.etd || '9999-12-31')
+    const dateB = new Date(b.etd || '9999-12-31')
+    return dateA - dateB
+  })
+}
 
 // 工具函数
 const getPortName = (code) => {
