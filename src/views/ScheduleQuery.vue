@@ -237,7 +237,7 @@
             :key="group.group_id || index"
             class="group-table-section"
           >
-            <!-- 分组标题 - 优化为卡片式布局 -->
+            <!-- 分组标题 - 专业简洁布局 -->
             <div class="group-header">
               <div class="header-main">
                 <div class="carrier-section">
@@ -249,8 +249,6 @@
                     <el-tag
                       v-for="code in getDisplayCarrierCodes(group)"
                       :key="code"
-                      type="primary"
-                      size="large"
                       class="carrier-tag"
                     >
                       {{ code }}
@@ -259,29 +257,18 @@
                 </div>
 
                 <div class="schedule-info">
-                  <div class="info-item">
-                    <span class="info-label">
-                      <el-icon><Calendar /></el-icon>
-                      计划开船
-                    </span>
-                    <span class="info-value">{{ getWeekdayText(group.plan_open) }}</span>
-                  </div>
-
-                  <div class="info-item">
-                    <span class="info-label">
-                      <el-icon><Clock /></el-icon>
-                      航程时间
-                    </span>
-                    <span class="info-value">{{ group.plan_duration }}天</span>
-                  </div>
-
-                  <div class="info-item">
-                    <span class="info-label">
-                      <el-icon><List /></el-icon>
-                      航线数量
-                    </span>
-                    <span class="info-value">{{ group.schedules?.length || 0 }}</span>
-                  </div>
+                  <span class="info-item">
+                    <el-icon><Calendar /></el-icon>
+                    计划开船：{{ getWeekdayText(group.plan_open) }}
+                  </span>
+                  <span class="info-item">
+                    <el-icon><Clock /></el-icon>
+                    航程时间：{{ group.plan_duration }}天
+                  </span>
+                  <span class="info-item">
+                    <el-icon><List /></el-icon>
+                    航线数量：{{ group.schedules?.length || 0 }}
+                  </span>
                 </div>
               </div>
             </div>
@@ -1486,10 +1473,10 @@ onMounted(async () => {
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 
     .group-header {
-      margin-bottom: 20px;
+      margin-bottom: 16px;
       background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-      border-radius: 12px;
-      padding: 20px;
+      border-radius: 8px;
+      padding: 12px 16px;
       border: 1px solid #dee2e6;
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 
@@ -1497,51 +1484,48 @@ onMounted(async () => {
         display: flex;
         align-items: center;
         justify-content: space-between;
-        gap: 24px;
+        gap: 16px;
         flex-wrap: wrap;
       }
 
       .carrier-section {
         display: flex;
         align-items: center;
-        gap: 16px;
-        flex: 1;
-        min-width: 200px;
+        gap: 12px;
 
         .section-label {
           display: flex;
           align-items: center;
-          gap: 8px;
-          font-size: 16px;
+          gap: 6px;
+          font-size: 14px;
           font-weight: 600;
           color: #333;
           white-space: nowrap;
 
           .el-icon {
-            color: #409eff;
-            font-size: 18px;
+            color: #606266;
+            font-size: 16px;
           }
         }
 
         .carrier-tags {
           display: flex;
-          gap: 8px;
+          gap: 6px;
           flex-wrap: wrap;
 
           .carrier-tag {
-            font-weight: 700;
-            border-radius: 8px;
-            padding: 8px 16px;
-            background: linear-gradient(135deg, #409eff 0%, #67c23a 100%);
-            border: none;
-            color: white;
-            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
-            box-shadow: 0 2px 8px rgba(64, 158, 255, 0.3);
-            transition: all 0.3s ease;
+            font-weight: 600;
+            border-radius: 4px;
+            padding: 4px 12px;
+            background: #f4f4f5;
+            border: 1px solid #d3d4d6;
+            color: #606266;
+            font-size: 13px;
+            transition: all 0.2s ease;
 
             &:hover {
-              transform: translateY(-2px);
-              box-shadow: 0 4px 12px rgba(64, 158, 255, 0.4);
+              background: #e1e3e9;
+              border-color: #b1b3b8;
             }
           }
         }
@@ -1549,36 +1533,21 @@ onMounted(async () => {
 
       .schedule-info {
         display: flex;
-        gap: 24px;
+        gap: 20px;
+        align-items: center;
         flex-wrap: wrap;
 
         .info-item {
           display: flex;
-          flex-direction: column;
           align-items: center;
-          gap: 6px;
-          min-width: 80px;
+          gap: 4px;
+          font-size: 13px;
+          color: #606266;
+          white-space: nowrap;
 
-          .info-label {
-            display: flex;
-            align-items: center;
-            gap: 4px;
-            font-size: 12px;
-            color: #666;
-            font-weight: 500;
-            white-space: nowrap;
-
-            .el-icon {
-              font-size: 14px;
-              color: #909399;
-            }
-          }
-
-          .info-value {
-            font-size: 16px;
-            font-weight: 700;
-            color: #333;
-            text-align: center;
+          .el-icon {
+            font-size: 14px;
+            color: #909399;
           }
         }
       }
@@ -1606,8 +1575,8 @@ onMounted(async () => {
     margin-bottom: 16px;
 
     .carrier-icon {
-      font-size: 20px;
-      color: #409eff;
+      font-size: 18px;
+      color: #606266;
     }
 
     .carrier-label {
@@ -1623,17 +1592,18 @@ onMounted(async () => {
       flex-wrap: wrap;
 
              .carrier-tag {
-         font-weight: 700;
-         border-radius: 6px;
-         padding: 8px 16px;
-         box-shadow: 0 2px 4px rgba(64, 158, 255, 0.2);
-         color: white;
-         text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+         font-weight: 600;
+         border-radius: 4px;
+         padding: 6px 14px;
+         background: #f4f4f5;
+         border: 1px solid #d3d4d6;
+         color: #606266;
          font-size: 14px;
+         transition: all 0.2s ease;
 
          &:hover {
-           transform: translateY(-1px);
-           box-shadow: 0 4px 8px rgba(64, 158, 255, 0.3);
+           background: #e1e3e9;
+           border-color: #b1b3b8;
          }
        }
     }
@@ -1648,42 +1618,39 @@ onMounted(async () => {
       display: flex;
       align-items: center;
       gap: 6px;
-      padding: 10px 16px;
-      border-radius: 8px;
+      padding: 8px 14px;
+      border-radius: 6px;
       font-weight: 500;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-      transition: all 0.3s ease;
+      background: #f4f4f5;
+      border: 1px solid #d3d4d6;
+      color: #606266;
+      transition: all 0.2s ease;
 
       &:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        background: #e1e3e9;
+        border-color: #b1b3b8;
       }
 
              .el-icon {
-         font-size: 16px;
-         color: white;
-         filter: drop-shadow(1px 1px 2px rgba(0, 0, 0, 0.3));
+         font-size: 14px;
+         color: #909399;
        }
 
-      &.el-tag--success {
-        background: linear-gradient(135deg, #67c23a 0%, #85ce61 100%);
-        border-color: #67c23a;
-        color: white;
-        text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
-      }
-
-      &.el-tag--warning {
-        background: linear-gradient(135deg, #e6a23c 0%, #ebb563 100%);
-        border-color: #e6a23c;
-        color: white;
-        text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
-      }
-
+      &.el-tag--success,
+      &.el-tag--warning,
       &.el-tag--info {
-        background: linear-gradient(135deg, #909399 0%, #a6a9ad 100%);
-        border-color: #909399;
-        color: white;
-        text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+        background: #f4f4f5;
+        border-color: #d3d4d6;
+        color: #606266;
+
+        .el-icon {
+          color: #909399;
+        }
+
+        &:hover {
+          background: #e1e3e9;
+          border-color: #b1b3b8;
+        }
       }
     }
   }
@@ -1721,40 +1688,28 @@ onMounted(async () => {
     padding: 16px !important;
 
     .group-header {
-      padding: 16px !important;
+      padding: 12px !important;
 
       .header-main {
         flex-direction: column;
         align-items: stretch;
-        gap: 16px;
+        gap: 12px;
       }
 
       .carrier-section {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 12px;
-        min-width: auto;
+        gap: 8px;
 
         .carrier-tags {
-          width: 100%;
-          justify-content: flex-start;
+          flex-wrap: wrap;
         }
       }
 
       .schedule-info {
-        gap: 16px;
-        justify-content: space-around;
+        gap: 12px;
+        flex-wrap: wrap;
 
         .info-item {
-          min-width: 60px;
-
-          .info-label {
-            font-size: 11px;
-          }
-
-          .info-value {
-            font-size: 14px;
-          }
+          font-size: 12px;
         }
       }
     }
