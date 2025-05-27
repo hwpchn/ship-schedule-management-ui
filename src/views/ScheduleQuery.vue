@@ -432,14 +432,18 @@
               <span v-else>{{ scope.row.vessel_info?.cut_off_time || '-' }}</span>
             </template>
           </el-table-column>
-          <el-table-column prop="etd" label="开船时间" width="120">
+          <el-table-column prop="etd" label="开船时间" width="130">
             <template #default="scope">
-              <span>{{ formatDate(scope.row.etd) }}</span>
+              <el-tag class="date-tag etd-tag" size="small">
+                {{ formatDate(scope.row.etd) }}
+              </el-tag>
             </template>
           </el-table-column>
-          <el-table-column prop="eta" label="到达时间" width="120">
+          <el-table-column prop="eta" label="到达时间" width="130">
             <template #default="scope">
-              <span>{{ formatDate(scope.row.eta) }}</span>
+              <el-tag class="date-tag eta-tag" size="small">
+                {{ formatDate(scope.row.eta) }}
+              </el-tag>
             </template>
           </el-table-column>
           <el-table-column label="价格" width="130">
@@ -758,7 +762,11 @@ const getPortName = (code) => {
 const formatDate = (dateStr) => {
   if (!dateStr) return '-'
   try {
-    return new Date(dateStr).toLocaleDateString('zh-CN')
+    const date = new Date(dateStr)
+    const year = date.getFullYear()
+    const month = String(date.getMonth() + 1).padStart(2, '0')
+    const day = String(date.getDate()).padStart(2, '0')
+    return `${year}/${month}/${day}`
   } catch {
     return dateStr
   }
@@ -1658,6 +1666,30 @@ onMounted(async () => {
         color: #909399;
       }
     }
+  }
+}
+
+/* 日期标签样式 */
+.date-tag {
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+  font-weight: 500;
+  border-radius: 4px;
+  padding: 4px 8px;
+  font-size: 12px;
+  border: 1px solid #d3d4d6;
+  background: #f8f9fa;
+  color: #495057;
+
+  &.etd-tag {
+    background: #e8f4fd;
+    border-color: #b3d8f2;
+    color: #2c5aa0;
+  }
+
+  &.eta-tag {
+    background: #f0f9e8;
+    border-color: #c3e88d;
+    color: #4a7c59;
   }
 }
 
