@@ -9,15 +9,15 @@
         <span class="title">船期管理系统 - 船期查询</span>
       </div>
       <div class="header-right">
-        <el-button 
-          link 
+        <el-button
+          link
           @click="goToDashboard"
           class="back-btn"
         >
           <el-icon><ArrowLeft /></el-icon>
           返回首页
         </el-button>
-        
+
         <el-dropdown trigger="click">
           <span class="user-info">
             <el-avatar :size="32" src="/default-avatar.png">
@@ -51,14 +51,14 @@
                 <span>船期查询</span>
               </div>
             </template>
-            
-            <el-form 
-              :model="queryForm" 
+
+            <el-form
+              :model="queryForm"
               label-width="80px"
               @submit.prevent="handleSearch"
             >
               <el-form-item label="起运港" required>
-                <el-select 
+                <el-select
                   v-model="selectedCity"
                   placeholder="请输入港口名称或国家搜索"
                   style="width: 100%"
@@ -68,18 +68,18 @@
                   :remote-method="handlePolSearch"
                   @change="handlePolSelect"
                 >
-                  <el-option 
-                    v-for="port in filteredPolPorts" 
-                    :key="port.code" 
-                    :label="port.name" 
-                    :value="port.code" 
+                  <el-option
+                    v-for="port in filteredPolPorts"
+                    :key="port.code"
+                    :label="port.name"
+                    :value="port.code"
                   />
                 </el-select>
               </el-form-item>
-              
+
               <el-form-item label="目的港" required>
-                <el-select 
-                  v-model="queryForm.podCd" 
+                <el-select
+                  v-model="queryForm.podCd"
                   placeholder="请输入港口名称或国家搜索"
                   style="width: 100%"
                   filterable
@@ -87,19 +87,19 @@
                   remote
                   :remote-method="handlePodSearch"
                 >
-                  <el-option 
-                    v-for="port in filteredPodPorts" 
-                    :key="port.code" 
-                    :label="port.name" 
-                    :value="port.code" 
+                  <el-option
+                    v-for="port in filteredPodPorts"
+                    :key="port.code"
+                    :label="port.name"
+                    :value="port.code"
                   />
                 </el-select>
               </el-form-item>
-              
+
               <el-form-item>
-                <el-button 
-                  type="primary" 
-                  @click="handleSearch" 
+                <el-button
+                  type="primary"
+                  @click="handleSearch"
                   :loading="loading"
                   :disabled="!selectedCity || !queryForm.podCd"
                   style="width: 100%"
@@ -109,9 +109,9 @@
                   查询船期
                 </el-button>
               </el-form-item>
-              
+
               <el-form-item>
-                <el-button 
+                <el-button
                   @click="resetQuery"
                   style="width: 100%"
                 >
@@ -129,10 +129,10 @@
           <div v-if="bannerItems.length === 0" style="padding: 20px; text-align: center; color: #666;">
             海报数据加载中...
           </div>
-          
-          <el-carousel 
+
+          <el-carousel
             v-else
-            height="300px" 
+            height="300px"
             indicator-position="outside"
             :interval="4000"
             arrow="always"
@@ -142,10 +142,10 @@
                 <div class="banner-content">
                   <h3>{{ banner.title }}</h3>
                   <p>{{ banner.description }}</p>
-                  <el-button 
-                    v-if="banner.buttonText" 
-                    type="primary" 
-                    size="large" 
+                  <el-button
+                    v-if="banner.buttonText"
+                    type="primary"
+                    size="large"
                     @click="banner.action && banner.action()"
                   >
                     {{ banner.buttonText }}
@@ -169,7 +169,7 @@
           </div>
           <div class="port-buttons" v-if="currentTerminals.length > 1">
             <el-button
-              v-for="terminal in currentTerminals" 
+              v-for="terminal in currentTerminals"
               :key="terminal.code"
               :type="selectedTerminal === terminal.code ? 'primary' : 'default'"
               :plain="selectedTerminal !== terminal.code"
@@ -203,7 +203,7 @@
             :closable="false"
             show-icon
           />
-          
+
           <!-- 船司筛选 -->
           <div v-if="groupsData.length > 0" class="carrier-filter">
             <el-select
@@ -232,29 +232,63 @@
 
         <!-- 数据表格展示 -->
         <div v-if="filteredGroupsData.length > 0" class="tables-container">
-          <div 
-            v-for="(group, index) in filteredGroupsData" 
+          <div
+            v-for="(group, index) in filteredGroupsData"
             :key="group.group_id || index"
             class="group-table-section"
           >
-            <!-- 分组标题 -->
+            <!-- 分组标题 - 优化为卡片式布局 -->
             <div class="group-header">
-              <h3>
-                船司: 
-                <span 
-                  v-for="(code, idx) in getDisplayCarrierCodes(group)" 
-                  :key="code"
-                  class="carrier-code"
-                >
-                  {{ code }}<span v-if="idx < getDisplayCarrierCodes(group).length - 1">, </span>
-                </span>
-              </h3>
-              <p>计划开船: {{ getWeekdayText(group.plan_open) }} | 航程时间: {{ group.plan_duration }}天 | 航线数量: {{ group.schedules?.length || 0 }}</p>
+              <div class="header-main">
+                <div class="carrier-section">
+                  <span class="section-label">
+                    <el-icon><Ship /></el-icon>
+                    船司
+                  </span>
+                  <div class="carrier-tags">
+                    <el-tag
+                      v-for="code in getDisplayCarrierCodes(group)"
+                      :key="code"
+                      type="primary"
+                      size="large"
+                      class="carrier-tag"
+                    >
+                      {{ code }}
+                    </el-tag>
+                  </div>
+                </div>
+
+                <div class="schedule-info">
+                  <div class="info-item">
+                    <span class="info-label">
+                      <el-icon><Calendar /></el-icon>
+                      计划开船
+                    </span>
+                    <span class="info-value">{{ getWeekdayText(group.plan_open) }}</span>
+                  </div>
+
+                  <div class="info-item">
+                    <span class="info-label">
+                      <el-icon><Clock /></el-icon>
+                      航程时间
+                    </span>
+                    <span class="info-value">{{ group.plan_duration }}天</span>
+                  </div>
+
+                  <div class="info-item">
+                    <span class="info-label">
+                      <el-icon><List /></el-icon>
+                      航线数量
+                    </span>
+                    <span class="info-value">{{ group.schedules?.length || 0 }}</span>
+                  </div>
+                </div>
+              </div>
             </div>
 
             <!-- 船司表格 -->
-            <el-table 
-              :data="getFilteredCarrierData(group)" 
+            <el-table
+              :data="getFilteredCarrierData(group)"
               border
               class="group-table"
             >
@@ -278,7 +312,7 @@
                 <template #default="{ row }">
                   {{ row.is_has_hq_40 === '有现舱' ? '有舱' : '无舱' }}
                 </template>
-              </el-table-column> 
+              </el-table-column>
               <el-table-column label="价格" width="120">
                 <template #default>
                   {{ group.cabin_price || '询价' }}
@@ -291,10 +325,10 @@
               </el-table-column>
               <el-table-column label="本地费用" width="100">
                 <template #default>
-                  <el-button 
-                    type="primary" 
+                  <el-button
+                    type="primary"
                     link
-                    size="small" 
+                    size="small"
                     @click="openLocalFeeDialog(group)"
                   >
                     查看
@@ -303,9 +337,9 @@
               </el-table-column>
               <el-table-column label="操作">
                 <template #default>
-                  <el-button 
-                    type="primary" 
-                    size="small" 
+                  <el-button
+                    type="primary"
+                    size="small"
                     @click="openScheduleDetails(group)"
                   >
                     查看详情
@@ -318,17 +352,17 @@
 
         <!-- 无数据状态 -->
         <div v-else-if="groupsData.length === 0" class="no-data">
-          <el-empty 
+          <el-empty
             description="未找到匹配的航线信息"
             :image-size="120"
           >
             <el-button type="primary" @click="resetQuery">重新查询</el-button>
           </el-empty>
         </div>
-        
+
         <!-- 筛选后无数据状态 -->
         <div v-else-if="selectedCarrier && filteredGroupsData.length === 0" class="no-data">
-          <el-empty 
+          <el-empty
             description="该船司暂无航线信息"
             :image-size="120"
           >
@@ -339,7 +373,7 @@
 
       <!-- 初始状态 -->
       <div v-else class="initial-state">
-        <el-empty 
+        <el-empty
           description="请选择起运港和目的港进行查询"
           :image-size="150"
         />
@@ -359,8 +393,8 @@
             <el-icon class="carrier-icon"><Ship /></el-icon>
             <span class="carrier-label">船司：</span>
             <div class="carrier-tags">
-              <el-tag 
-                v-for="carrier in getDisplayCarrierCodes(selectedGroup)" 
+              <el-tag
+                v-for="carrier in getDisplayCarrierCodes(selectedGroup)"
                 :key="carrier"
                 type="primary"
                 size="large"
@@ -385,9 +419,9 @@
             </el-tag>
           </div>
         </div>
-        
-        <el-table 
-          :data="selectedGroup.schedules || []" 
+
+        <el-table
+          :data="selectedGroup.schedules || []"
           border
           stripe
           max-height="400"
@@ -468,26 +502,26 @@
           </el-table-column>
           <el-table-column label="本地费用" width="100" align="center">
             <template #default="scope">
-              <el-button 
-                type="primary" 
+              <el-button
+                type="primary"
                 link
-                size="small" 
+                size="small"
                 @click="openLocalFeeDialogForVessel(scope.row)"
               >
                 查看
               </el-button>
             </template>
           </el-table-column>
-          <el-table-column 
+          <el-table-column
             v-if="permissionStore.canEditVesselInfo"
-            label="操作" 
-            width="100" 
+            label="操作"
+            width="100"
             fixed="right"
           >
             <template #default="scope">
-              <el-button 
-                type="primary" 
-                size="small" 
+              <el-button
+                type="primary"
+                size="small"
                 @click="openEditDialog(scope.row)"
               >
                 编辑
@@ -495,7 +529,7 @@
             </template>
           </el-table-column>
         </el-table>
-        
+
         <!-- 批量操作按钮 -->
         <div v-if="permissionStore.canEditVesselInfo && pendingUpdates.length > 0" class="batch-actions">
           <el-alert
@@ -637,7 +671,7 @@ const getResultStatsText = () => {
   if (groupsData.value.length === 0) {
     return `查询路线：${getPortName(queryForm.polCd)} → ${getPortName(queryForm.podCd)}，未找到匹配的航线`
   }
-  
+
   const totalSchedules = groupsData.value.reduce((sum, group) => sum + (group.schedules?.length || 0), 0)
   return `查询路线：${getPortName(queryForm.polCd)} → ${getPortName(queryForm.podCd)}，找到 ${groupsData.value.length} 个分组，共 ${totalSchedules} 个航次`
 }
@@ -658,7 +692,7 @@ const filteredGroupsData = computed(() => {
   if (!selectedCarrier.value) {
     return groupsData.value
   }
-  
+
   return groupsData.value.filter(group => {
     return group.carrier_codes && group.carrier_codes.includes(selectedCarrier.value)
   })
@@ -682,20 +716,20 @@ const filteredPolPorts = computed(() => {
     // 如果没有搜索值，显示中国城市港口
     return cityPorts.value
   }
-  
+
   // 搜索所有港口
   const searchResults = searchPorts(polSearchValue.value)
-  
+
   // 合并中国城市港口和搜索结果
   const combinedResults = [...cityPorts.value]
-  
+
   searchResults.forEach(port => {
     // 避免重复添加中国港口
     if (!port.parentCity) {
       combinedResults.push(port)
     }
   })
-  
+
   return combinedResults
 })
 
@@ -710,7 +744,7 @@ const getPortName = (code) => {
   const allPortsList = searchPorts('')
   const port = allPortsList.find(p => p.code === code)
   if (port) return port.name
-  
+
   // 如果没找到，检查是否是中国城市港口的码头
   for (const city of cityPorts.value) {
     if (city.terminals) {
@@ -718,7 +752,7 @@ const getPortName = (code) => {
       if (terminal) return terminal.name
     }
   }
-  
+
   return code
 }
 
@@ -748,7 +782,7 @@ const getUpdateDescription = (update) => {
     'hq_40': '40尺现舱',
     'cut_off_time': '截关时间'
   }
-  
+
   const changes = []
   Object.keys(update).forEach(key => {
     if (key !== 'id') {
@@ -757,7 +791,7 @@ const getUpdateDescription = (update) => {
       changes.push(`${fieldName}: ${value || '空'}`)
     }
   })
-  
+
   return changes.join(', ')
 }
 
@@ -777,9 +811,9 @@ const handlePolSelect = (portCode) => {
     queryForm.polCd = ''
     return
   }
-  
+
   selectedCity.value = portCode
-  
+
   // 检查是否是中国城市港口
   const city = cityPorts.value.find(c => c.code === portCode)
   if (city && city.terminals && city.terminals.length > 0) {
@@ -796,7 +830,7 @@ const handlePolSelect = (portCode) => {
 const handleTerminalSelect = (terminalCode) => {
   selectedTerminal.value = terminalCode
   queryForm.polCd = terminalCode
-  
+
   // 如果已经搜索过，自动重新搜索
   if (searched.value) {
     handleSearch()
@@ -809,18 +843,18 @@ const handleSearch = async () => {
     ElMessage.warning('请选择起运港和目的港')
     return
   }
-  
+
   if (queryForm.polCd === queryForm.podCd) {
     ElMessage.warning('起运港和目的港不能相同')
     return
   }
-  
+
   loading.value = true
   searched.value = true
-  
+
   try {
     const result = await getCabinGrouping(queryForm.polCd, queryForm.podCd)
-    
+
     // 处理不同的数据结构
     let groups = []
     if (result && result.groups) {
@@ -832,10 +866,10 @@ const handleSearch = async () => {
     } else if (result && result.data && Array.isArray(result.data)) {
       groups = result.data
     }
-    
+
     groupsData.value = groups
     selectedCarrier.value = '' // 清除之前的船司筛选
-    
+
     if (groupsData.value.length === 0) {
       ElMessage.info('未找到匹配的航线信息，请尝试其他港口组合')
     } else {
@@ -843,7 +877,7 @@ const handleSearch = async () => {
     }
       } catch (error) {
       console.error('❌ 查询失败:', error)
-      
+
       // 处理不同类型的错误
       if (error.response?.status === 403) {
         ElMessage.error('您没有查询船期的权限，请联系管理员')
@@ -854,7 +888,7 @@ const handleSearch = async () => {
       } else {
         ElMessage.error('查询失败: ' + (error.message || '网络错误，请重试'))
       }
-      
+
       groupsData.value = []
     } finally {
       loading.value = false
@@ -877,7 +911,7 @@ const resetQuery = () => {
 // 船司筛选相关方法
 const handleCarrierFilter = (carrier) => {
   selectedCarrier.value = carrier
-  
+
   if (carrier) {
     ElMessage.success(`已筛选船司: ${carrier}`)
   } else {
@@ -914,7 +948,7 @@ const getDisplayCarrierCodes = (group) => {
 
 const refreshData = async () => {
   if (searched.value && queryForm.polCd && queryForm.podCd) {
-    
+
     // 如果没有待保存的更改，直接刷新
     if (pendingUpdates.value.length === 0) {
       await handleSearch()
@@ -922,9 +956,9 @@ const refreshData = async () => {
       // 如果有待保存的更改，保存编辑状态
       const currentEditingData = { ...editingData.value }
       const currentPendingUpdates = [...pendingUpdates.value ]
-      
+
       await handleSearch()
-      
+
       // 恢复编辑状态
       editingData.value = currentEditingData
       pendingUpdates.value = currentPendingUpdates
@@ -943,14 +977,14 @@ const openEditDialog = (vessel) => {
     ElMessage.warning('您没有编辑船舶信息的权限')
     return
   }
-  
+
   selectedVessel.value = vessel
   editDialogVisible.value = true
 }
 
 // 本地费用相关
 const openLocalFeeDialog = (group) => {
-  
+
   // 从分组数据中获取起运港和目的港信息
   if (group.schedules && group.schedules.length > 0) {
     const firstSchedule = group.schedules[0]
@@ -967,7 +1001,7 @@ const openLocalFeeDialog = (group) => {
       vesselName: ''
     }
   }
-  
+
   localFeeDialogVisible.value = true
 }
 
@@ -978,7 +1012,7 @@ const openLocalFeeDialogForVessel = (vessel) => {
     podCd: vessel.podCd || queryForm.podCd,
     vesselName: vessel.carriercd || vessel.vessel
   }
-  
+
   localFeeDialogVisible.value = true
 }
 
@@ -990,12 +1024,12 @@ const handleVesselSaved = (data) => {
 const getEditValue = (vessel, field) => {
   const vesselInfoId = vessel.vessel_info?.id
   if (!vesselInfoId) return ''
-  
+
   // 如果有正在编辑的值，返回编辑值
   if (editingData.value[vesselInfoId] && editingData.value[vesselInfoId][field] !== undefined) {
     return editingData.value[vesselInfoId][field]
   }
-  
+
   // 否则返回原始值
   return vessel.vessel_info[field] || ''
 }
@@ -1004,17 +1038,17 @@ const getEditValue = (vessel, field) => {
 const getEditValueRef = (vessel, field) => {
   const vesselInfoId = vessel.vessel_info?.id
   if (!vesselInfoId) return ref('')
-  
+
   // 初始化编辑数据
   if (!editingData.value[vesselInfoId]) {
     editingData.value[vesselInfoId] = {}
   }
-  
+
   // 如果还没有编辑值，使用原始值初始化
   if (editingData.value[vesselInfoId][field] === undefined) {
     editingData.value[vesselInfoId][field] = vessel.vessel_info[field] || ''
   }
-  
+
   return computed({
     get: () => editingData.value[vesselInfoId]?.[field] || '',
     set: (value) => {
@@ -1022,7 +1056,7 @@ const getEditValueRef = (vessel, field) => {
         editingData.value[vesselInfoId] = {}
       }
       editingData.value[vesselInfoId][field] = value
-      
+
       // 添加到待更新列表
       const existingIndex = pendingUpdates.value.findIndex(item => item.id === vesselInfoId)
       if (existingIndex >= 0) {
@@ -1043,18 +1077,18 @@ const updateVesselField = (vessel, field, value) => {
     ElMessage.error('缺少船舶信息ID，无法编辑')
     return
   }
-  
+
   // 更新编辑状态
   if (!editingData.value[vesselInfoId]) {
     editingData.value[vesselInfoId] = {}
   }
   editingData.value[vesselInfoId][field] = value
-  
+
   // 同时更新原始数据显示
   if (vessel.vessel_info) {
     vessel.vessel_info[field] = value
   }
-  
+
   // 添加到待更新列表
   const existingIndex = pendingUpdates.value.findIndex(item => item.id === vesselInfoId)
   if (existingIndex >= 0) {
@@ -1077,20 +1111,20 @@ const saveUpdates = async () => {
     ElMessage.info('没有待保存的更改')
     return
   }
-  
+
   loading.value = true
-  
+
   try {
     const { updateVesselInfo } = await import('@/api/vessel')
     let successCount = 0
     let errorCount = 0
     const errors = []
-    
+
     // 逐个更新，使用与弹窗编辑相同的API
     for (const update of pendingUpdates.value) {
       try {
         const { id, ...updateData } = update
-        
+
         const result = await updateVesselInfo(id, updateData)
         successCount++
       } catch (error) {
@@ -1098,7 +1132,7 @@ const saveUpdates = async () => {
         errorCount++
       }
     }
-    
+
     // 显示结果
     if (successCount > 0) {
       if (errorCount === 0) {
@@ -1106,17 +1140,17 @@ const saveUpdates = async () => {
       } else {
         ElMessage.warning(`成功更新 ${successCount} 条记录，${errorCount} 条失败`)
       }
-      
+
       // 清空待更新列表
       pendingUpdates.value = []
       editingData.value = {}
-      
+
       // 刷新数据
       await refreshData()
     } else {
       ElMessage.error('所有更新都失败了')
     }
-    
+
   } catch (error) {
     ElMessage.error('保存失败: ' + (error.message || '未知错误'))
   } finally {
@@ -1145,7 +1179,7 @@ const handleLogout = async () => {
         type: 'warning',
       }
     )
-    
+
     await authStore.logout()
     router.push('/login')
   } catch (error) {
@@ -1159,17 +1193,17 @@ onMounted(async () => {
   if (!permissionStore.isPermissionsInitialized) {
     await permissionStore.loadUserPermissions()
   }
-  
+
   // 初始化港口数据
   allPorts.value = searchPorts('')
   filteredPorts.value = allPorts.value
-  
+
   // 初始化默认值
   selectedCity.value = 'SHENZHEN'
   selectedTerminal.value = 'CNSHK'
   queryForm.polCd = 'CNSHK'
   queryForm.podCd = 'INMAA' // 默认目的港
-  
+
   // 初始化搜索结果
   polSearchValue.value = ''
   podSearchValue.value = ''
@@ -1191,35 +1225,35 @@ onMounted(async () => {
   justify-content: space-between;
   padding: 0 24px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  
+
   .header-left {
     display: flex;
     align-items: center;
     gap: 12px;
-    
+
     .title {
       font-size: 18px;
       font-weight: 600;
       color: #333;
     }
   }
-  
+
   .header-right {
     display: flex;
     align-items: center;
     gap: 16px;
-    
+
     .back-btn {
       display: flex;
       align-items: center;
       gap: 4px;
       color: #409eff;
-      
+
       &:hover {
         background: rgba(64, 158, 255, 0.1);
       }
     }
-    
+
     .user-info {
       display: flex;
       align-items: center;
@@ -1228,16 +1262,16 @@ onMounted(async () => {
       border-radius: 8px;
       cursor: pointer;
       transition: background 0.3s ease;
-      
+
       &:hover {
         background: #f5f5f5;
       }
-      
+
       .username {
         font-size: 14px;
         color: #333;
       }
-      
+
       .arrow {
         font-size: 12px;
         color: #666;
@@ -1263,10 +1297,10 @@ onMounted(async () => {
 .search-section {
   flex: 1;
   min-width: 320px;
-  
+
   .search-card {
     height: 100%;
-    
+
     .search-header {
       display: flex;
       align-items: center;
@@ -1280,21 +1314,21 @@ onMounted(async () => {
   flex: 2;
   min-width: 400px;
   height: 300px;
-  
+
   :deep(.el-carousel) {
     height: 100%;
     border-radius: 8px;
     overflow: hidden;
   }
-  
+
   :deep(.el-carousel__container) {
     height: 100%;
   }
-  
+
   :deep(.el-carousel__item) {
     height: 100%;
   }
-  
+
   .banner-item {
     height: 300px;
     border-radius: 8px;
@@ -1303,20 +1337,20 @@ onMounted(async () => {
     display: flex;
     align-items: center;
     justify-content: center;
-    
+
     .banner-content {
       text-align: center;
       color: white;
       padding: 20px;
       z-index: 1;
-      
+
       h3 {
         font-size: 28px;
         margin-bottom: 16px;
         font-weight: 700;
         text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
       }
-      
+
       p {
         font-size: 16px;
         margin-bottom: 20px;
@@ -1324,13 +1358,13 @@ onMounted(async () => {
         line-height: 1.6;
         text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
       }
-      
+
       .el-button {
         background: rgba(255, 255, 255, 0.2);
         border: 2px solid rgba(255, 255, 255, 0.8);
         color: white;
         backdrop-filter: blur(10px);
-        
+
         &:hover {
           background: rgba(255, 255, 255, 0.3);
           border-color: white;
@@ -1345,10 +1379,10 @@ onMounted(async () => {
 /* 面包屑区域 */
 .breadcrumb-section {
   margin: 20px 0;
-  
+
   .breadcrumb-card {
     border: 1px solid #e4e7ed;
-    
+
     .breadcrumb-header {
       display: flex;
       align-items: center;
@@ -1356,41 +1390,41 @@ onMounted(async () => {
       margin-bottom: 12px;
       font-weight: 600;
       color: #333;
-      
+
       .el-icon {
         color: #409eff;
         font-size: 16px;
       }
     }
-    
+
     .port-buttons {
       display: flex;
       gap: 12px;
       flex-wrap: wrap;
-      
+
       .port-button {
         border-radius: 8px;
         transition: all 0.3s ease;
         font-weight: 500;
         min-width: 80px;
-        
+
         &:hover {
           transform: translateY(-1px);
           box-shadow: 0 2px 8px rgba(64, 158, 255, 0.2);
         }
-        
+
         &.el-button--primary {
           background: #409eff;
           border-color: #409eff;
           box-shadow: 0 2px 8px rgba(64, 158, 255, 0.3);
           font-weight: 600;
         }
-        
+
         &.el-button--default.is-plain {
           background: #f5f7fa;
           border-color: #dcdfe6;
           color: #606266;
-          
+
           &:hover {
             background: #f0f9ff;
             color: #409eff;
@@ -1399,7 +1433,7 @@ onMounted(async () => {
         }
       }
     }
-    
+
     .single-port {
       .el-tag {
         padding: 10px 20px;
@@ -1422,18 +1456,18 @@ onMounted(async () => {
   justify-content: space-between;
   gap: 20px;
   flex-wrap: wrap;
-  
+
   .el-alert {
     flex: 1;
     min-width: 300px;
   }
-  
+
   .carrier-filter {
     display: flex;
     align-items: center;
     gap: 12px;
     flex-shrink: 0;
-    
+
     .filter-tip {
       font-size: 14px;
       color: #409eff;
@@ -1450,26 +1484,103 @@ onMounted(async () => {
     border-radius: 8px;
     padding: 20px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    
+
     .group-header {
-      margin-bottom: 16px;
-      
-      h3 {
-        margin: 0 0 8px 0;
-        color: #333;
-        font-size: 18px;
-        font-weight: 600;
-        
-        .carrier-code {
-          color: #409eff;
-          font-weight: 700;
+      margin-bottom: 20px;
+      background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+      border-radius: 12px;
+      padding: 20px;
+      border: 1px solid #dee2e6;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+
+      .header-main {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 24px;
+        flex-wrap: wrap;
+      }
+
+      .carrier-section {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        flex: 1;
+        min-width: 200px;
+
+        .section-label {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          font-size: 16px;
+          font-weight: 600;
+          color: #333;
+          white-space: nowrap;
+
+          .el-icon {
+            color: #409eff;
+            font-size: 18px;
+          }
+        }
+
+        .carrier-tags {
+          display: flex;
+          gap: 8px;
+          flex-wrap: wrap;
+
+          .carrier-tag {
+            font-weight: 700;
+            border-radius: 8px;
+            padding: 8px 16px;
+            background: linear-gradient(135deg, #409eff 0%, #67c23a 100%);
+            border: none;
+            color: white;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 2px 8px rgba(64, 158, 255, 0.3);
+            transition: all 0.3s ease;
+
+            &:hover {
+              transform: translateY(-2px);
+              box-shadow: 0 4px 12px rgba(64, 158, 255, 0.4);
+            }
+          }
         }
       }
-      
-      p {
-        margin: 0;
-        color: #666;
-        font-size: 14px;
+
+      .schedule-info {
+        display: flex;
+        gap: 24px;
+        flex-wrap: wrap;
+
+        .info-item {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 6px;
+          min-width: 80px;
+
+          .info-label {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 12px;
+            color: #666;
+            font-weight: 500;
+            white-space: nowrap;
+
+            .el-icon {
+              font-size: 14px;
+              color: #909399;
+            }
+          }
+
+          .info-value {
+            font-size: 16px;
+            font-weight: 700;
+            color: #333;
+            text-align: center;
+          }
+        }
       }
     }
   }
@@ -1487,30 +1598,30 @@ onMounted(async () => {
   background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
   border-radius: 12px;
   border: 1px solid #dee2e6;
-  
+
   .carrier-info {
     display: flex;
     align-items: center;
     gap: 12px;
     margin-bottom: 16px;
-    
+
     .carrier-icon {
       font-size: 20px;
       color: #409eff;
     }
-    
+
     .carrier-label {
       font-size: 16px;
       font-weight: 600;
       color: #333;
       min-width: 50px;
     }
-    
+
     .carrier-tags {
       display: flex;
       gap: 8px;
       flex-wrap: wrap;
-      
+
              .carrier-tag {
          font-weight: 700;
          border-radius: 6px;
@@ -1519,7 +1630,7 @@ onMounted(async () => {
          color: white;
          text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
          font-size: 14px;
-         
+
          &:hover {
            transform: translateY(-1px);
            box-shadow: 0 4px 8px rgba(64, 158, 255, 0.3);
@@ -1527,12 +1638,12 @@ onMounted(async () => {
        }
     }
   }
-  
+
   .route-summary {
     display: flex;
     gap: 12px;
     flex-wrap: wrap;
-    
+
     .el-tag {
       display: flex;
       align-items: center;
@@ -1542,32 +1653,32 @@ onMounted(async () => {
       font-weight: 500;
       box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
       transition: all 0.3s ease;
-      
+
       &:hover {
         transform: translateY(-2px);
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
       }
-      
+
              .el-icon {
          font-size: 16px;
          color: white;
          filter: drop-shadow(1px 1px 2px rgba(0, 0, 0, 0.3));
        }
-      
+
       &.el-tag--success {
         background: linear-gradient(135deg, #67c23a 0%, #85ce61 100%);
         border-color: #67c23a;
         color: white;
         text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
       }
-      
+
       &.el-tag--warning {
         background: linear-gradient(135deg, #e6a23c 0%, #ebb563 100%);
         border-color: #e6a23c;
         color: white;
         text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
       }
-      
+
       &.el-tag--info {
         background: linear-gradient(135deg, #909399 0%, #a6a9ad 100%);
         border-color: #909399;
@@ -1582,51 +1693,90 @@ onMounted(async () => {
 @media (max-width: 768px) {
   .header {
     padding: 0 16px;
-    
+
     .header-left .title {
       display: none;
     }
   }
-  
+
   .main {
     padding: 16px;
   }
-  
+
   .top-section {
     flex-direction: column;
     height: auto;
-    
+
     .search-section, .banner-section {
       flex: none;
       min-width: auto;
     }
-    
+
     .banner-section {
       height: 200px;
     }
   }
-  
+
   .group-table-section {
     padding: 16px !important;
+
+    .group-header {
+      padding: 16px !important;
+
+      .header-main {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 16px;
+      }
+
+      .carrier-section {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+        min-width: auto;
+
+        .carrier-tags {
+          width: 100%;
+          justify-content: flex-start;
+        }
+      }
+
+      .schedule-info {
+        gap: 16px;
+        justify-content: space-around;
+
+        .info-item {
+          min-width: 60px;
+
+          .info-label {
+            font-size: 11px;
+          }
+
+          .info-value {
+            font-size: 14px;
+          }
+        }
+      }
+    }
   }
-  
+
   .dialog-header {
     padding: 16px !important;
-    
+
     .carrier-info {
       flex-direction: column;
       align-items: flex-start;
       gap: 8px;
-      
+
       .carrier-tags {
         width: 100%;
       }
     }
-    
+
     .route-summary {
       flex-direction: column;
       gap: 8px;
-      
+
       .el-tag {
         justify-content: center;
       }
@@ -1637,7 +1787,7 @@ onMounted(async () => {
 /* 批量操作样式 */
 .batch-actions {
   margin-top: 20px;
-  
+
   .action-buttons {
     margin-top: 12px;
     display: flex;
@@ -1652,19 +1802,19 @@ onMounted(async () => {
       flex-direction: column;
     }
   }
-  
+
   .result-stats {
     flex-direction: column;
     align-items: stretch;
     gap: 12px;
-    
+
     .el-alert {
       min-width: auto;
     }
-    
+
     .carrier-filter {
       justify-content: space-between;
-      
+
       .filter-tip {
         font-size: 12px;
       }
