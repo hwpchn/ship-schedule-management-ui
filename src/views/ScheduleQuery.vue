@@ -157,40 +157,48 @@
         </div>
       </div>
 
-      <!-- 面包屑导航 -->
-      <div v-if="searched && selectedCity" class="breadcrumb-section">
-        <el-card shadow="never" class="breadcrumb-card">
-          <div class="breadcrumb-header">
-            <el-icon><Location /></el-icon>
-            <span v-if="currentTerminals.length > 1">{{ currentCityName }} - 选择具体港口：</span>
-            <span v-else-if="currentTerminals.length === 1">{{ currentCityName }} - 当前港口：</span>
-            <span v-else>当前选择的港口：</span>
+      <!-- 港口选择区域 -->
+      <div v-if="searched && selectedCity" class="port-selection-section">
+        <div class="port-selection-container">
+          <div class="port-header">
+            <el-icon class="location-icon"><Location /></el-icon>
+            <span class="city-name">{{ currentCityName }}</span>
+            <span v-if="currentTerminals.length > 1" class="selection-hint">选择具体港口：</span>
+            <span v-else-if="currentTerminals.length === 1" class="selection-hint">当前港口：</span>
+            <span v-else class="selection-hint">当前选择：</span>
+          </div>
 
+          <div class="port-options">
+            <!-- 多个港口选择 -->
+            <div v-if="currentTerminals.length > 1" class="port-buttons">
+              <el-button
+                v-for="terminal in currentTerminals"
+                :key="terminal.code"
+                :type="selectedTerminal === terminal.code ? 'primary' : ''"
+                :plain="selectedTerminal !== terminal.code"
+                size="default"
+                @click="handleTerminalSelect(terminal.code)"
+                class="port-button"
+              >
+                {{ terminal.name }}
+              </el-button>
+            </div>
+
+            <!-- 单个港口显示 -->
+            <div v-else-if="currentTerminals.length === 1" class="single-port">
+              <el-tag class="port-tag current-port">
+                {{ currentTerminals[0]?.name }}
+              </el-tag>
+            </div>
+
+            <!-- 其他港口显示 -->
+            <div v-else class="single-port">
+              <el-tag class="port-tag selected-port">
+                {{ getPortName(queryForm.polCd) }}
+              </el-tag>
+            </div>
           </div>
-          <div class="port-buttons" v-if="currentTerminals.length > 1">
-            <el-button
-              v-for="terminal in currentTerminals"
-              :key="terminal.code"
-              :type="selectedTerminal === terminal.code ? 'primary' : 'default'"
-              :plain="selectedTerminal !== terminal.code"
-              size="large"
-              @click="handleTerminalSelect(terminal.code)"
-              class="port-button"
-            >
-              {{ terminal.name }}
-            </el-button>
-          </div>
-          <div v-else-if="currentTerminals.length === 1" class="single-port">
-            <el-tag type="primary" size="large">
-              {{ currentTerminals[0]?.name }}
-            </el-tag>
-          </div>
-          <div v-else class="single-port">
-            <el-tag type="success" size="large">
-              {{ getPortName(queryForm.polCd) }}
-            </el-tag>
-          </div>
-        </el-card>
+        </div>
       </div>
 
       <!-- 查询结果区域 -->
@@ -1383,69 +1391,99 @@ onMounted(async () => {
   }
 }
 
-/* 面包屑区域 */
-.breadcrumb-section {
-  margin: 20px 0;
+/* 港口选择区域 */
+.port-selection-section {
+  margin: 16px 0;
 
-  .breadcrumb-card {
-    border: 1px solid #e4e7ed;
+  .port-selection-container {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    padding: 12px 16px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 
-    .breadcrumb-header {
+    .port-header {
       display: flex;
       align-items: center;
       gap: 8px;
       margin-bottom: 12px;
-      font-weight: 600;
-      color: #333;
+      font-size: 14px;
 
-      .el-icon {
-        color: #409eff;
+      .location-icon {
+        color: #606266;
         font-size: 16px;
+      }
+
+      .city-name {
+        font-weight: 600;
+        color: #333;
+      }
+
+      .selection-hint {
+        color: #606266;
+        font-size: 13px;
       }
     }
 
-    .port-buttons {
-      display: flex;
-      gap: 12px;
-      flex-wrap: wrap;
+    .port-options {
+      .port-buttons {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
 
-      .port-button {
-        border-radius: 8px;
-        transition: all 0.3s ease;
-        font-weight: 500;
-        min-width: 80px;
-
-        &:hover {
-          transform: translateY(-1px);
-          box-shadow: 0 2px 8px rgba(64, 158, 255, 0.2);
-        }
-
-        &.el-button--primary {
-          background: #409eff;
-          border-color: #409eff;
-          box-shadow: 0 2px 8px rgba(64, 158, 255, 0.3);
-          font-weight: 600;
-        }
-
-        &.el-button--default.is-plain {
-          background: #f5f7fa;
-          border-color: #dcdfe6;
-          color: #606266;
+        .port-button {
+          border-radius: 6px;
+          transition: all 0.2s ease;
+          font-weight: 500;
+          min-width: 70px;
+          padding: 6px 16px;
+          font-size: 13px;
 
           &:hover {
-            background: #f0f9ff;
-            color: #409eff;
-            border-color: #409eff;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+          }
+
+          &.el-button--primary {
+            background: #606266;
+            border-color: #606266;
+            color: white;
+            box-shadow: 0 2px 6px rgba(96, 98, 102, 0.3);
+          }
+
+          &.el-button--default.is-plain {
+            background: #f4f4f5;
+            border-color: #d3d4d6;
+            color: #606266;
+
+            &:hover {
+              background: #e1e3e9;
+              color: #333;
+              border-color: #b1b3b8;
+            }
           }
         }
       }
-    }
 
-    .single-port {
-      .el-tag {
-        padding: 10px 20px;
-        font-size: 14px;
-        font-weight: 600;
+      .single-port {
+        .port-tag {
+          padding: 6px 14px;
+          font-size: 13px;
+          font-weight: 500;
+          border-radius: 4px;
+
+          &.current-port {
+            background: #f4f4f5;
+            border-color: #d3d4d6;
+            color: #606266;
+          }
+
+          &.selected-port {
+            background: #e8f4fd;
+            border-color: #b3d8f2;
+            color: #2c5aa0;
+          }
+        }
       }
     }
   }
@@ -1718,6 +1756,48 @@ onMounted(async () => {
 
     .banner-section {
       height: 200px;
+    }
+  }
+
+  .port-selection-section {
+    margin: 12px 0;
+
+    .port-selection-container {
+      padding: 10px 12px;
+
+      .port-header {
+        flex-wrap: wrap;
+        gap: 6px;
+        margin-bottom: 10px;
+        font-size: 13px;
+
+        .city-name {
+          font-size: 14px;
+        }
+
+        .selection-hint {
+          font-size: 12px;
+        }
+      }
+
+      .port-options {
+        .port-buttons {
+          gap: 6px;
+
+          .port-button {
+            min-width: 60px;
+            padding: 5px 12px;
+            font-size: 12px;
+          }
+        }
+
+        .single-port {
+          .port-tag {
+            padding: 5px 12px;
+            font-size: 12px;
+          }
+        }
+      }
     }
   }
 
