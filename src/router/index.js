@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
+import { usePermissionStore } from '@/stores/permission'
 import NProgress from 'nprogress'
 
 const routes = [
@@ -36,6 +37,51 @@ const routes = [
     component: () => import('@/views/Dashboard.vue'),
     meta: {
       title: '控制台',
+      requiresAuth: true
+    }
+  },
+  {
+    path: '/schedule',
+    name: 'ScheduleQuery',
+    component: () => import('@/views/ScheduleQuery.vue'),
+    meta: {
+      title: '船期查询',
+      requiresAuth: true
+    }
+  },
+  {
+    path: '/test-local-fee',
+    name: 'TestLocalFee',
+    component: () => import('@/views/TestLocalFee.vue'),
+    meta: {
+      title: '本地费用API测试',
+      requiresAuth: true
+    }
+  },
+  {
+    path: '/test-local-fee-new',
+    name: 'TestLocalFeeNew',
+    component: () => import('@/views/TestLocalFeeNew.vue'),
+    meta: {
+      title: '本地费用新API测试',
+      requiresAuth: true
+    }
+  },
+  {
+    path: '/test-local-fee-api',
+    name: 'TestLocalFeeApi',
+    component: () => import('@/views/TestLocalFeeApi.vue'),
+    meta: {
+      title: '本地费用API直接测试',
+      requiresAuth: true
+    }
+  },
+  {
+    path: '/test-local-fee-update',
+    name: 'TestLocalFeeUpdate',
+    component: () => import('@/views/TestLocalFeeUpdate.vue'),
+    meta: {
+      title: '本地费用更新API测试',
       requiresAuth: true
     }
   },
@@ -186,10 +232,37 @@ router.beforeEach(async (to, from, next) => {
     
     // 检查权限
     if (to.meta.permission) {
-      if (!authStore.hasPermission(to.meta.permission)) {
-        console.log(`❌ 用户无权限访问 ${to.path}，需要权限: ${to.meta.permission}`)
-        next('/dashboard')
-        return
+      console.log('🔍 路由权限检查 - 用户信息:', authStore.user)
+      console.log('🔍 路由权限检查 - is_superuser字段:', authStore.user?.is_superuser)
+      console.log('🔍 路由权限检查 - is_staff字段:', authStore.user?.is_staff)
+      console.log('🔍 路由权限检查 - 需要权限:', to.meta.permission)
+      
+      // 检查超级管理员状态
+      const isSuperAdmin = authStore.user?.is_superuser === true || authStore.user?.is_staff === true
+      const isAdminUser = authStore.user?.email === 'admin@example.com'
+      
+      console.log('🔍 路由权限检查 - 是否超级管理员:', isSuperAdmin)
+      console.log('🔍 路由权限检查 - 是否admin用户:', isAdminUser)
+      
+      if (isSuperAdmin || isAdminUser) {
+        console.log('👑 超级管理员或admin用户，跳过权限检查')
+      } else {
+        // 确保权限Store已初始化
+        const permissionStore = usePermissionStore()
+        try {
+          if (!permissionStore.isPermissionsInitialized) {
+            await permissionStore.loadUserPermissions()
+          }
+          
+          if (!permissionStore.hasPermission(to.meta.permission)) {
+            console.log(`❌ 用户无权限访问 ${to.path}，需要权限: ${to.meta.permission}。系统设置无法进入，使用超级管理员`)
+            next('/dashboard')
+            return
+          }
+        } catch (error) {
+          console.warn('⚠️ 权限检查失败，但允许访问:', error)
+          // 权限检查失败不阻止访问，避免因网络问题导致无法使用系统
+        }
       }
     }
     

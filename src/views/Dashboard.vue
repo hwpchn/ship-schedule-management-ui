@@ -63,9 +63,9 @@
               </div>
               
               <!-- 系统管理功能 -->
-              <div 
-                v-if="authStore.hasAnyPermission(['user.list', 'role.list', 'permission.list'])"
-                class="feature-card admin" 
+              <div
+                v-if="authStore.user?.is_superuser || authStore.user?.is_staff || authStore.user?.email === 'admin@example.com' || authStore.hasAnyPermission(['user.list', 'role.list', 'permission.list'])"
+                class="feature-card admin"
                 @click="navigateToFeature('admin')"
               >
                 <div class="feature-icon admin">
@@ -74,6 +74,60 @@
                 <h3>系统管理</h3>
                 <p>用户管理、角色分配、权限配置</p>
               </div>
+            </div>
+            
+            <!-- 权限调试信息 -->
+            <div v-if="authStore.user?.email === 'admin@example.com'" class="debug-info">
+              <el-card class="debug-card">
+                <template #header>
+                  <div class="debug-header">
+                    <el-icon><Setting /></el-icon>
+                    <span>权限调试信息</span>
+                  </div>
+                </template>
+                
+                <div class="debug-content">
+                  <div class="debug-item">
+                    <span class="debug-label">用户邮箱:</span>
+                    <span class="debug-value">{{ authStore.user?.email }}</span>
+                  </div>
+                  
+                  <div class="debug-item">
+                    <span class="debug-label">is_superuser:</span>
+                    <span class="debug-value">{{ authStore.user?.is_superuser }}</span>
+                  </div>
+                  
+                  <div class="debug-item">
+                    <span class="debug-label">is_staff:</span>
+                    <span class="debug-value">{{ authStore.user?.is_staff }}</span>
+                  </div>
+                  
+                  <div class="debug-item">
+                    <span class="debug-label">权限已加载:</span>
+                    <span class="debug-value">{{ permissionStore.isPermissionsInitialized }}</span>
+                  </div>
+                  
+                  <div class="debug-item">
+                    <span class="debug-label">是否管理员:</span>
+                    <span class="debug-value">{{ permissionStore.isAdmin }}</span>
+                  </div>
+                  
+                  <div class="debug-item">
+                    <span class="debug-label">vessel_info.update权限:</span>
+                    <span class="debug-value">{{ permissionStore.hasPermission('vessel_info.update') }}</span>
+                  </div>
+                  
+                  <div class="debug-item">
+                    <span class="debug-label">user.list权限:</span>
+                    <span class="debug-value">{{ permissionStore.hasPermission('user.list') }}</span>
+                  </div>
+                  
+                  <div class="debug-item">
+                    <span class="debug-label">canEditVesselInfo:</span>
+                    <span class="debug-value">{{ permissionStore.canEditVesselInfo }}</span>
+                  </div>
+                </div>
+              </el-card>
             </div>
           </div>
         </div>
@@ -85,6 +139,7 @@
 <script setup>
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
+import { usePermissionStore } from '@/stores/permission'
 import { 
   Ship, 
   User, 
@@ -98,6 +153,7 @@ import { ElMessageBox, ElMessage } from 'element-plus'
 
 const router = useRouter()
 const authStore = useAuthStore()
+const permissionStore = usePermissionStore()
 
 // 处理登出
 const handleLogout = async () => {
@@ -126,7 +182,7 @@ const navigateToFeature = (feature) => {
       router.push('/admin')
       break
     case 'shipping':
-      ElMessage.info('船期管理功能正在开发中...')
+      router.push('/schedule')
       break
     case 'cargo':
       ElMessage.info('货物管理功能正在开发中...')
@@ -306,6 +362,51 @@ const navigateToFeature = (feature) => {
   }
 }
 
+// 调试信息样式
+.debug-info {
+  margin-top: 2rem;
+}
+
+.debug-card {
+  background: #f8f9fa;
+  border: 1px solid #e9ecef;
+}
+
+.debug-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 600;
+  color: #495057;
+}
+
+.debug-content {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.debug-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem;
+  background: white;
+  border-radius: 4px;
+  border: 1px solid #dee2e6;
+}
+
+.debug-label {
+  font-weight: 500;
+  color: #6c757d;
+}
+
+.debug-value {
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+  font-weight: 600;
+  color: #28a745;
+}
+
 // 响应式设计
 @media (max-width: 768px) {
   .header {
@@ -334,6 +435,10 @@ const navigateToFeature = (feature) => {
         margin-top: 32px;
       }
     }
+  }
+  
+  .debug-content {
+    grid-template-columns: 1fr;
   }
 }
 </style> 

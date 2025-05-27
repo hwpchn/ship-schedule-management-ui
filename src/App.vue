@@ -18,9 +18,11 @@
 <script setup>
 import { onMounted, ref, onUnmounted } from 'vue'
 import { useAuthStore } from '@/stores/auth'
+import { usePermissionStore } from '@/stores/permission'
 import { Loading } from '@element-plus/icons-vue'
 
 const authStore = useAuthStore()
+const permissionStore = usePermissionStore()
 const isInitializing = ref(true)
 
 // 网络状态监听
@@ -31,9 +33,16 @@ const handleOnline = () => {
     authStore.restoreFromNetworkError()
     // 如果有token，尝试重新初始化认证状态
     if (authStore.token) {
-      authStore.initAuth().then(success => {
+      authStore.initAuth().then(async success => {
         if (success) {
           console.log('✅ 认证状态已恢复')
+          // 恢复认证后重新加载权限
+          try {
+            await permissionStore.loadUserPermissions()
+            console.log('🔑 权限状态已恢复')
+          } catch (permError) {
+            console.warn('⚠️ 权限恢复失败:', permError)
+          }
         } else {
           console.log('❌ 认证状态恢复失败')
         }
@@ -69,6 +78,14 @@ onMounted(async () => {
       const success = await authStore.initAuth()
       if (success) {
         console.log('✅ 认证状态初始化成功')
+        
+        // 认证成功后初始化权限
+        try {
+          await permissionStore.loadUserPermissions()
+          console.log('🔑 权限初始化完成')
+        } catch (permError) {
+          console.warn('⚠️ 权限初始化失败，但不影响应用启动:', permError)
+        }
       } else if (authStore.authStatus === 'network_error') {
         console.log('🌐 网络错误导致初始化失败，将在网络恢复后重试')
       } else {
