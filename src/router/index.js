@@ -9,8 +9,9 @@ const routes = [
     name: 'Root',
     redirect: (to) => {
       // 动态重定向：根据用户登录状态决定跳转地址
-      const authStore = useAuthStore()
-      return authStore.isAuthenticated ? '/dashboard' : '/login'
+      // 检查localStorage中是否有token来决定重定向
+      const hasToken = localStorage.getItem('token')
+      return hasToken ? '/dashboard' : '/login'
     }
   },
   {
@@ -48,6 +49,15 @@ const routes = [
       title: '船期查询',
       requiresAuth: true,
       permission: 'vessel_schedule_list'
+    }
+  },
+  {
+    path: '/profile',
+    name: 'UserProfile',
+    component: () => import('@/views/UserProfile.vue'),
+    meta: {
+      title: '个人资料',
+      requiresAuth: true
     }
   },
   {
