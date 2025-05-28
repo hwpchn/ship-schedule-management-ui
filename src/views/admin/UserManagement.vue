@@ -50,7 +50,7 @@
         <el-table-column prop="email" label="邮箱" min-width="200">
           <template #default="{ row }">
             <div class="user-email">
-              <el-avatar :size="32" class="user-avatar">
+              <el-avatar :size="32" :src="getUserAvatar(row)" class="user-avatar">
                 <el-icon><User /></el-icon>
               </el-avatar>
               <span>{{ row.email }}</span>
@@ -155,7 +155,7 @@
     >
       <div v-if="currentUser" class="role-assignment">
         <div class="user-info">
-          <el-avatar :size="40">
+          <el-avatar :size="40" :src="getUserAvatar(currentUser)">
             <el-icon><User /></el-icon>
           </el-avatar>
           <div class="user-details">
@@ -274,6 +274,7 @@ import { useAuthStore } from '@/stores/auth'
 import { usePermissionStore } from '@/stores/permission'
 import { authApi } from '@/api/auth'
 import { ElMessage, ElMessageBox } from 'element-plus'
+import { getUserAvatarUrl } from '@/utils/avatar'
 import {
   Search,
   Refresh,
@@ -283,6 +284,11 @@ import {
 
 const authStore = useAuthStore()
 const permissionStore = usePermissionStore()
+
+// 获取用户头像URL的函数
+const getUserAvatar = (user) => {
+  return getUserAvatarUrl(user, 'http://127.0.0.1:8000', authStore.avatarVersion)
+}
 
 // 数据状态
 const users = ref([])

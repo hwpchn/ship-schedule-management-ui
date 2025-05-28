@@ -57,7 +57,7 @@
             <el-icon><Search /></el-icon>
           </template>
         </el-input>
-        
+
         <el-select
           v-model="selectedCategory"
           placeholder="选择权限分类"
@@ -86,7 +86,7 @@
               </div>
             </div>
           </template>
-          
+
           <el-tree
             ref="permissionTreeRef"
             :data="filteredTreeData"
@@ -105,26 +105,26 @@
                   <el-icon v-else class="permission-icon">
                     <Key />
                   </el-icon>
-                  
+
                   <div class="node-info">
                     <span class="node-name">{{ data.name }}</span>
                     <span v-if="!data.category" class="node-code">{{ data.code }}</span>
                   </div>
                 </div>
-                
+
                 <div class="node-actions">
-                  <el-tag 
+                  <el-tag
                     v-if="!data.category"
                     :type="hasCurrentPermission(data.code) ? 'success' : 'info'"
                     size="small"
                   >
                     {{ hasCurrentPermission(data.code) ? '已拥有' : '无权限' }}
                   </el-tag>
-                  
+
                   <el-button
                     v-if="!data.category"
                     size="small"
-                    type="text"
+                    type="link"
                     @click="showPermissionDetail(data)"
                   >
                     详情
@@ -136,7 +136,7 @@
         </el-card>
 
         <!-- 空状态 -->
-        <el-empty 
+        <el-empty
           v-if="!loading && (!permissions || Object.keys(permissions).length === 0)"
           description="暂无权限数据"
           :image-size="120"
@@ -197,10 +197,10 @@ import { ref, computed, onMounted } from 'vue'
 import { useAuthStore } from '@/stores/auth'
 import { authApi } from '@/api/auth'
 import { ElMessage } from 'element-plus'
-import { 
+import {
   Refresh,
-  Search, 
-  Folder, 
+  Search,
+  Folder,
   Key
 } from '@element-plus/icons-vue'
 
@@ -264,9 +264,9 @@ const roleCount = computed(() => {
 // 转换为树形数据
 const treeData = computed(() => {
   if (!permissions.value) return []
-  
+
   const tree = []
-  
+
   // 遍历权限分类
   for (const [categoryKey, permissionList] of Object.entries(permissions.value)) {
     const categoryNode = {
@@ -275,7 +275,7 @@ const treeData = computed(() => {
       category: true,
       children: []
     }
-    
+
     // 添加分类下的权限
     if (Array.isArray(permissionList)) {
       permissionList.forEach(permission => {
@@ -285,32 +285,32 @@ const treeData = computed(() => {
         })
       })
     }
-    
+
     tree.push(categoryNode)
   }
-  
+
   return tree
 })
 
 // 过滤后的树数据
 const filteredTreeData = computed(() => {
   let data = treeData.value
-  
+
   // 分类过滤
   if (selectedCategory.value) {
     data = data.filter(node => node.code === selectedCategory.value)
   }
-  
+
   // 搜索过滤
   if (searchQuery.value) {
     const query = searchQuery.value.toLowerCase()
     data = data.map(categoryNode => {
-      const filteredChildren = categoryNode.children.filter(permission => 
+      const filteredChildren = categoryNode.children.filter(permission =>
         permission.name.toLowerCase().includes(query) ||
         permission.code.toLowerCase().includes(query) ||
         (permission.description && permission.description.toLowerCase().includes(query))
       )
-      
+
       if (filteredChildren.length > 0) {
         return {
           ...categoryNode,
@@ -320,7 +320,7 @@ const filteredTreeData = computed(() => {
       return null
     }).filter(Boolean)
   }
-  
+
   return data
 })
 
@@ -402,14 +402,14 @@ const collapseAll = () => {
 // 显示权限详情
 const showPermissionDetail = async (permission) => {
   currentPermission.value = permission
-  
+
   // 查找拥有此权限的角色
   currentPermissionRoles.value = roles.value.filter(role => {
     // 这里需要根据实际API返回的数据结构来判断
     // 暂时返回空数组，实际实现时需要调用相应的API
     return false
   })
-  
+
   detailDialogVisible.value = true
 }
 
@@ -429,7 +429,7 @@ onMounted(async () => {
     justify-content: space-between;
     align-items: flex-start;
     margin-bottom: 24px;
-    
+
     .header-left {
       h2 {
         margin: 0 0 4px 0;
@@ -437,7 +437,7 @@ onMounted(async () => {
         font-weight: 600;
         color: #333;
       }
-      
+
       p {
         margin: 0;
         color: #666;
@@ -445,108 +445,108 @@ onMounted(async () => {
       }
     }
   }
-  
+
   .content-card {
     background: white;
     border-radius: 12px;
     padding: 24px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   }
-  
+
   .stats-row {
     margin-bottom: 24px;
-    
+
     .stat-card {
       text-align: center;
       padding: 20px;
       background: linear-gradient(135deg, #409eff, #5470c6);
       border-radius: 12px;
       color: white;
-      
+
       .stat-number {
         font-size: 28px;
         font-weight: 600;
         margin-bottom: 8px;
       }
-      
+
       .stat-label {
         font-size: 14px;
         opacity: 0.9;
       }
     }
   }
-  
+
   .search-bar {
     display: flex;
     gap: 12px;
     margin-bottom: 24px;
   }
-  
+
   .permission-tree-section {
     .tree-card {
       .tree-header {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        
+
         .tree-actions {
           display: flex;
           gap: 8px;
         }
       }
     }
-    
+
     .permission-tree {
       margin-top: 16px;
-      
+
       :deep(.el-tree-node) {
         margin-bottom: 4px;
-        
+
         .el-tree-node__content {
           height: 40px;
           border-radius: 6px;
           transition: all 0.3s ease;
-          
+
           &:hover {
             background: rgba(64, 158, 255, 0.1);
           }
         }
       }
     }
-    
+
     .tree-node {
       display: flex;
       justify-content: space-between;
       align-items: center;
       width: 100%;
       padding-right: 16px;
-      
+
       .node-content {
         display: flex;
         align-items: center;
         gap: 8px;
         flex: 1;
-        
+
         .category-icon {
           color: #e6a23c;
           font-size: 16px;
         }
-        
+
         .permission-icon {
           color: #409eff;
           font-size: 14px;
         }
-        
+
         .node-info {
           display: flex;
           flex-direction: column;
           align-items: flex-start;
-          
+
           .node-name {
             font-size: 14px;
             color: #333;
           }
-          
+
           .node-code {
             font-size: 12px;
             color: #666;
@@ -554,7 +554,7 @@ onMounted(async () => {
           }
         }
       }
-      
+
       .node-actions {
         display: flex;
         align-items: center;
@@ -562,22 +562,22 @@ onMounted(async () => {
       }
     }
   }
-  
+
   .permission-detail {
     .related-roles {
       margin-top: 24px;
-      
+
       h4 {
         margin: 0 0 12px 0;
         font-size: 14px;
         color: #333;
       }
-      
+
       .role-list {
         display: flex;
         flex-wrap: wrap;
         gap: 8px;
-        
+
         .role-item {
           margin: 0;
         }
@@ -594,20 +594,20 @@ onMounted(async () => {
         margin-bottom: 12px;
       }
     }
-    
+
     .search-bar {
       flex-direction: column;
     }
-    
+
     .tree-node {
       flex-direction: column;
       align-items: flex-start;
       gap: 8px;
-      
+
       .node-actions {
         align-self: flex-end;
       }
     }
   }
 }
-</style> 
+</style>

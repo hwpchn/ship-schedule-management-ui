@@ -208,5 +208,28 @@ export const authApi = {
       url: `/auth/users-management/${userId}/`,
       method: 'delete'
     })
+  },
+
+  // 上传用户头像
+  uploadAvatar(file) {
+    const formData = new FormData()
+    formData.append('avatar', file)
+
+    return request({
+      url: '/auth/me/avatar/',
+      method: 'post',
+      data: formData,
+      headers: {
+        'Content-Type': 'multipart/form-data'
+      }
+    })
+  },
+
+  // 删除用户头像
+  deleteAvatar() {
+    return request({
+      url: '/auth/me/avatar/',
+      method: 'delete'
+    })
   }
 }

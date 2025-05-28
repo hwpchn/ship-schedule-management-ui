@@ -12,7 +12,7 @@
         <div class="header-right">
           <el-dropdown trigger="click">
             <span class="user-info">
-              <el-avatar :size="32" src="/default-avatar.png">
+              <el-avatar :size="32" :src="userAvatarUrl">
                 <el-icon><User /></el-icon>
               </el-avatar>
               <span class="username">{{ authStore.user?.email || '用户' }}</span>
@@ -20,7 +20,11 @@
             </span>
             <template #dropdown>
               <el-dropdown-menu>
-                <el-dropdown-item @click="handleLogout">
+                <el-dropdown-item @click="goToProfile">
+                  <el-icon><User /></el-icon>
+                  个人资料
+                </el-dropdown-item>
+                <el-dropdown-item divided @click="handleLogout">
                   <el-icon><SwitchButton /></el-icon>
                   退出登录
                 </el-dropdown-item>
@@ -72,6 +76,7 @@
 </template>
 
 <script setup>
+import { computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { usePermissionStore } from '@/stores/permission'
@@ -83,10 +88,14 @@ import {
   Setting
 } from '@element-plus/icons-vue'
 import { ElMessageBox, ElMessage } from 'element-plus'
+import { getUserAvatarUrl } from '@/utils/avatar'
 
 const router = useRouter()
 const authStore = useAuthStore()
 const permissionStore = usePermissionStore()
+
+// 计算头像URL
+const userAvatarUrl = computed(() => getUserAvatarUrl(authStore.user, 'http://127.0.0.1:8000', authStore.avatarVersion))
 
 // 处理登出
 const handleLogout = async () => {
@@ -106,6 +115,11 @@ const handleLogout = async () => {
   } catch (error) {
     // 用户取消操作
   }
+}
+
+// 跳转到个人资料页面
+const goToProfile = () => {
+  router.push('/profile')
 }
 
 // 导航到功能页面

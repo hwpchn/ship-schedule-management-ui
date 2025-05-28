@@ -160,6 +160,11 @@
         "last_name": "三",
         "full_name": "张三",
         "short_name": "张三",
+        "avatar": "/media/user_avatars/1/avatar_1.jpg",
+        "avatar_url": "http://127.0.0.1:8000/media/user_avatars/1/avatar_1.jpg",
+        "is_superuser": false,
+        "is_staff": false,
+        "is_active": true,
         "date_joined": "2025-05-27T10:00:00Z",
         "last_login": "2025-05-27T15:30:00Z"
     }
@@ -210,6 +215,103 @@
 | last_name | string | 否 | 姓氏 |
 | current_password | string | 否 | 当前密码（修改密码时必填） |
 | new_password | string | 否 | 新密码（修改密码时必填） |
+
+### 4. 用户头像管理
+
+#### 4.1 上传头像
+
+**端点**: `POST /api/auth/me/avatar/`
+**权限**: 需要认证
+**描述**: 上传用户头像，支持jpg、png、gif格式，最大5MB
+
+##### 请求参数
+| 参数 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| avatar | file | 是 | 头像图片文件 |
+
+##### 文件要求
+- **支持格式**: jpg、jpeg、png、gif
+- **最大大小**: 5MB
+- **最大尺寸**: 2048x2048像素
+- **存储路径**: `user_avatars/{user_id}/avatar_{user_id}.{ext}`
+
+##### 响应示例
+```json
+{
+    "success": true,
+    "message": "头像上传成功",
+    "data": {
+        "avatar_url": "http://127.0.0.1:8000/media/user_avatars/1/avatar_1.jpg",
+        "user": {
+            "id": 1,
+            "email": "user@example.com",
+            "first_name": "张",
+            "last_name": "三",
+            "full_name": "张三",
+            "short_name": "张三",
+            "avatar": "/media/user_avatars/1/avatar_1.jpg",
+            "avatar_url": "http://127.0.0.1:8000/media/user_avatars/1/avatar_1.jpg",
+            "is_superuser": false,
+            "is_staff": false,
+            "is_active": true,
+            "date_joined": "2025-05-28T10:00:00Z",
+            "last_login": "2025-05-28T15:30:00Z"
+        }
+    }
+}
+```
+
+##### 错误响应
+```json
+{
+    "success": false,
+    "message": "头像上传失败",
+    "data": null,
+    "errors": {
+        "avatar": ["头像文件大小不能超过5MB"]
+    }
+}
+```
+
+#### 4.2 删除头像
+
+**端点**: `DELETE /api/auth/me/avatar/`
+**权限**: 需要认证
+**描述**: 删除用户头像
+
+##### 响应示例
+```json
+{
+    "success": true,
+    "message": "头像删除成功",
+    "data": {
+        "user": {
+            "id": 1,
+            "email": "user@example.com",
+            "first_name": "张",
+            "last_name": "三",
+            "full_name": "张三",
+            "short_name": "张三",
+            "avatar": null,
+            "avatar_url": null,
+            "is_superuser": false,
+            "is_staff": false,
+            "is_active": true,
+            "date_joined": "2025-05-28T10:00:00Z",
+            "last_login": "2025-05-28T15:30:00Z"
+        }
+    }
+}
+```
+
+##### 错误响应
+```json
+{
+    "success": false,
+    "message": "用户暂无头像",
+    "data": null
+}
+```
 
 ## 🔐 权限管理接口
 
@@ -951,6 +1053,22 @@ curl -X GET http://127.0.0.1:8000/api/auth/me/permissions/ \
   -H "Authorization: Bearer <access_token>"
 ```
 
+### 头像管理示例
+```bash
+# 1. 上传头像
+curl -X POST http://127.0.0.1:8000/api/auth/me/avatar/ \
+  -H "Authorization: Bearer <access_token>" \
+  -F "avatar=@/path/to/avatar.jpg"
+
+# 2. 删除头像
+curl -X DELETE http://127.0.0.1:8000/api/auth/me/avatar/ \
+  -H "Authorization: Bearer <access_token>"
+
+# 3. 获取用户信息（包含头像URL）
+curl -X GET http://127.0.0.1:8000/api/auth/me/ \
+  -H "Authorization: Bearer <access_token>"
+```
+
 ### 前端权限检查示例
 ```javascript
 // 前端权限检查函数
@@ -975,6 +1093,136 @@ if (canViewUsers) {
     // 隐藏用户管理菜单
     hideUserManagementMenu();
 }
+```
+
+### Vue Element-Plus头像上传示例
+```vue
+<template>
+  <div class="avatar-upload">
+    <!-- 头像显示 -->
+    <el-avatar
+      :size="100"
+      :src="userInfo.avatar_url"
+      :icon="UserFilled"
+      class="avatar-display"
+    />
+
+    <!-- 头像上传组件 -->
+    <el-upload
+      class="avatar-uploader"
+      action="/api/auth/me/avatar/"
+      :headers="uploadHeaders"
+      :show-file-list="false"
+      :on-success="handleAvatarSuccess"
+      :on-error="handleAvatarError"
+      :before-upload="beforeAvatarUpload"
+      accept=".jpg,.jpeg,.png,.gif"
+    >
+      <el-button type="primary" :icon="Upload">上传头像</el-button>
+    </el-upload>
+
+    <!-- 删除头像按钮 -->
+    <el-button
+      v-if="userInfo.avatar_url"
+      type="danger"
+      :icon="Delete"
+      @click="deleteAvatar"
+    >
+      删除头像
+    </el-button>
+  </div>
+</template>
+
+<script setup>
+import { ref, computed } from 'vue'
+import { ElMessage } from 'element-plus'
+import { Upload, Delete, UserFilled } from '@element-plus/icons-vue'
+import { useUserStore } from '@/stores/user'
+
+const userStore = useUserStore()
+const userInfo = computed(() => userStore.userInfo)
+
+// 上传请求头
+const uploadHeaders = computed(() => ({
+  'Authorization': `Bearer ${userStore.accessToken}`
+}))
+
+// 上传前验证
+const beforeAvatarUpload = (file) => {
+  const isValidType = ['image/jpeg', 'image/png', 'image/gif'].includes(file.type)
+  const isLt5M = file.size / 1024 / 1024 < 5
+
+  if (!isValidType) {
+    ElMessage.error('头像格式不支持，请上传jpg、png或gif格式的图片')
+    return false
+  }
+  if (!isLt5M) {
+    ElMessage.error('头像文件大小不能超过5MB')
+    return false
+  }
+  return true
+}
+
+// 上传成功回调
+const handleAvatarSuccess = (response) => {
+  if (response.success) {
+    ElMessage.success(response.message)
+    // 更新用户信息
+    userStore.updateUserInfo(response.data.user)
+  } else {
+    ElMessage.error(response.message || '头像上传失败')
+  }
+}
+
+// 上传失败回调
+const handleAvatarError = (error) => {
+  console.error('头像上传失败:', error)
+  ElMessage.error('头像上传失败，请重试')
+}
+
+// 删除头像
+const deleteAvatar = async () => {
+  try {
+    const response = await fetch('/api/auth/me/avatar/', {
+      method: 'DELETE',
+      headers: {
+        'Authorization': `Bearer ${userStore.accessToken}`
+      }
+    })
+
+    const result = await response.json()
+
+    if (result.success) {
+      ElMessage.success(result.message)
+      // 更新用户信息
+      userStore.updateUserInfo(result.data.user)
+    } else {
+      ElMessage.error(result.message || '头像删除失败')
+    }
+  } catch (error) {
+    console.error('删除头像失败:', error)
+    ElMessage.error('头像删除失败，请重试')
+  }
+}
+</script>
+
+<style scoped>
+.avatar-upload {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+.avatar-display {
+  border: 2px solid #dcdfe6;
+}
+
+.avatar-uploader {
+  display: flex;
+  justify-content: center;
+}
+</style>
 ```
 
 ## ⚠️ 注意事项

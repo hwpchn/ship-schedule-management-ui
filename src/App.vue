@@ -9,7 +9,7 @@
         <p>正在初始化应用...</p>
       </div>
     </div>
-    
+
     <!-- 主应用内容 -->
     <router-view v-else />
   </div>
@@ -21,14 +21,14 @@ import { useAuthStore } from '@/stores/auth'
 import { usePermissionStore } from '@/stores/permission'
 import { Loading } from '@element-plus/icons-vue'
 
-const authStore = useAuthStore()
-const permissionStore = usePermissionStore()
 const isInitializing = ref(true)
+let authStore = null
+let permissionStore = null
 
 // 网络状态监听
 const handleOnline = () => {
   console.log('🌐 网络已恢复')
-  if (authStore.authStatus === 'network_error') {
+  if (authStore && authStore.authStatus === 'network_error') {
     console.log('📡 尝试恢复认证状态...')
     authStore.restoreFromNetworkError()
     // 如果有token，尝试重新初始化认证状态
@@ -38,8 +38,10 @@ const handleOnline = () => {
           console.log('✅ 认证状态已恢复')
           // 恢复认证后重新加载权限
           try {
-            await permissionStore.loadUserPermissions()
-            console.log('🔑 权限状态已恢复')
+            if (permissionStore) {
+              await permissionStore.loadUserPermissions()
+              console.log('🔑 权限状态已恢复')
+            }
           } catch (permError) {
             console.warn('⚠️ 权限恢复失败:', permError)
           }
@@ -54,7 +56,7 @@ const handleOnline = () => {
 const handleOffline = () => {
   console.log('📵 网络连接已断开')
   // 设置网络错误状态，但保持认证信息
-  if (authStore.isAuthenticated) {
+  if (authStore && authStore.isAuthenticated) {
     authStore.setNetworkError()
   }
 }
@@ -62,23 +64,27 @@ const handleOffline = () => {
 // 应用启动时初始化认证状态
 onMounted(async () => {
   console.log('🚀 应用启动，初始化认证状态...')
-  
+
+  // 初始化 store
+  authStore = useAuthStore()
+  permissionStore = usePermissionStore()
+
   // 添加网络状态监听
   window.addEventListener('online', handleOnline)
   window.addEventListener('offline', handleOffline)
-  
+
   try {
     // 检查localStorage中是否有token
     const hasToken = localStorage.getItem('token')
-    
+
     if (hasToken && authStore.authStatus === 'unknown') {
       console.log('📦 发现本地token，尝试初始化认证状态...')
-      
+
       // 尝试初始化认证状态
       const success = await authStore.initAuth()
       if (success) {
         console.log('✅ 认证状态初始化成功')
-        
+
         // 认证成功后初始化权限
         try {
           await permissionStore.loadUserPermissions()
@@ -99,7 +105,7 @@ onMounted(async () => {
     }
   } catch (error) {
     console.error('💥 认证状态初始化失败:', error)
-    
+
     // 判断错误类型
     if (authStore.isNetworkErrorType(error)) {
       console.log('🌐 网络错误，保持认证状态')
@@ -133,15 +139,15 @@ onUnmounted(() => {
   align-items: center;
   height: 100vh;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  
+
   .loading-spinner {
     text-align: center;
     color: white;
-    
+
     .spin {
       animation: spin 1s linear infinite;
     }
-    
+
     p {
       margin-top: 16px;
       font-size: 16px;
@@ -158,4 +164,4 @@ onUnmounted(() => {
     transform: rotate(360deg);
   }
 }
-</style> 
+</style>
