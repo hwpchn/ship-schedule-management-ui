@@ -38,7 +38,12 @@
             <p>您已成功登录，现在可以开始使用我们的专业国际物流运输管理平台。</p>
 
             <div class="feature-grid">
-              <div class="feature-card" @click="navigateToFeature('shipping')">
+              <!-- 船期管理功能 -->
+              <div
+                v-if="authStore.user?.is_superuser || permissionStore.hasPermission('vessel_schedule_list')"
+                class="feature-card"
+                @click="navigateToFeature('shipping')"
+              >
                 <div class="feature-icon shipping">
                   <el-icon :size="32"><Van /></el-icon>
                 </div>

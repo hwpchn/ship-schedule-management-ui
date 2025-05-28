@@ -168,5 +168,45 @@ export const authApi = {
       url: `/auth/users/${userId}/roles/${roleId}/`,
       method: 'delete'
     })
+  },
+
+  // 创建用户
+  createUser(data) {
+    return request({
+      url: '/auth/users-management/',
+      method: 'post',
+      data: {
+        email: data.email,
+        password: data.password,
+        password_confirm: data.password_confirm,
+        first_name: data.first_name,
+        last_name: data.last_name
+      }
+    })
+  },
+
+  // 获取用户详情
+  getUserDetail(userId) {
+    return request({
+      url: `/auth/users-management/${userId}/`,
+      method: 'get'
+    })
+  },
+
+  // 更新用户信息
+  updateUserInfo(userId, data) {
+    return request({
+      url: `/auth/users-management/${userId}/`,
+      method: 'put',
+      data
+    })
+  },
+
+  // 删除用户
+  deleteUser(userId) {
+    return request({
+      url: `/auth/users-management/${userId}/`,
+      method: 'delete'
+    })
   }
-} 
+}

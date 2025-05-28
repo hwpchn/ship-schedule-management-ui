@@ -46,7 +46,8 @@ const routes = [
     component: () => import('@/views/ScheduleQuery.vue'),
     meta: {
       title: '船期查询',
-      requiresAuth: true
+      requiresAuth: true,
+      permission: 'vessel_schedule_list'
     }
   },
   {
@@ -151,25 +152,25 @@ const router = createRouter({
 // 路由守卫
 router.beforeEach(async (to, from, next) => {
   NProgress.start()
-  
+
   // 设置页面标题
   document.title = `${to.meta.title} - 船期管理系统`
-  
+
   const authStore = useAuthStore()
-  
+
   // 检查是否需要认证
   if (to.meta.requiresAuth) {
     console.log('🛡️ 页面需要认证，当前状态:', authStore.authStatus)
-    
+
     // 如果有token但认证状态未知或正在初始化，先尝试初始化
-    if (localStorage.getItem('token') && 
+    if (localStorage.getItem('token') &&
         (authStore.authStatus === 'unknown' || authStore.authStatus === 'initializing')) {
       console.log('🔄 检测到token但认证状态未确定，等待初始化...')
-      
+
       try {
         const initSuccess = await authStore.initAuth()
         console.log('📋 认证初始化结果:', initSuccess, '状态:', authStore.authStatus)
-        
+
         // 初始化成功，继续检查认证状态
         if (initSuccess && authStore.isAuthenticated) {
           console.log('✅ 认证成功，允许访问')
@@ -190,11 +191,11 @@ router.beforeEach(async (to, from, next) => {
         }
       } catch (error) {
         console.error('💥 认证初始化失败:', error)
-        
+
         // 判断是否为网络错误
         if (authStore.isNetworkErrorType && authStore.isNetworkErrorType(error)) {
           console.log('🌐 网络错误导致初始化失败，检查本地认证信息')
-          
+
           // 如果有本地认证信息，允许离线访问
           if (authStore.token && authStore.user) {
             console.log('📱 离线模式，使用本地认证信息')
@@ -214,7 +215,7 @@ router.beforeEach(async (to, from, next) => {
     // 如果认证状态为网络错误，检查本地认证信息
     else if (authStore.authStatus === 'network_error') {
       console.log('🌐 当前处于网络错误状态')
-      
+
       if (authStore.token && authStore.user) {
         console.log('📱 离线模式，使用本地认证信息')
       } else {
@@ -229,21 +230,21 @@ router.beforeEach(async (to, from, next) => {
       next('/login')
       return
     }
-    
+
     // 检查权限
     if (to.meta.permission) {
       console.log('🔍 路由权限检查 - 用户信息:', authStore.user)
       console.log('🔍 路由权限检查 - is_superuser字段:', authStore.user?.is_superuser)
       console.log('🔍 路由权限检查 - is_staff字段:', authStore.user?.is_staff)
       console.log('🔍 路由权限检查 - 需要权限:', to.meta.permission)
-      
+
       // 检查超级管理员状态
-      const isSuperAdmin = authStore.user?.is_superuser === true || authStore.user?.is_staff === true
+      const isSuperAdmin = authStore.user?.is_superuser === true
       const isAdminUser = authStore.user?.email === 'admin@example.com'
-      
+
       console.log('🔍 路由权限检查 - 是否超级管理员:', isSuperAdmin)
       console.log('🔍 路由权限检查 - 是否admin用户:', isAdminUser)
-      
+
       if (isSuperAdmin || isAdminUser) {
         console.log('👑 超级管理员或admin用户，跳过权限检查')
       } else {
@@ -253,7 +254,7 @@ router.beforeEach(async (to, from, next) => {
           if (!permissionStore.isPermissionsInitialized) {
             await permissionStore.loadUserPermissions()
           }
-          
+
           if (!permissionStore.hasPermission(to.meta.permission)) {
             console.log(`❌ 用户无权限访问 ${to.path}，需要权限: ${to.meta.permission}。系统设置无法进入，使用超级管理员`)
             next('/dashboard')
@@ -265,17 +266,17 @@ router.beforeEach(async (to, from, next) => {
         }
       }
     }
-    
+
     console.log('✅ 认证和权限检查通过')
   }
-  
+
   // 如果已登录用户访问登录/注册页面，重定向到仪表盘
   if (to.meta.guest && authStore.isAuthenticated) {
     console.log('🔄 已登录用户访问登录页，重定向到仪表盘')
     next('/dashboard')
     return
   }
-  
+
   next()
 })
 
@@ -283,4 +284,4 @@ router.afterEach(() => {
   NProgress.done()
 })
 
-export default router 
+export default router

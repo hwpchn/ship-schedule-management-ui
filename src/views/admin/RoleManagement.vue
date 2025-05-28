@@ -6,8 +6,8 @@
         <p>管理系统角色和权限分配</p>
       </div>
       <div class="header-right">
-        <el-button 
-          type="primary" 
+        <el-button
+          type="primary"
           @click="handleCreate"
           v-if="authStore.hasPermission('role.create')"
         >
@@ -39,12 +39,12 @@
 
       <!-- 角色列表 -->
       <el-row :gutter="24" class="role-grid">
-        <el-col 
-          v-for="role in filteredRoles" 
-          :key="role.id" 
-          :xs="24" 
-          :sm="12" 
-          :md="8" 
+        <el-col
+          v-for="role in filteredRoles"
+          :key="role.id"
+          :xs="24"
+          :sm="12"
+          :md="8"
           :lg="6"
           class="role-card-wrapper"
         >
@@ -52,7 +52,7 @@
             <div class="role-info">
               <div class="role-header">
                 <h3>{{ role.name }}</h3>
-                <el-tag 
+                <el-tag
                   :type="role.is_active ? 'success' : 'danger'"
                   size="small"
                 >
@@ -71,15 +71,15 @@
               </div>
             </div>
             <div class="role-actions">
-              <el-button 
-                size="small" 
+              <el-button
+                size="small"
                 @click="handleEdit(role)"
                 v-if="authStore.hasPermission('role.update')"
               >
                 编辑
               </el-button>
-              <el-button 
-                size="small" 
+              <el-button
+                size="small"
                 @click="handleViewPermissions(role)"
                 v-if="authStore.hasPermission('role.detail')"
               >
@@ -105,7 +105,7 @@
       </div>
 
       <!-- 空状态 -->
-      <el-empty 
+      <el-empty
         v-if="!loading && filteredRoles.length === 0"
         description="暂无角色数据"
         :image-size="120"
@@ -134,7 +134,7 @@
           </el-col>
           <el-col :span="12">
             <el-form-item label="状态">
-              <el-switch 
+              <el-switch
                 v-model="roleForm.is_active"
                 active-text="启用"
                 inactive-text="禁用"
@@ -142,7 +142,7 @@
             </el-form-item>
           </el-col>
         </el-row>
-        
+
         <el-form-item label="角色描述" prop="description">
           <el-input
             v-model="roleForm.description"
@@ -201,10 +201,10 @@ import { useAuthStore } from '@/stores/auth'
 import { authApi } from '@/api/auth'
 import PermissionTree from '@/components/PermissionTree.vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { 
-  Plus, 
-  Search, 
-  Refresh, 
+import {
+  Plus,
+  Search,
+  Refresh,
   Key
 } from '@element-plus/icons-vue'
 
@@ -250,9 +250,9 @@ const dialogTitle = computed(() => isEdit.value ? '编辑角色' : '新建角色
 
 const filteredRoles = computed(() => {
   if (!searchQuery.value) return roles.value
-  
+
   const query = searchQuery.value.toLowerCase()
-  return roles.value.filter(role => 
+  return roles.value.filter(role =>
     role.name.toLowerCase().includes(query) ||
     (role.description && role.description.toLowerCase().includes(query))
   )
@@ -315,12 +315,12 @@ const handleCreate = async () => {
 const handleEdit = async (role) => {
   try {
     await loadAllPermissions()
-    
+
     // 获取角色详情
     const response = await authApi.getRoleDetail(role.id)
     if (response.code === 200) {
       const roleDetail = response.data
-      
+
       isEdit.value = true
       currentRole.value = role
       roleForm.value = {
@@ -343,7 +343,7 @@ const handleViewPermissions = async (role) => {
     const response = await authApi.getRoleDetail(role.id)
     if (response.code === 200) {
       const roleDetail = response.data
-      
+
       // 构建权限树数据结构
       const permissionsByCategory = {}
       roleDetail.permissions?.forEach(permission => {
@@ -353,7 +353,7 @@ const handleViewPermissions = async (role) => {
         }
         permissionsByCategory[category].push(permission)
       })
-      
+
       currentRolePermissions.value = permissionsByCategory
       currentRolePermissionCodes.value = roleDetail.permissions?.map(p => p.code) || []
       permissionDialogVisible.value = true
@@ -367,14 +367,58 @@ const handleViewPermissions = async (role) => {
 // 删除角色
 const handleDelete = async (roleId) => {
   try {
+    console.log('🗑️ 开始删除角色:', roleId)
+
     const response = await authApi.deleteRole(roleId)
+    console.log('📝 删除角色API响应:', response)
+
     if (response.code === 200) {
       ElMessage.success('角色删除成功')
       await loadRoles()
+    } else {
+      console.error('❌ 删除角色失败，响应码:', response.code, '消息:', response.message)
+      ElMessage.error(response.message || '删除角色失败')
     }
   } catch (error) {
-    console.error('删除角色失败:', error)
-    ElMessage.error('删除角色失败')
+    console.error('💥 删除角色异常:', error)
+
+    // 更详细的错误处理
+    if (error.response) {
+      const status = error.response.status
+      const errorData = error.response.data
+
+      console.log('🔍 错误详情:', {
+        status,
+        data: errorData,
+        roleId
+      })
+
+      let errorMessage = '删除角色失败'
+
+      if (status === 400) {
+        if (errorData.message) {
+          errorMessage = errorData.message
+        } else if (errorData.detail) {
+          errorMessage = errorData.detail
+        } else if (errorData.error) {
+          errorMessage = errorData.error
+        } else {
+          errorMessage = '该角色无法删除，可能是系统预设角色或正在被用户使用'
+        }
+      } else if (status === 403) {
+        errorMessage = '权限不足，无法删除角色'
+      } else if (status === 404) {
+        errorMessage = '角色不存在'
+      } else if (status === 409) {
+        errorMessage = '角色正在被使用，无法删除'
+      }
+
+      ElMessage.error(errorMessage)
+    } else if (error.request) {
+      ElMessage.error('网络错误，请检查网络连接')
+    } else {
+      ElMessage.error('删除角色失败')
+    }
   }
 }
 
@@ -386,7 +430,7 @@ const handlePermissionChange = (permissionCodes) => {
 // 全选权限
 const selectAllPermissions = () => {
   if (!allPermissions.value) return
-  
+
   const allCodes = []
   Object.values(allPermissions.value).forEach(categoryPermissions => {
     if (Array.isArray(categoryPermissions)) {
@@ -395,7 +439,7 @@ const selectAllPermissions = () => {
       })
     }
   })
-  
+
   roleForm.value.permission_codes = allCodes
 }
 
@@ -451,7 +495,7 @@ onMounted(() => {
     justify-content: space-between;
     align-items: flex-start;
     margin-bottom: 24px;
-    
+
     .header-left {
       h2 {
         margin: 0 0 4px 0;
@@ -459,7 +503,7 @@ onMounted(() => {
         font-weight: 600;
         color: #333;
       }
-      
+
       p {
         margin: 0;
         color: #666;
@@ -467,35 +511,35 @@ onMounted(() => {
       }
     }
   }
-  
+
   .content-card {
     background: white;
     border-radius: 12px;
     padding: 24px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   }
-  
+
   .search-bar {
     display: flex;
     gap: 12px;
     margin-bottom: 24px;
   }
-  
+
   .role-grid {
     .role-card-wrapper {
       margin-bottom: 24px;
     }
-    
+
     .role-card {
       height: 220px;
       cursor: pointer;
       transition: all 0.3s ease;
-      
+
       &:hover {
         transform: translateY(-2px);
         box-shadow: 0 8px 24px rgba(64, 158, 255, 0.15);
       }
-      
+
       :deep(.el-card__body) {
         padding: 20px;
         height: 100%;
@@ -505,16 +549,16 @@ onMounted(() => {
       }
     }
   }
-  
+
   .role-info {
     flex: 1;
-    
+
     .role-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
       margin-bottom: 12px;
-      
+
       h3 {
         margin: 0;
         font-size: 16px;
@@ -522,7 +566,7 @@ onMounted(() => {
         color: #333;
       }
     }
-    
+
     .role-description {
       margin: 0 0 16px 0;
       color: #666;
@@ -534,12 +578,12 @@ onMounted(() => {
       -webkit-line-clamp: 2;
       -webkit-box-orient: vertical;
     }
-    
+
     .role-meta {
       display: flex;
       flex-direction: column;
       gap: 8px;
-      
+
       .permission-count {
         display: flex;
         align-items: center;
@@ -547,24 +591,24 @@ onMounted(() => {
         color: #409eff;
         font-size: 12px;
       }
-      
+
       .created-time {
         color: #999;
         font-size: 12px;
       }
     }
   }
-  
+
   .role-actions {
     display: flex;
     gap: 8px;
     flex-wrap: wrap;
   }
-  
+
   .loading-container {
     padding: 40px 0;
   }
-  
+
   .role-form {
     .permission-section {
       border: 1px solid #e0e6ed;
@@ -572,7 +616,7 @@ onMounted(() => {
       padding: 16px;
       max-height: 400px;
       overflow-y: auto;
-      
+
       .permission-actions {
         margin-bottom: 16px;
         padding-bottom: 12px;
@@ -590,14 +634,14 @@ onMounted(() => {
       gap: 16px;
       align-items: stretch;
     }
-    
+
     .search-bar {
       flex-direction: column;
     }
-    
+
     .role-actions {
       justify-content: center;
     }
   }
 }
-</style> 
+</style>
