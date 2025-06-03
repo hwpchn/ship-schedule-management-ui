@@ -118,6 +118,32 @@ export const useAuthStore = defineStore('auth', () => {
     networkAvailable.value = false
   }
 
+  // 检查并清理不完整的认证信息
+  const validateAndCleanAuthData = () => {
+    const hasToken = !!token.value
+    const hasRefreshToken = !!refreshToken.value
+
+    console.log('🔍 检查认证数据完整性:', { hasToken, hasRefreshToken })
+
+    // 如果只有其中一个 token，说明认证信息不完整
+    if (hasToken && !hasRefreshToken) {
+      console.log('⚠️ 发现不完整的认证信息：有 access token 但缺少 refresh token')
+      clearToken()
+      return false
+    } else if (!hasToken && hasRefreshToken) {
+      console.log('⚠️ 发现不完整的认证信息：有 refresh token 但缺少 access token')
+      clearToken()
+      return false
+    } else if (!hasToken && !hasRefreshToken) {
+      console.log('📭 没有任何认证信息')
+      authStatus.value = AUTH_STATUS.UNAUTHENTICATED
+      return false
+    }
+
+    console.log('✅ 认证数据完整性检查通过')
+    return true
+  }
+
   // 恢复网络状态
   const restoreFromNetworkError = () => {
     console.log('🌐 网络恢复，恢复认证状态')
@@ -466,7 +492,15 @@ export const useAuthStore = defineStore('auth', () => {
   const refreshAccessToken = async () => {
     try {
       if (!refreshToken.value) {
-        console.log('没有refresh token，无法刷新')
+        console.log('❌ 没有refresh token，无法刷新认证状态')
+        console.log('💡 这通常意味着：1) 用户需要重新登录，2) 认证信息不完整，3) refresh token 已过期被清除')
+
+        // 清除可能存在的不完整认证信息
+        if (token.value) {
+          console.log('🧹 清除不完整的认证信息')
+          clearToken()
+        }
+
         return false
       }
 
@@ -505,10 +539,15 @@ export const useAuthStore = defineStore('auth', () => {
 
   // 初始化认证状态
   const initAuth = async () => {
-    // 如果没有token，直接设置为未认证状态
-    if (!token.value) {
-      console.log('📭 没有token，设置为未认证状态')
-      authStatus.value = AUTH_STATUS.UNAUTHENTICATED
+    console.log('🔐 开始初始化认证状态...')
+
+    // 首先检查认证数据的完整性
+    if (!validateAndCleanAuthData()) {
+      // 如果认证数据不完整，validateAndCleanAuthData 已经处理了清理工作
+      if (token.value || refreshToken.value) {
+        // 如果之前有不完整的数据被清理，给用户提示
+        ElMessage.warning('检测到认证信息不完整，请重新登录以确保账户安全')
+      }
       return false
     }
 
@@ -649,6 +688,7 @@ export const useAuthStore = defineStore('auth', () => {
     clearToken,
     setNetworkError,
     restoreFromNetworkError,
+    validateAndCleanAuthData,
     hasPermission,
     hasAnyPermission,
 

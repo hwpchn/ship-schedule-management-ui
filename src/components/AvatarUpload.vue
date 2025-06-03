@@ -56,7 +56,7 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { Upload, Delete, Camera, User } from '@element-plus/icons-vue'
 import { useAuthStore } from '@/stores/auth'
@@ -86,40 +86,84 @@ const deleting = ref(false)
 
 // 计算头像URL
 const avatarUrl = computed(() => {
-  return getUserAvatarUrl(authStore.user, 'http://127.0.0.1:8000', authStore.avatarVersion)
+  // 在开发环境中，使用空字符串让浏览器通过 Vite 代理访问
+  // 在生产环境中，应该使用实际的后端服务器地址
+  const baseURL = import.meta.env.DEV ? '' : 'http://localhost:8000'
+  return getUserAvatarUrl(authStore.user, baseURL, authStore.avatarVersion)
 })
 
 // 触发文件选择
 const triggerUpload = () => {
-  if (uploading.value || deleting.value) return
-  fileInputRef.value?.click()
+  console.log('🖱️ 触发文件上传，当前状态:', {
+    uploading: uploading.value,
+    deleting: deleting.value,
+    fileInputRef: !!fileInputRef.value
+  })
+
+  if (uploading.value || deleting.value) {
+    console.log('⏸️ 上传被阻止：正在进行其他操作')
+    ElMessage.warning('请等待当前操作完成')
+    return
+  }
+
+  if (!fileInputRef.value) {
+    console.error('❌ 文件输入元素未找到')
+    ElMessage.error('文件选择器初始化失败，请刷新页面重试')
+    return
+  }
+
+  try {
+    console.log('📁 尝试打开文件选择器...')
+    fileInputRef.value.click()
+    console.log('✅ 文件选择器已触发')
+  } catch (error) {
+    console.error('💥 触发文件选择器失败:', error)
+    ElMessage.error('无法打开文件选择器，请检查浏览器设置')
+  }
 }
 
 // 处理文件选择
-const handleFileSelect = event => {
+const handleFileSelect = (event) => {
+  console.log('📁 文件选择事件触发:', event)
   const file = event.target.files[0]
-  if (!file) return
+  if (!file) {
+    console.log('❌ 没有选择文件')
+    return
+  }
+
+  console.log('📄 选择的文件:', {
+    name: file.name,
+    type: file.type,
+    size: `${(file.size / 1024 / 1024).toFixed(2)} MB`
+  })
 
   // 验证文件
   if (!validateFile(file)) {
+    console.log('❌ 文件验证失败')
     // 清空input值，允许重新选择同一文件
     event.target.value = ''
     return
   }
 
+  console.log('✅ 文件验证通过，显示确认对话框')
+
   // 确认上传
-  ElMessageBox.confirm('确定要上传这张图片作为头像吗？', '确认上传', {
-    confirmButtonText: '确定上传',
-    cancelButtonText: '取消',
-    type: 'info',
+  ElMessageBox.confirm(
+    '确定要上传这张图片作为头像吗？',
+    '确认上传',
+    {
+      confirmButtonText: '确定上传',
+      cancelButtonText: '取消',
+      type: 'info'
+    }
+  ).then(() => {
+    console.log('✅ 用户确认上传')
+    uploadAvatar(file)
+  }).catch(() => {
+    console.log('❌ 用户取消上传')
+    // 用户取消，清空input值
+    event.target.value = ''
   })
-    .then(() => {
-      uploadAvatar(file)
-    })
-    .catch(() => {
-      // 用户取消，清空input值
-      event.target.value = ''
-    })
 }
 
 // 验证文件
@@ -147,6 +191,42 @@ const uploadAvatar = async file => {
     uploading.value = true
 
     const result = await authStore.uploadAvatar(file)
+
+    console.log('✅ 头像上传成功，验证文件可访问性...')
+
+    // 验证头像文件是否真的可以访问
+    setTimeout(async () => {
+      try {
+        const currentAvatarUrl = avatarUrl.value
+        if (currentAvatarUrl) {
+          const response = await fetch(currentAvatarUrl, { method: 'HEAD' })
+          if (response.ok) {
+            console.log('✅ 头像文件验证成功，可以正常访问')
+          } else {
+            console.warn('⚠️ 头像文件验证失败:', response.status, response.statusText)
+
+            // 如果文件不存在，提供更详细的错误信息和解决建议
+            if (response.status === 404) {
+              ElMessage({
+                type: 'warning',
+                message: '头像上传成功，但文件暂时无法访问。这可能是后端配置问题，请联系管理员或稍后重试。',
+                duration: 8000,
+                showClose: true
+              })
+
+              // 尝试重新获取用户信息，看是否有更新
+              setTimeout(() => {
+                authStore.getUserInfo().catch(console.error)
+              }, 3000)
+            } else {
+              ElMessage.warning('头像上传成功，但文件可能需要一些时间才能生效')
+            }
+          }
+        }
+      } catch (error) {
+        console.warn('⚠️ 头像文件验证出错:', error)
+      }
+    }, 1000) // 延迟1秒验证，给后端时间处理文件
 
     ElMessage.success(result.message || '头像上传成功')
     emit('upload-success', result)
@@ -195,9 +275,47 @@ const handleDeleteAvatar = async () => {
 }
 
 // 头像加载错误处理
-const handleAvatarError = () => {
-  // 静默处理头像加载失败，显示默认头像
+const handleAvatarError = (event) => {
+  console.warn('🖼️ 头像加载失败:', {
+    src: event.target?.src,
+    user: authStore.user,
+    avatarVersion: authStore.avatarVersion
+  })
+
+  // 尝试重新获取用户信息，可能头像URL已更新
+  if (authStore.user && authStore.user.avatar) {
+    console.log('🔄 尝试重新获取用户信息...')
+    authStore.getUserInfo().catch(error => {
+      console.error('重新获取用户信息失败:', error)
+    })
+  }
 }
+
+// 组件挂载后验证
+onMounted(() => {
+  console.log('🔧 AvatarUpload 组件已挂载，验证状态:', {
+    fileInputRef: !!fileInputRef.value,
+    authStore: !!authStore,
+    user: !!authStore.user,
+    avatarUrl: avatarUrl.value,
+    userAvatar: authStore.user?.avatar,
+    userAvatarUrl: authStore.user?.avatar_url,
+    avatarVersion: authStore.avatarVersion,
+    isDev: import.meta.env.DEV
+  })
+
+  // 延迟验证，确保 DOM 完全渲染
+  setTimeout(() => {
+    if (!fileInputRef.value) {
+      console.error('⚠️ 警告：文件输入元素在组件挂载后仍未找到')
+    } else {
+      console.log('✅ 文件输入元素验证成功')
+    }
+
+    // 输出最终的头像URL用于调试
+    console.log('🖼️ 最终头像URL:', avatarUrl.value)
+  }, 100)
+})
 </script>
 
 <style scoped>

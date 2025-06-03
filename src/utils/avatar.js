@@ -5,15 +5,11 @@
 /**
  * 获取完整的头像URL
  * @param {string} avatarPath - 头像路径（可能是相对路径或完整URL）
- * @param {string} baseURL - 后端服务器基础URL，默认为 http://127.0.0.1:8000
+ * @param {string} baseURL - 后端服务器基础URL，默认为空字符串（使用代理）
  * @param {boolean} addTimestamp - 是否添加时间戳避免缓存，默认为true
  * @returns {string|null} 完整的头像URL或null
  */
-export function getFullAvatarUrl(
-  avatarPath,
-  baseURL = 'http://127.0.0.1:8000',
-  addTimestamp = true
-) {
+export function getFullAvatarUrl(avatarPath, baseURL = '', addTimestamp = true) {
   if (!avatarPath) return null
 
   let fullURL
@@ -22,8 +18,13 @@ export function getFullAvatarUrl(
   if (avatarPath.startsWith('http://') || avatarPath.startsWith('https://')) {
     fullURL = avatarPath
   } else {
-    // 如果是相对路径，拼接后端服务器地址
-    fullURL = avatarPath.startsWith('/') ? `${baseURL}${avatarPath}` : `${baseURL}/${avatarPath}`
+    // 如果是相对路径，拼接基础URL
+    if (baseURL) {
+      fullURL = avatarPath.startsWith('/') ? `${baseURL}${avatarPath}` : `${baseURL}/${avatarPath}`
+    } else {
+      // 如果没有baseURL，直接使用相对路径（通过代理访问）
+      fullURL = avatarPath.startsWith('/') ? avatarPath : `/${avatarPath}`
+    }
   }
 
   // 添加时间戳避免浏览器缓存
@@ -38,11 +39,11 @@ export function getFullAvatarUrl(
 /**
  * 从用户对象中获取头像URL
  * @param {object} user - 用户对象
- * @param {string} baseURL - 后端服务器基础URL
+ * @param {string} baseURL - 后端服务器基础URL，默认为空字符串（使用代理）
  * @param {number} version - 版本号，用于强制刷新缓存
  * @returns {string|null} 完整的头像URL或null
  */
-export function getUserAvatarUrl(user, baseURL = 'http://127.0.0.1:8000', version = null) {
+export function getUserAvatarUrl(user, baseURL = '', version = null) {
   if (!user) return null
 
   // 优先使用 avatar_url，其次使用 avatar
