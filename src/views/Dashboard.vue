@@ -44,7 +44,10 @@
             <div class="feature-grid">
               <!-- 船期管理功能 -->
               <div
-                v-if="authStore.user?.is_superuser || permissionStore.hasPermission('vessel_schedule_list')"
+                v-if="
+                  authStore.user?.is_superuser ||
+                  permissionStore.hasPermission('vessel_schedule_list')
+                "
                 class="feature-card"
                 @click="navigateToFeature('shipping')"
               >
@@ -57,7 +60,12 @@
 
               <!-- 系统管理功能 -->
               <div
-                v-if="authStore.user?.is_superuser || authStore.user?.is_staff || authStore.user?.email === 'admin@example.com' || authStore.hasAnyPermission(['user.list', 'role.list', 'permission.list'])"
+                v-if="
+                  authStore.user?.is_superuser ||
+                  authStore.user?.is_staff ||
+                  authStore.user?.email === 'admin@example.com' ||
+                  authStore.hasAnyPermission(['user.list', 'role.list', 'permission.list'])
+                "
                 class="feature-card admin"
                 @click="navigateToFeature('admin')"
               >
@@ -80,13 +88,7 @@ import { computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { usePermissionStore } from '@/stores/permission'
-import {
-  Van,
-  User,
-  ArrowDown,
-  SwitchButton,
-  Setting
-} from '@element-plus/icons-vue'
+import { Van, User, ArrowDown, SwitchButton, Setting } from '@element-plus/icons-vue'
 import { ElMessageBox, ElMessage } from 'element-plus'
 import { getUserAvatarUrl } from '@/utils/avatar'
 
@@ -95,20 +97,18 @@ const authStore = useAuthStore()
 const permissionStore = usePermissionStore()
 
 // 计算头像URL
-const userAvatarUrl = computed(() => getUserAvatarUrl(authStore.user, 'http://127.0.0.1:8000', authStore.avatarVersion))
+const userAvatarUrl = computed(() =>
+  getUserAvatarUrl(authStore.user, 'http://127.0.0.1:8000', authStore.avatarVersion)
+)
 
 // 处理登出
 const handleLogout = async () => {
   try {
-    await ElMessageBox.confirm(
-      '确定要退出登录吗？',
-      '提示',
-      {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning',
-      }
-    )
+    await ElMessageBox.confirm('确定要退出登录吗？', '提示', {
+      confirmButtonText: '确定',
+      cancelButtonText: '取消',
+      type: 'warning',
+    })
 
     await authStore.logout()
     router.push('/login')
@@ -123,7 +123,7 @@ const goToProfile = () => {
 }
 
 // 导航到功能页面
-const navigateToFeature = (feature) => {
+const navigateToFeature = feature => {
   switch (feature) {
     case 'admin':
       router.push('/admin')

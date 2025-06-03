@@ -2,6 +2,7 @@ import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import { authApi } from '@/api/auth'
 import { ElMessage } from 'element-plus'
+import { permissionLogger } from '@/utils/logger'
 
 // 全局状态，用于避免循环依赖
 let authStoreRef = null
@@ -21,16 +22,20 @@ export const usePermissionStore = defineStore('permission', () => {
   })
 
   const canEditLocalFee = computed(() => {
-    return hasPermission('local_fee.create') ||
-           hasPermission('local_fee.update') ||
-           hasPermission('local_fee.edit')
+    return (
+      hasPermission('local_fee.create') ||
+      hasPermission('local_fee.update') ||
+      hasPermission('local_fee.edit')
+    )
   })
 
   const canViewLocalFee = computed(() => {
-    return hasPermission('local_fee.query') ||
-           hasPermission('local_fee.list') ||
-           hasPermission('local_fee.detail') ||
-           hasPermission('local_fee.view')
+    return (
+      hasPermission('local_fee.query') ||
+      hasPermission('local_fee.list') ||
+      hasPermission('local_fee.detail') ||
+      hasPermission('local_fee.view')
+    )
   })
 
   const canDeleteLocalFee = computed(() => {
@@ -46,38 +51,24 @@ export const usePermissionStore = defineStore('permission', () => {
   })
 
   const isAdmin = computed(() => {
-    // 第一优先级：从authStoreRef获取用户信息
-    if (authStoreRef?.user) {
-      const isSuperUser = authStoreRef.user.is_superuser === true
-      console.log('🔍 isAdmin检查 - authStore用户:', authStoreRef.user.email)
-      console.log('🔍 isAdmin检查 - is_superuser:', authStoreRef.user.is_superuser)
-
-      if (isSuperUser) {
-        console.log('🔍 isAdmin检查 - 结果: true (通过authStore)')
-        return true
-      }
-    }
-
-    // 第二优先级：从权限数据中获取
-    if (userPermissions.value?.user) {
-      const isSuperUser = userPermissions.value.user.is_superuser === true
-      console.log('🔍 isAdmin检查 - 权限数据用户:', userPermissions.value.user.email)
-      console.log('🔍 isAdmin检查 - 权限数据is_superuser:', userPermissions.value.user.is_superuser)
-
-      if (isSuperUser) {
-        console.log('🔍 isAdmin检查 - 结果: true (通过权限数据)')
-        return true
-      }
-    }
-
-    // 第三优先级：特殊处理admin@example.com用户
-    const userEmail = authStoreRef?.user?.email || userPermissions.value?.user?.email
-    if (userEmail === 'admin@example.com') {
-      console.log('🔍 isAdmin检查 - 结果: true (admin@example.com特殊处理)')
+    // 优先从authStore获取用户信息
+    if (authStoreRef?.user?.is_superuser === true) {
+      permissionLogger.debug('用户是超级管理员', {
+        email: authStoreRef.user.email,
+        source: 'authStore',
+      })
       return true
     }
 
-    console.log('🔍 isAdmin检查 - 结果: false')
+    // 从权限数据中获取用户信息
+    if (userPermissions.value?.user?.is_superuser === true) {
+      permissionLogger.debug('用户是超级管理员', {
+        email: userPermissions.value.user.email,
+        source: 'permissionData',
+      })
+      return true
+    }
+
     return false
   })
 
@@ -85,7 +76,7 @@ export const usePermissionStore = defineStore('permission', () => {
    * 设置authStore引用（避免循环依赖）
    * @param {Object} authStore authStore实例
    */
-  const setAuthStoreRef = (authStore) => {
+  const setAuthStoreRef = authStore => {
     authStoreRef = authStore
   }
 
@@ -94,82 +85,75 @@ export const usePermissionStore = defineStore('permission', () => {
    * @param {string} permission 权限代码
    * @returns {boolean} 是否有权限
    */
-  const hasPermission = (permission) => {
-    console.log(`🔍 hasPermission检查 - 权限: ${permission}`)
-
-    // 第一优先级：检查authStore中的超级管理员状态
-    if (authStoreRef?.user) {
-      const isSuperUser = authStoreRef.user.is_superuser === true
-
-      console.log(`🔍 hasPermission检查 - authStore用户:`, authStoreRef.user.email)
-      console.log(`🔍 hasPermission检查 - is_superuser:`, authStoreRef.user.is_superuser)
-
-      // 根据文档，只有超级管理员才拥有所有权限
-      if (isSuperUser) {
-        console.log(`👑 超级管理员自动拥有权限: ${permission}`)
-        return true
-      }
-    }
-
-    // 第二优先级：检查权限数据中的用户信息
-    if (userPermissions.value?.user) {
-      const isSuperUser = userPermissions.value.user.is_superuser === true
-
-      console.log(`🔍 hasPermission检查 - 权限数据用户:`, userPermissions.value.user.email)
-      console.log(`🔍 hasPermission检查 - 权限数据is_superuser:`, userPermissions.value.user.is_superuser)
-
-      if (isSuperUser) {
-        console.log(`👑 通过权限数据确认超级管理员权限: ${permission}`)
-        return true
-      }
-    }
-
-    // 第三优先级：特殊处理admin@example.com用户（临时解决方案）
-    const userEmail = authStoreRef?.user?.email || userPermissions.value?.user?.email
-    if (userEmail === 'admin@example.com') {
-      console.log(`👑 admin@example.com用户自动拥有所有权限: ${permission}`)
-      return true
-    }
-
-    // 移除了错误的自动权限授予逻辑
-    // 所有权限都必须通过正式的权限检查
-
-    // 第五优先级：检查具体权限
-    if (!userPermissions.value?.permissions) {
-      console.log(`❓ 权限数据未加载，拒绝权限: ${permission}`)
+  const hasPermission = permission => {
+    if (!permission) {
+      permissionLogger.warn('权限代码为空')
       return false
     }
 
-    // 根据文档，权限数据可能是数组格式
-    let permissionList = userPermissions.value.permissions
+    // 超级管理员拥有所有权限
+    if (isAdmin.value) {
+      permissionLogger.debug('超级管理员拥有所有权限', { permission })
+      return true
+    }
 
-    // 如果是对象格式（按分类），遍历所有分类
-    if (!Array.isArray(permissionList)) {
-      for (const category in permissionList) {
-        const perms = permissionList[category]
-        if (Array.isArray(perms)) {
-          for (const perm of perms) {
-            if (perm.code === permission || perm === permission) {
-              console.log(`✅ 找到匹配权限: ${permission}`)
-              return true
-            }
+    // 检查权限数据是否已加载
+    if (!userPermissions.value?.permissions) {
+      permissionLogger.debug('权限数据未加载，拒绝访问', { permission })
+      return false
+    }
+
+    // 检查具体权限
+    const hasSpecificPermission = checkSpecificPermission(
+      permission,
+      userPermissions.value.permissions
+    )
+
+    permissionLogger.debug('权限检查结果', {
+      permission,
+      result: hasSpecificPermission,
+    })
+
+    return hasSpecificPermission
+  }
+
+  /**
+   * 检查具体权限
+   * @param {string} permission 权限代码
+   * @param {Object|Array} permissions 权限数据
+   * @returns {boolean} 是否有权限
+   */
+  const checkSpecificPermission = (permission, permissions) => {
+    if (Array.isArray(permissions)) {
+      // 数组格式权限检查
+      return permissions.some(perm => {
+        if (typeof perm === 'string') {
+          return perm === permission
+        }
+        if (typeof perm === 'object' && perm.code) {
+          return perm.code === permission
+        }
+        return false
+      })
+    }
+
+    // 对象格式权限检查（按分类）
+    for (const category in permissions) {
+      const perms = permissions[category]
+      if (Array.isArray(perms)) {
+        const found = perms.some(perm => {
+          if (typeof perm === 'string') {
+            return perm === permission
           }
-        }
-      }
-    } else {
-      // 如果是数组格式，直接检查
-      for (const perm of permissionList) {
-        if (typeof perm === 'string' && perm === permission) {
-          console.log(`✅ 找到匹配权限: ${permission}`)
-          return true
-        } else if (typeof perm === 'object' && perm.code === permission) {
-          console.log(`✅ 找到匹配权限: ${permission}`)
-          return true
-        }
+          if (typeof perm === 'object' && perm.code) {
+            return perm.code === permission
+          }
+          return false
+        })
+        if (found) return true
       }
     }
 
-    console.log(`❌ 未找到权限: ${permission}`)
     return false
   }
 
@@ -178,7 +162,7 @@ export const usePermissionStore = defineStore('permission', () => {
    * @param {Array} permissionList 权限代码列表
    * @returns {boolean} 是否有任一权限
    */
-  const hasAnyPermission = (permissionList) => {
+  const hasAnyPermission = permissionList => {
     if (isAdmin.value) return true
 
     return permissionList.some(permission => hasPermission(permission))
@@ -191,11 +175,11 @@ export const usePermissionStore = defineStore('permission', () => {
   const loadUserPermissions = async () => {
     try {
       loading.value = true
-      console.log('🔑 开始加载用户权限...')
+      permissionLogger.info('开始加载用户权限')
 
       const token = localStorage.getItem('token')
       if (!token) {
-        console.log('📭 没有token，无法获取权限')
+        permissionLogger.warn('没有token，无法获取权限')
         userPermissions.value = null
         permissionsLoaded.value = true
         return null
@@ -207,31 +191,30 @@ export const usePermissionStore = defineStore('permission', () => {
         userPermissions.value = response.data
         permissionsLoaded.value = true
 
-        console.log('✅ 用户权限加载成功:', {
+        permissionLogger.info('用户权限加载成功', {
           user: response.data.user?.email,
           permissionCount: Object.keys(response.data.permissions || {}).length,
-          canEditVessel: canEditVesselInfo.value
         })
 
         return response.data
       } else {
-        console.error('❌ 权限加载失败，响应码:', response.code)
+        permissionLogger.error('权限加载失败', { code: response.code, message: response.message })
         throw new Error(response.message || '权限加载失败')
       }
     } catch (error) {
-      console.error('💥 权限加载错误:', error)
+      permissionLogger.error('权限加载错误', error)
 
       // 设置权限加载完成状态，避免阻塞系统使用
       permissionsLoaded.value = true
 
       // 网络错误不清除已有权限信息
       if (error.code === -1 || error.message?.includes('网络')) {
-        console.log('🌐 网络错误，保持现有权限状态')
+        permissionLogger.warn('网络错误，保持现有权限状态')
         ElMessage.warning('网络错误，权限信息可能已过期')
       } else {
         // 其他错误时，如果用户已有权限信息，不清除
         if (!userPermissions.value) {
-          console.warn('⚠️ 权限加载失败，但不阻止系统使用')
+          permissionLogger.warn('权限加载失败，但不阻止系统使用')
           ElMessage.warning('权限加载失败，部分功能可能受限')
         }
       }
@@ -246,7 +229,7 @@ export const usePermissionStore = defineStore('permission', () => {
    * 清除权限信息
    */
   const clearPermissions = () => {
-    console.log('🗑️ 清除权限信息')
+    permissionLogger.info('清除权限信息')
     userPermissions.value = null
     permissionsLoaded.value = false
   }
@@ -287,10 +270,11 @@ export const usePermissionStore = defineStore('permission', () => {
     // 方法
     hasPermission,
     hasAnyPermission,
+    checkSpecificPermission,
     loadUserPermissions,
     clearPermissions,
     refreshPermissions,
-    setAuthStoreRef
+    setAuthStoreRef,
   }
 })
 
@@ -325,6 +309,6 @@ export const usePermissionUtils = () => {
         return !!result
       }
       return true
-    }
+    },
   }
 }

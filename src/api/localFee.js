@@ -10,7 +10,7 @@ const mockLocalFeeData = [
     '40GP': '1287.00',
     '40HQ': '1287.00',
     单票价格: null,
-    币种: 'CNY'
+    币种: 'CNY',
   },
   {
     id: 2,
@@ -20,7 +20,7 @@ const mockLocalFeeData = [
     '40GP': null,
     '40HQ': null,
     单票价格: '50.00',
-    币种: 'USD'
+    币种: 'USD',
   },
   {
     id: 3,
@@ -30,7 +30,7 @@ const mockLocalFeeData = [
     '40GP': null,
     '40HQ': null,
     单票价格: '25.00',
-    币种: 'USD'
+    币种: 'USD',
   },
   {
     id: 4,
@@ -40,7 +40,7 @@ const mockLocalFeeData = [
     '40GP': '1400.00',
     '40HQ': '1400.00',
     单票价格: null,
-    币种: 'INR'
+    币种: 'INR',
   },
   {
     id: 5,
@@ -50,8 +50,8 @@ const mockLocalFeeData = [
     '40GP': '240.00',
     '40HQ': '240.00',
     单票价格: null,
-    币种: 'USD'
-  }
+    币种: 'USD',
+  },
 ]
 
 // 本地费用API对象
@@ -69,7 +69,7 @@ export const localFeeApi = {
       if (carriercd) {
         params.carriercd = carriercd
       }
-      
+
       const response = await request.get('/api/local-fees/local-fees/query/', { params })
       return response.data
     } catch (error) {
@@ -82,7 +82,7 @@ export const localFeeApi = {
         console.warn('网络错误，使用模拟数据:', error.message)
         return {
           status: 'success',
-          data: mockLocalFeeData
+          data: mockLocalFeeData,
         }
       } else {
         // 其他错误，抛出
@@ -115,8 +115,8 @@ export const localFeeApi = {
             price_40gp: item['40GP'],
             price_40hq: item['40HQ'],
             price_per_bill: item.单票价格,
-            currency: item.币种
-          }))
+            currency: item.币种,
+          })),
         }
       } else {
         throw error
@@ -177,7 +177,7 @@ export const localFeeApi = {
    */
   async batchSave(changes) {
     const results = []
-    
+
     for (const change of changes) {
       try {
         if (change.isNew) {
@@ -193,14 +193,14 @@ export const localFeeApi = {
         results.push({ success: false, error: error.message })
       }
     }
-    
+
     return {
       status: 'success',
-      results: results,
+      results,
       successCount: results.filter(r => r.success).length,
-      errorCount: results.filter(r => !r.success).length
+      errorCount: results.filter(r => !r.success).length,
     }
-  }
+  },
 }
 
 /**
@@ -237,4 +237,4 @@ export const getLocalFeesByVessel = async (vesselName, polCd, podCd) => {
 }
 
 // 默认导出
-export default localFeeApi 
+export default localFeeApi

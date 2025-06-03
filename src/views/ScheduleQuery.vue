@@ -9,11 +9,7 @@
         <span class="title">环海运通管理系统 - 船期查询</span>
       </div>
       <div class="header-right">
-        <el-button
-          link
-          @click="goToDashboard"
-          class="back-btn"
-        >
+        <el-button link @click="goToDashboard" class="back-btn">
           <el-icon><ArrowLeft /></el-icon>
           返回首页
         </el-button>
@@ -56,11 +52,7 @@
               </div>
             </template>
 
-            <el-form
-              :model="queryForm"
-              label-width="80px"
-              @submit.prevent="handleSearch"
-            >
+            <el-form :model="queryForm" label-width="80px" @submit.prevent="handleSearch">
               <el-form-item label="起运港" required>
                 <el-select
                   v-model="selectedCity"
@@ -115,10 +107,7 @@
               </el-form-item>
 
               <el-form-item>
-                <el-button
-                  @click="resetQuery"
-                  style="width: 100%"
-                >
+                <el-button @click="resetQuery" style="width: 100%">
                   <el-icon><Refresh /></el-icon>
                   重置
                 </el-button>
@@ -129,12 +118,7 @@
 
         <!-- 右侧宣传海报轮播 -->
         <div class="banner-section">
-          <el-carousel
-            height="300px"
-            indicator-position="outside"
-            :interval="4000"
-            arrow="always"
-          >
+          <el-carousel height="300px" indicator-position="outside" :interval="4000" arrow="always">
             <el-carousel-item v-for="(banner, index) in bannerItems" :key="`banner-${index}`">
               <div class="banner-item" :style="{ background: banner.background }">
                 <div class="banner-content">
@@ -219,10 +203,7 @@
               @change="handleCarrierFilter"
               style="width: 200px"
             >
-              <el-option
-                label="全部船司"
-                value=""
-              />
+              <el-option label="全部船司" value="" />
               <el-option
                 v-for="carrier in availableCarriers"
                 :key="carrier"
@@ -280,11 +261,7 @@
             </div>
 
             <!-- 船司表格 -->
-            <el-table
-              :data="getFilteredCarrierData(group)"
-              border
-              class="group-table"
-            >
+            <el-table :data="getFilteredCarrierData(group)" border class="group-table">
               <el-table-column prop="carrier_code" label="船司代码" width="120" />
               <el-table-column label="计划开船" width="100">
                 <template #default>
@@ -292,9 +269,7 @@
                 </template>
               </el-table-column>
               <el-table-column label="航程时间" width="100">
-                <template #default>
-                  {{ group.plan_duration }}天
-                </template>
+                <template #default>{{ group.plan_duration }}天</template>
               </el-table-column>
               <el-table-column label="20尺现舱" width="100">
                 <template #default="{ row }">
@@ -318,23 +293,14 @@
               </el-table-column>
               <el-table-column label="本地费用" width="100">
                 <template #default>
-                  <el-button
-                    type="primary"
-                    link
-                    size="small"
-                    @click="openLocalFeeDialog(group)"
-                  >
+                  <el-button type="primary" link size="small" @click="openLocalFeeDialog(group)">
                     查看
                   </el-button>
                 </template>
               </el-table-column>
               <el-table-column label="操作">
                 <template #default>
-                  <el-button
-                    type="primary"
-                    size="small"
-                    @click="openScheduleDetails(group)"
-                  >
+                  <el-button type="primary" size="small" @click="openScheduleDetails(group)">
                     查看详情
                   </el-button>
                 </template>
@@ -345,20 +311,14 @@
 
         <!-- 无数据状态 -->
         <div v-else-if="groupsData.length === 0" class="no-data">
-          <el-empty
-            description="未找到匹配的航线信息"
-            :image-size="120"
-          >
+          <el-empty description="未找到匹配的航线信息" :image-size="120">
             <el-button type="primary" @click="resetQuery">重新查询</el-button>
           </el-empty>
         </div>
 
         <!-- 筛选后无数据状态 -->
         <div v-else-if="selectedCarrier && filteredGroupsData.length === 0" class="no-data">
-          <el-empty
-            description="该船司暂无航线信息"
-            :image-size="120"
-          >
+          <el-empty description="该船司暂无航线信息" :image-size="120">
             <el-button type="primary" @click="clearCarrierFilter">清除筛选</el-button>
           </el-empty>
         </div>
@@ -366,20 +326,12 @@
 
       <!-- 初始状态 -->
       <div v-else class="initial-state">
-        <el-empty
-          description="请选择起运港和目的港进行查询"
-          :image-size="150"
-        />
+        <el-empty description="请选择起运港和目的港进行查询" :image-size="150" />
       </div>
     </el-main>
 
     <!-- 航线详情弹窗 -->
-    <el-dialog
-      title="航线详情"
-      v-model="scheduleDialogVisible"
-      width="80%"
-      destroy-on-close
-    >
+    <el-dialog title="航线详情" v-model="scheduleDialogVisible" width="80%" destroy-on-close>
       <div v-if="selectedGroup">
         <div class="dialog-header">
           <div class="header-content">
@@ -516,11 +468,7 @@
             fixed="right"
           >
             <template #default="scope">
-              <el-button
-                type="primary"
-                size="small"
-                @click="openEditDialog(scope.row)"
-              >
+              <el-button type="primary" size="small" @click="openEditDialog(scope.row)">
                 编辑
               </el-button>
             </template>
@@ -528,7 +476,10 @@
         </el-table>
 
         <!-- 批量操作按钮 -->
-        <div v-if="permissionStore.canEditVesselInfo && pendingUpdates.length > 0" class="batch-actions">
+        <div
+          v-if="permissionStore.canEditVesselInfo && pendingUpdates.length > 0"
+          class="batch-actions"
+        >
           <el-alert
             :title="`有 ${pendingUpdates.length} 项待保存的更改`"
             type="warning"
@@ -536,9 +487,7 @@
             show-icon
           />
           <div class="action-buttons">
-            <el-button @click="clearEditing" :disabled="loading">
-              取消更改
-            </el-button>
+            <el-button @click="clearEditing" :disabled="loading">取消更改</el-button>
             <el-button type="primary" @click="saveUpdates" :loading="loading">
               保存全部更改
             </el-button>
@@ -586,7 +535,7 @@ import {
   Check,
   Close,
   Warning,
-  Location
+  Location,
 } from '@element-plus/icons-vue'
 import { useAuthStore } from '@/stores/auth'
 import { usePermissionStore } from '@/stores/permission'
@@ -602,7 +551,9 @@ const authStore = useAuthStore()
 const permissionStore = usePermissionStore()
 
 // 计算头像URL
-const userAvatarUrl = computed(() => getUserAvatarUrl(authStore.user, 'http://127.0.0.1:8000', authStore.avatarVersion))
+const userAvatarUrl = computed(() =>
+  getUserAvatarUrl(authStore.user, 'http://127.0.0.1:8000', authStore.avatarVersion)
+)
 
 // 响应式状态
 const loading = ref(false)
@@ -632,20 +583,20 @@ const bannerItems = ref([
     action: () => {
       // 滚动到搜索区域
       document.querySelector('.search-section')?.scrollIntoView({ behavior: 'smooth' })
-    }
+    },
   },
   {
     title: '智能物流管理',
     description: '一站式国际货运解决方案，让您的全球物流更加便捷高效',
     background: 'linear-gradient(135deg, #2c5aa0 0%, #4a90e2 100%)',
-    buttonText: '了解更多'
+    buttonText: '了解更多',
   },
   {
     title: '实时船期追踪',
     description: '实时更新船舶动态信息，精准掌控货物运输状态',
     background: 'linear-gradient(135deg, #4a90e2 0%, #6bb6ff 100%)',
-    buttonText: '查看详情'
-  }
+    buttonText: '查看详情',
+  },
 ])
 
 // 港口数据 - 从数据文件导入
@@ -657,8 +608,8 @@ const filteredPorts = ref([])
 
 // 查询表单
 const queryForm = reactive({
-  polCd: 'CNSHK',  // 默认值用于测试
-  podCd: 'INMAA'   // 默认值用于测试
+  polCd: 'CNSHK', // 默认值用于测试
+  podCd: 'INMAA', // 默认值用于测试
 })
 
 // 起运港相关状态
@@ -673,7 +624,10 @@ const getResultStatsText = () => {
     return `查询路线：${getPortName(queryForm.polCd)} → ${getPortName(queryForm.podCd)}，未找到匹配的航线`
   }
 
-  const totalSchedules = groupsData.value.reduce((sum, group) => sum + (group.schedules?.length || 0), 0)
+  const totalSchedules = groupsData.value.reduce(
+    (sum, group) => sum + (group.schedules?.length || 0),
+    0
+  )
   return `查询路线：${getPortName(queryForm.polCd)} → ${getPortName(queryForm.podCd)}，找到 ${groupsData.value.length} 个分组，共 ${totalSchedules} 个航次`
 }
 
@@ -740,7 +694,7 @@ const filteredPodPorts = computed(() => {
 })
 
 // 按开船时间排序的航线数据
-const getSortedSchedules = (schedules) => {
+const getSortedSchedules = schedules => {
   if (!schedules || !Array.isArray(schedules)) return []
 
   return [...schedules].sort((a, b) => {
@@ -752,7 +706,7 @@ const getSortedSchedules = (schedules) => {
 }
 
 // 工具函数
-const getPortName = (code) => {
+const getPortName = code => {
   // 先在所有港口中查找
   const allPortsList = searchPorts('')
   const port = allPortsList.find(p => p.code === code)
@@ -769,7 +723,7 @@ const getPortName = (code) => {
   return code
 }
 
-const formatDate = (dateStr) => {
+const formatDate = dateStr => {
   if (!dateStr) return '-'
   try {
     const date = new Date(dateStr)
@@ -783,7 +737,7 @@ const formatDate = (dateStr) => {
 }
 
 // 获取星期几的文本
-const getWeekdayText = (dayNumber) => {
+const getWeekdayText = dayNumber => {
   const weekdays = ['周一', '周二', '周三', '周四', '周五', '周六', '周日']
   if (dayNumber >= 0 && dayNumber <= 6) {
     return weekdays[dayNumber]
@@ -792,12 +746,12 @@ const getWeekdayText = (dayNumber) => {
 }
 
 // 获取更改描述的友好文本
-const getUpdateDescription = (update) => {
+const getUpdateDescription = update => {
   const fieldNames = {
-    'price': '价格',
-    'gp_20': '20尺现舱',
-    'hq_40': '40尺现舱',
-    'cut_off_time': '截关时间'
+    price: '价格',
+    gp_20: '20尺现舱',
+    hq_40: '40尺现舱',
+    cut_off_time: '截关时间',
   }
 
   const changes = []
@@ -813,15 +767,15 @@ const getUpdateDescription = (update) => {
 }
 
 // 起运港相关方法
-const handlePolSearch = (searchValue) => {
+const handlePolSearch = searchValue => {
   polSearchValue.value = searchValue
 }
 
-const handlePodSearch = (searchValue) => {
+const handlePodSearch = searchValue => {
   podSearchValue.value = searchValue
 }
 
-const handlePolSelect = (portCode) => {
+const handlePolSelect = portCode => {
   if (!portCode) {
     selectedCity.value = ''
     selectedTerminal.value = ''
@@ -844,7 +798,7 @@ const handlePolSelect = (portCode) => {
   }
 }
 
-const handleTerminalSelect = (terminalCode) => {
+const handleTerminalSelect = terminalCode => {
   selectedTerminal.value = terminalCode
   queryForm.polCd = terminalCode
 
@@ -892,24 +846,24 @@ const handleSearch = async () => {
     } else {
       ElMessage.success(`查询成功，找到 ${groupsData.value.length} 个分组`)
     }
-      } catch (error) {
-      console.error('❌ 查询失败:', error)
+  } catch (error) {
+    console.error('❌ 查询失败:', error)
 
-      // 处理不同类型的错误
-      if (error.response?.status === 403) {
-        ElMessage.error('您没有查询船期的权限，请联系管理员')
-      } else if (error.response?.status === 401) {
-        ElMessage.error('登录已过期，请重新登录')
-        // 可以考虑自动跳转到登录页
-        // router.push('/login')
-      } else {
-        ElMessage.error('查询失败: ' + (error.message || '网络错误，请重试'))
-      }
-
-      groupsData.value = []
-    } finally {
-      loading.value = false
+    // 处理不同类型的错误
+    if (error.response?.status === 403) {
+      ElMessage.error('您没有查询船期的权限，请联系管理员')
+    } else if (error.response?.status === 401) {
+      ElMessage.error('登录已过期，请重新登录')
+      // 可以考虑自动跳转到登录页
+      // router.push('/login')
+    } else {
+      ElMessage.error('查询失败: ' + (error.message || '网络错误，请重试'))
     }
+
+    groupsData.value = []
+  } finally {
+    loading.value = false
+  }
 }
 
 const resetQuery = () => {
@@ -926,7 +880,7 @@ const resetQuery = () => {
 }
 
 // 船司筛选相关方法
-const handleCarrierFilter = (carrier) => {
+const handleCarrierFilter = carrier => {
   selectedCarrier.value = carrier
 
   if (carrier) {
@@ -942,7 +896,7 @@ const clearCarrierFilter = () => {
 }
 
 // 获取筛选后的船司数据（用于表格显示）
-const getFilteredCarrierData = (group) => {
+const getFilteredCarrierData = group => {
   if (!selectedCarrier.value) {
     // 没有筛选时，显示所有船司
     return group.carrier_codes.map(code => ({ carrier_code: code, ...group }))
@@ -953,7 +907,7 @@ const getFilteredCarrierData = (group) => {
 }
 
 // 获取要显示的船司代码（用于分组标题）
-const getDisplayCarrierCodes = (group) => {
+const getDisplayCarrierCodes = group => {
   if (!selectedCarrier.value) {
     // 没有筛选时，显示所有船司
     return group.carrier_codes
@@ -965,14 +919,13 @@ const getDisplayCarrierCodes = (group) => {
 
 const refreshData = async () => {
   if (searched.value && queryForm.polCd && queryForm.podCd) {
-
     // 如果没有待保存的更改，直接刷新
     if (pendingUpdates.value.length === 0) {
       await handleSearch()
     } else {
       // 如果有待保存的更改，保存编辑状态
       const currentEditingData = { ...editingData.value }
-      const currentPendingUpdates = [...pendingUpdates.value ]
+      const currentPendingUpdates = [...pendingUpdates.value]
 
       await handleSearch()
 
@@ -984,12 +937,12 @@ const refreshData = async () => {
 }
 
 // 航线详情相关
-const openScheduleDetails = (group) => {
+const openScheduleDetails = group => {
   selectedGroup.value = group
   scheduleDialogVisible.value = true
 }
 
-const openEditDialog = (vessel) => {
+const openEditDialog = vessel => {
   if (!permissionStore.canEditVesselInfo) {
     ElMessage.warning('您没有编辑船舶信息的权限')
     return
@@ -1000,40 +953,39 @@ const openEditDialog = (vessel) => {
 }
 
 // 本地费用相关
-const openLocalFeeDialog = (group) => {
-
+const openLocalFeeDialog = group => {
   // 从分组数据中获取起运港和目的港信息
   if (group.schedules && group.schedules.length > 0) {
     const firstSchedule = group.schedules[0]
     selectedRoute.value = {
       polCd: firstSchedule.polCd || queryForm.polCd,
       podCd: firstSchedule.podCd || queryForm.podCd,
-      vesselName: firstSchedule.carriercd || firstSchedule.vessel
+      vesselName: firstSchedule.carriercd || firstSchedule.vessel,
     }
   } else {
     // 如果没有航线数据，使用查询表单的港口信息
     selectedRoute.value = {
       polCd: queryForm.polCd,
       podCd: queryForm.podCd,
-      vesselName: ''
+      vesselName: '',
     }
   }
 
   localFeeDialogVisible.value = true
 }
 
-const openLocalFeeDialogForVessel = (vessel) => {
+const openLocalFeeDialogForVessel = vessel => {
   // 从单个船舶数据中获取起运港和目的港信息
   selectedRoute.value = {
     polCd: vessel.polCd || queryForm.polCd,
     podCd: vessel.podCd || queryForm.podCd,
-    vesselName: vessel.carriercd || vessel.vessel
+    vesselName: vessel.carriercd || vessel.vessel,
   }
 
   localFeeDialogVisible.value = true
 }
 
-const handleVesselSaved = (data) => {
+const handleVesselSaved = data => {
   ElMessage.success('船舶信息保存成功')
 }
 
@@ -1068,7 +1020,7 @@ const getEditValueRef = (vessel, field) => {
 
   return computed({
     get: () => editingData.value[vesselInfoId]?.[field] || '',
-    set: (value) => {
+    set: value => {
       if (!editingData.value[vesselInfoId]) {
         editingData.value[vesselInfoId] = {}
       }
@@ -1081,10 +1033,10 @@ const getEditValueRef = (vessel, field) => {
       } else {
         pendingUpdates.value.push({
           id: vesselInfoId,
-          [field]: value
+          [field]: value,
         })
       }
-    }
+    },
   })
 }
 
@@ -1112,13 +1064,13 @@ const updateVesselField = (vessel, field, value) => {
     // 更新现有记录
     pendingUpdates.value[existingIndex] = {
       ...pendingUpdates.value[existingIndex],
-      [field]: value
+      [field]: value,
     }
   } else {
     // 添加新记录
     pendingUpdates.value.push({
       id: vesselInfoId,
-      [field]: value
+      [field]: value,
     })
   }
 }
@@ -1167,7 +1119,6 @@ const saveUpdates = async () => {
     } else {
       ElMessage.error('所有更新都失败了')
     }
-
   } catch (error) {
     ElMessage.error('保存失败: ' + (error.message || '未知错误'))
   } finally {
@@ -1191,15 +1142,11 @@ const goToProfile = () => {
 
 const handleLogout = async () => {
   try {
-    await ElMessageBox.confirm(
-      '确定要退出登录吗？',
-      '提示',
-      {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning',
-      }
-    )
+    await ElMessageBox.confirm('确定要退出登录吗？', '提示', {
+      confirmButtonText: '确定',
+      cancelButtonText: '取消',
+      type: 'warning',
+    })
 
     await authStore.logout()
     router.push('/login')
@@ -1369,7 +1316,7 @@ onMounted(async () => {
         font-size: 28px;
         margin-bottom: 16px;
         font-weight: 700;
-        text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
       }
 
       p {
@@ -1377,7 +1324,7 @@ onMounted(async () => {
         margin-bottom: 20px;
         opacity: 0.95;
         line-height: 1.6;
-        text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+        text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
       }
 
       .el-button {
@@ -1390,7 +1337,7 @@ onMounted(async () => {
           background: rgba(255, 255, 255, 0.3);
           border-color: white;
           transform: translateY(-2px);
-          box-shadow: 0 6px 16px rgba(0,0,0,0.2);
+          box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
         }
       }
     }
@@ -1619,7 +1566,8 @@ onMounted(async () => {
   }
 }
 
-.no-data, .initial-state {
+.no-data,
+.initial-state {
   margin: 60px 0;
   text-align: center;
 }
@@ -1662,21 +1610,21 @@ onMounted(async () => {
       gap: 8px;
       flex-wrap: wrap;
 
-             .carrier-tag {
-         font-weight: 600;
-         border-radius: 4px;
-         padding: 6px 14px;
-         background: #f4f4f5;
-         border: 1px solid #d3d4d6;
-         color: #606266;
-         font-size: 14px;
-         transition: all 0.2s ease;
+      .carrier-tag {
+        font-weight: 600;
+        border-radius: 4px;
+        padding: 6px 14px;
+        background: #f4f4f5;
+        border: 1px solid #d3d4d6;
+        color: #606266;
+        font-size: 14px;
+        transition: all 0.2s ease;
 
-         &:hover {
-           background: #e1e3e9;
-           border-color: #b1b3b8;
-         }
-       }
+        &:hover {
+          background: #e1e3e9;
+          border-color: #b1b3b8;
+        }
+      }
     }
   }
 
@@ -1755,7 +1703,8 @@ onMounted(async () => {
     flex-direction: column;
     height: auto;
 
-    .search-section, .banner-section {
+    .search-section,
+    .banner-section {
       flex: none;
       min-width: auto;
     }

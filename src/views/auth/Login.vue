@@ -6,7 +6,7 @@
       <div class="wave wave2"></div>
       <div class="wave wave3"></div>
     </div>
-    
+
     <!-- 登录卡片 -->
     <div class="login-card">
       <div class="login-header">
@@ -65,11 +65,7 @@
 
       <div class="login-footer">
         <span>还没有账户？</span>
-        <el-link 
-          type="primary" 
-          underline="never"
-          @click="$router.push('/register')"
-        >
+        <el-link type="primary" underline="never" @click="$router.push('/register')">
           立即注册
         </el-link>
       </div>
@@ -96,19 +92,19 @@ const loginFormRef = ref()
 // 表单数据
 const loginForm = reactive({
   email: '',
-  password: ''
+  password: '',
 })
 
 // 表单验证规则
 const loginRules = {
   email: [
     { required: true, message: '请输入邮箱地址', trigger: 'blur' },
-    { type: 'email', message: '请输入正确的邮箱格式', trigger: 'blur' }
+    { type: 'email', message: '请输入正确的邮箱格式', trigger: 'blur' },
   ],
   password: [
     { required: true, message: '请输入密码', trigger: 'blur' },
-    { min: 6, message: '密码长度至少6位', trigger: 'blur' }
-  ]
+    { min: 6, message: '密码长度至少6位', trigger: 'blur' },
+  ],
 }
 
 // 处理登录
@@ -118,39 +114,39 @@ const handleLogin = async () => {
   try {
     await loginFormRef.value.validate()
     console.log('📝 表单验证通过，开始登录...')
-    
+
     const result = await authStore.login(loginForm)
-    
+
     if (result.success) {
       console.log('🎯 登录返回成功，结果:', result)
-      
+
       // 等待一小段时间确保状态完全更新
       await new Promise(resolve => setTimeout(resolve, 100))
-      
+
       // 再次检查认证状态
       const currentAuthState = {
         isAuthenticated: authStore.isAuthenticated,
         token: !!authStore.token,
         user: !!authStore.user,
-        userEmail: authStore.user?.email
+        userEmail: authStore.user?.email,
       }
-      
+
       console.log('🔍 跳转前认证状态检查:', currentAuthState)
-      
+
       if (!authStore.isAuthenticated) {
         console.error('⚠️ 登录成功但认证状态异常')
         ElMessage.error('登录状态异常，请重试')
-        
+
         // 调试信息：输出到控制台供用户检查
         console.group('🛠️ 调试信息')
         console.log('Token值:', authStore.token)
         console.log('用户信息:', authStore.user)
         console.log('计算属性isAuthenticated:', authStore.isAuthenticated)
         console.groupEnd()
-        
+
         return
       }
-      
+
       console.log('✅ 认证状态正常，准备跳转到dashboard')
       // 登录成功，跳转到仪表盘
       await router.push('/dashboard')
@@ -187,7 +183,7 @@ const handleLogin = async () => {
   height: 100%;
   overflow: hidden;
   z-index: 0;
-  
+
   .wave {
     position: absolute;
     width: 200%;
@@ -195,20 +191,20 @@ const handleLogin = async () => {
     background: rgba(255, 255, 255, 0.05);
     border-radius: 45%;
     animation: wave 20s linear infinite;
-    
+
     &.wave1 {
       top: -60%;
       left: -50%;
       animation-duration: 25s;
     }
-    
+
     &.wave2 {
       top: -70%;
       right: -50%;
       animation-duration: 30s;
       animation-direction: reverse;
     }
-    
+
     &.wave3 {
       bottom: -60%;
       left: -30%;
@@ -253,12 +249,12 @@ const handleLogin = async () => {
 .login-header {
   text-align: center;
   margin-bottom: 40px;
-  
+
   .logo {
     margin-bottom: 20px;
     animation: logoFloat 3s ease-in-out infinite;
   }
-  
+
   .title {
     font-size: 28px;
     font-weight: 600;
@@ -266,7 +262,7 @@ const handleLogin = async () => {
     margin-bottom: 8px;
     letter-spacing: 1px;
   }
-  
+
   .subtitle {
     color: #666;
     font-size: 14px;
@@ -275,7 +271,8 @@ const handleLogin = async () => {
 }
 
 @keyframes logoFloat {
-  0%, 100% {
+  0%,
+  100% {
     transform: translateY(0);
   }
   50% {
@@ -286,25 +283,25 @@ const handleLogin = async () => {
 .login-form {
   .el-form-item {
     margin-bottom: 24px;
-    
+
     :deep(.el-input__inner) {
       height: 50px;
       border-radius: 12px;
       border: 1px solid #e0e6ed;
       transition: all 0.3s ease;
-      
+
       &:focus {
         border-color: #409eff;
         box-shadow: 0 0 0 2px rgba(64, 158, 255, 0.1);
       }
     }
-    
+
     :deep(.el-input__prefix) {
       display: flex;
       align-items: center;
     }
   }
-  
+
   .login-btn {
     width: 100%;
     height: 50px;
@@ -314,12 +311,12 @@ const handleLogin = async () => {
     background: linear-gradient(135deg, #409eff, #5470c6);
     border: none;
     transition: all 0.3s ease;
-    
+
     &:hover {
       transform: translateY(-2px);
       box-shadow: 0 8px 25px rgba(64, 158, 255, 0.3);
     }
-    
+
     &:active {
       transform: translateY(0);
     }
@@ -331,7 +328,7 @@ const handleLogin = async () => {
   margin-top: 30px;
   color: #666;
   font-size: 14px;
-  
+
   .el-link {
     margin-left: 8px;
     font-weight: 500;
@@ -354,9 +351,9 @@ const handleLogin = async () => {
     padding: 30px 20px;
     margin: 0 20px;
   }
-  
+
   .login-header .title {
     font-size: 24px;
   }
 }
-</style> 
+</style>

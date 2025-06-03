@@ -35,16 +35,16 @@ import { Folder, Key } from '@element-plus/icons-vue'
 const props = defineProps({
   permissions: {
     type: Object,
-    default: () => ({})
+    default: () => ({}),
   },
   checkedPermissions: {
     type: Array,
-    default: () => []
+    default: () => [],
   },
   checkStrictly: {
     type: Boolean,
-    default: false
-  }
+    default: false,
+  },
 })
 
 const emit = defineEmits(['update:checkedPermissions', 'change'])
@@ -53,7 +53,7 @@ const treeRef = ref()
 
 const treeProps = {
   children: 'children',
-  label: 'name'
+  label: 'name',
 }
 
 // 权限分类映射
@@ -63,22 +63,22 @@ const categoryMap = {
   permission_management: '权限管理',
   user_role_management: '用户角色管理',
   schedule_management: '船期管理',
-  system_management: '系统管理'
+  system_management: '系统管理',
 }
 
 // 转换为树形数据
 const treeData = computed(() => {
   const tree = []
-  
+
   // 遍历权限分类
   for (const [categoryKey, permissionList] of Object.entries(props.permissions)) {
     const categoryNode = {
       code: categoryKey,
       name: categoryMap[categoryKey] || categoryKey,
       category: true,
-      children: []
+      children: [],
     }
-    
+
     // 添加分类下的权限
     if (Array.isArray(permissionList)) {
       permissionList.forEach(permission => {
@@ -86,14 +86,14 @@ const treeData = computed(() => {
           code: permission.code,
           name: permission.name,
           description: permission.description,
-          category: false
+          category: false,
         })
       })
     }
-    
+
     tree.push(categoryNode)
   }
-  
+
   return tree
 })
 
@@ -106,18 +106,16 @@ const checkedKeys = computed(() => {
 const handleCheck = (data, checkState) => {
   const checkedKeys = checkState.checkedKeys
   const checkedNodes = checkState.checkedNodes
-  
+
   // 过滤出权限节点（非分类节点）
-  const permissionCodes = checkedNodes
-    .filter(node => !node.category)
-    .map(node => node.code)
-  
+  const permissionCodes = checkedNodes.filter(node => !node.category).map(node => node.code)
+
   emit('update:checkedPermissions', permissionCodes)
   emit('change', permissionCodes, checkedNodes)
 }
 
 // 设置选中的权限
-const setCheckedKeys = (keys) => {
+const setCheckedKeys = keys => {
   nextTick(() => {
     if (treeRef.value) {
       treeRef.value.setCheckedKeys(keys)
@@ -142,15 +140,19 @@ const getCheckedNodes = () => {
 }
 
 // 监听外部权限变化
-watch(() => props.checkedPermissions, (newKeys) => {
-  setCheckedKeys(newKeys)
-}, { immediate: true })
+watch(
+  () => props.checkedPermissions,
+  newKeys => {
+    setCheckedKeys(newKeys)
+  },
+  { immediate: true }
+)
 
 // 暴露方法
 defineExpose({
   setCheckedKeys,
   getCheckedKeys,
-  getCheckedNodes
+  getCheckedNodes,
 })
 </script>
 
@@ -158,67 +160,67 @@ defineExpose({
 .permission-tree {
   .permission-tree-component {
     background: transparent;
-    
+
     :deep(.el-tree-node) {
       margin-bottom: 4px;
-      
+
       .el-tree-node__content {
         height: 36px;
         border-radius: 6px;
         transition: all 0.3s ease;
-        
+
         &:hover {
           background: rgba(64, 158, 255, 0.1);
         }
       }
-      
+
       .el-checkbox {
         margin-right: 8px;
       }
-      
+
       .el-tree-node__expand-icon {
         color: #666;
         font-size: 14px;
       }
     }
-    
+
     // 分类节点样式
-    :deep(.el-tree-node[data-category="true"]) {
+    :deep(.el-tree-node[data-category='true']) {
       .el-tree-node__content {
         font-weight: 600;
         background: rgba(64, 158, 255, 0.05);
-        
+
         &:hover {
           background: rgba(64, 158, 255, 0.15);
         }
       }
     }
   }
-  
+
   .tree-node {
     display: flex;
     align-items: center;
     gap: 8px;
     flex: 1;
     overflow: hidden;
-    
+
     .category-icon {
       color: #e6a23c;
       font-size: 16px;
     }
-    
+
     .permission-icon {
       color: #409eff;
       font-size: 14px;
     }
-    
+
     .node-label {
       font-size: 14px;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
     }
-    
+
     .node-description {
       font-size: 12px;
       color: #999;
@@ -241,4 +243,4 @@ defineExpose({
     }
   }
 }
-</style> 
+</style>

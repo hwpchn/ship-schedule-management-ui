@@ -9,7 +9,11 @@
  * @param {boolean} addTimestamp - 是否添加时间戳避免缓存，默认为true
  * @returns {string|null} 完整的头像URL或null
  */
-export function getFullAvatarUrl(avatarPath, baseURL = 'http://127.0.0.1:8000', addTimestamp = true) {
+export function getFullAvatarUrl(
+  avatarPath,
+  baseURL = 'http://127.0.0.1:8000',
+  addTimestamp = true
+) {
   if (!avatarPath) return null
 
   let fullURL

@@ -19,7 +19,7 @@ export function useVesselEdit() {
    * @param {string} fieldName 字段名
    * @returns {boolean} 是否可编辑
    */
-  const isFieldEditable = (fieldName) => {
+  const isFieldEditable = fieldName => {
     return EDITABLE_FIELDS.includes(fieldName)
   }
 
@@ -123,7 +123,7 @@ export function useVesselEdit() {
    * @param {Array} updates 更新数据数组
    * @returns {Promise<boolean>} 是否更新成功
    */
-  const batchUpdateVesselInfo = async (updates) => {
+  const batchUpdateVesselInfo = async updates => {
     // 权限检查
     if (!permissionStore.hasPermission('vessel_info.update')) {
       ElMessage.error('您没有批量编辑船舶信息的权限')
@@ -167,17 +167,17 @@ export function useVesselEdit() {
     // 状态
     loading,
     errors,
-    
+
     // 常量
     EDITABLE_FIELDS,
-    
+
     // 方法
     isFieldEditable,
     editSingleField,
     editVesselInfo,
     batchUpdateVesselInfo,
     resetErrors,
-    canEdit
+    canEdit,
   }
 }
 
@@ -190,7 +190,7 @@ export function useVesselForm(initialData = {}) {
     price: initialData.price || 0,
     gp_20: initialData.gp_20 || '',
     hq_40: initialData.hq_40 || '',
-    cut_off_time: initialData.cut_off_time || ''
+    cut_off_time: initialData.cut_off_time || '',
   })
 
   // 原始数据备份
@@ -209,7 +209,7 @@ export function useVesselForm(initialData = {}) {
    * 更新原始数据
    * @param {Object} newData 新数据
    */
-  const updateOriginalData = (newData) => {
+  const updateOriginalData = newData => {
     Object.keys(newData).forEach(key => {
       if (form.hasOwnProperty(key)) {
         originalData[key] = newData[key]
@@ -264,7 +264,7 @@ export function useVesselForm(initialData = {}) {
 
     return {
       valid: Object.keys(errors).length === 0,
-      errors
+      errors,
     }
   }
 
@@ -272,12 +272,12 @@ export function useVesselForm(initialData = {}) {
     // 状态
     form,
     originalData,
-    
+
     // 方法
     resetForm,
     updateOriginalData,
     hasChanges,
     getChanges,
-    validateForm
+    validateForm,
   }
 }

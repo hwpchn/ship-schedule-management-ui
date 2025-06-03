@@ -6,11 +6,7 @@
         <p>管理系统用户和角色分配</p>
       </div>
       <div class="header-right">
-        <el-button
-          type="primary"
-          @click="handleCreateUser"
-          v-if="canCreateUser"
-        >
+        <el-button type="primary" @click="handleCreateUser" v-if="canCreateUser">
           <el-icon><Plus /></el-icon>
           创建用户
         </el-button>
@@ -39,12 +35,7 @@
       </div>
 
       <!-- 用户表格 -->
-      <el-table
-        :data="filteredUsers"
-        v-loading="loading"
-        stripe
-        class="user-table"
-      >
+      <el-table :data="filteredUsers" v-loading="loading" stripe class="user-table">
         <el-table-column type="index" label="序号" width="60" />
 
         <el-table-column prop="email" label="邮箱" min-width="200">
@@ -111,11 +102,7 @@
         <el-table-column label="操作" width="180" fixed="right">
           <template #default="{ row }">
             <div class="action-buttons">
-              <el-button
-                size="small"
-                @click="handleAssignRoles(row)"
-                v-if="canAssignRoles"
-              >
+              <el-button size="small" @click="handleAssignRoles(row)" v-if="canAssignRoles">
                 分配角色
               </el-button>
               <el-button
@@ -186,13 +173,7 @@
 
       <template #footer>
         <el-button @click="roleDialogVisible = false">取消</el-button>
-        <el-button
-          type="primary"
-          :loading="submitting"
-          @click="handleSaveRoles"
-        >
-          保存
-        </el-button>
+        <el-button type="primary" :loading="submitting" @click="handleSaveRoles">保存</el-button>
       </template>
     </el-dialog>
 
@@ -210,11 +191,7 @@
         label-width="80px"
       >
         <el-form-item label="邮箱" prop="email">
-          <el-input
-            v-model="createUserForm.email"
-            placeholder="请输入用户邮箱"
-            clearable
-          />
+          <el-input v-model="createUserForm.email" placeholder="请输入用户邮箱" clearable />
         </el-form-item>
 
         <el-form-item label="密码" prop="password">
@@ -238,31 +215,17 @@
         </el-form-item>
 
         <el-form-item label="姓氏" prop="last_name">
-          <el-input
-            v-model="createUserForm.last_name"
-            placeholder="请输入姓氏"
-            clearable
-          />
+          <el-input v-model="createUserForm.last_name" placeholder="请输入姓氏" clearable />
         </el-form-item>
 
         <el-form-item label="名字" prop="first_name">
-          <el-input
-            v-model="createUserForm.first_name"
-            placeholder="请输入名字"
-            clearable
-          />
+          <el-input v-model="createUserForm.first_name" placeholder="请输入名字" clearable />
         </el-form-item>
       </el-form>
 
       <template #footer>
         <el-button @click="createUserDialogVisible = false">取消</el-button>
-        <el-button
-          type="primary"
-          :loading="submitting"
-          @click="handleSaveUser"
-        >
-          创建用户
-        </el-button>
+        <el-button type="primary" :loading="submitting" @click="handleSaveUser">创建用户</el-button>
       </template>
     </el-dialog>
   </div>
@@ -275,18 +238,13 @@ import { usePermissionStore } from '@/stores/permission'
 import { authApi } from '@/api/auth'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { getUserAvatarUrl } from '@/utils/avatar'
-import {
-  Search,
-  Refresh,
-  User,
-  Plus
-} from '@element-plus/icons-vue'
+import { Search, Refresh, User, Plus } from '@element-plus/icons-vue'
 
 const authStore = useAuthStore()
 const permissionStore = usePermissionStore()
 
 // 获取用户头像URL的函数
-const getUserAvatar = (user) => {
+const getUserAvatar = user => {
   return getUserAvatarUrl(user, 'http://127.0.0.1:8000', authStore.avatarVersion)
 }
 
@@ -316,7 +274,7 @@ const createUserForm = ref({
   password: '',
   password_confirm: '',
   first_name: '',
-  last_name: ''
+  last_name: '',
 })
 
 // 计算属性
@@ -324,10 +282,11 @@ const filteredUsers = computed(() => {
   if (!searchQuery.value) return users.value
 
   const query = searchQuery.value.toLowerCase()
-  return users.value.filter(user =>
-    user.email.toLowerCase().includes(query) ||
-    (user.full_name && user.full_name.toLowerCase().includes(query)) ||
-    (user.short_name && user.short_name.toLowerCase().includes(query))
+  return users.value.filter(
+    user =>
+      user.email.toLowerCase().includes(query) ||
+      (user.full_name && user.full_name.toLowerCase().includes(query)) ||
+      (user.short_name && user.short_name.toLowerCase().includes(query))
   )
 })
 
@@ -348,11 +307,11 @@ const canCreateUser = computed(() => {
 const createUserRules = {
   email: [
     { required: true, message: '请输入邮箱地址', trigger: 'blur' },
-    { type: 'email', message: '请输入正确的邮箱格式', trigger: 'blur' }
+    { type: 'email', message: '请输入正确的邮箱格式', trigger: 'blur' },
   ],
   password: [
     { required: true, message: '请输入密码', trigger: 'blur' },
-    { min: 8, message: '密码长度至少8位', trigger: 'blur' }
+    { min: 8, message: '密码长度至少8位', trigger: 'blur' },
   ],
   password_confirm: [
     { required: true, message: '请确认密码', trigger: 'blur' },
@@ -364,18 +323,18 @@ const createUserRules = {
           callback()
         }
       },
-      trigger: 'blur'
-    }
-  ]
+      trigger: 'blur',
+    },
+  ],
 }
 
 // 获取用户角色
-const getUserRoles = (userId) => {
+const getUserRoles = userId => {
   return userRoles.value[userId] || []
 }
 
 // 格式化日期
-const formatDate = (dateString) => {
+const formatDate = dateString => {
   if (!dateString || dateString === 'null' || dateString === null) return ''
 
   try {
@@ -386,7 +345,7 @@ const formatDate = (dateString) => {
     return date.toLocaleDateString('zh-CN', {
       year: 'numeric',
       month: '2-digit',
-      day: '2-digit'
+      day: '2-digit',
     })
   } catch (error) {
     console.warn('日期格式化错误:', dateString, error)
@@ -395,7 +354,7 @@ const formatDate = (dateString) => {
 }
 
 // 格式化最后登录时间
-const formatLastLogin = (dateString) => {
+const formatLastLogin = dateString => {
   if (!dateString || dateString === 'null' || dateString === null) {
     return '从未登录'
   }
@@ -408,7 +367,7 @@ const formatLastLogin = (dateString) => {
     return date.toLocaleDateString('zh-CN', {
       year: 'numeric',
       month: '2-digit',
-      day: '2-digit'
+      day: '2-digit',
     })
   } catch (error) {
     console.warn('最后登录时间格式化错误:', dateString, error)
@@ -422,7 +381,7 @@ const loadUsers = async () => {
     loading.value = true
     const response = await authApi.getUsers({
       page: currentPage.value,
-      page_size: pageSize.value
+      page_size: pageSize.value,
     })
 
     if (response.code === 200) {
@@ -430,12 +389,15 @@ const loadUsers = async () => {
       total.value = response.data.total || 0
 
       // 调试：打印用户数据，检查last_login字段
-      console.log('📊 用户列表数据:', users.value.map(user => ({
-        email: user.email,
-        last_login: user.last_login,
-        last_login_type: typeof user.last_login,
-        date_joined: user.date_joined
-      })))
+      console.log(
+        '📊 用户列表数据:',
+        users.value.map(user => ({
+          email: user.email,
+          last_login: user.last_login,
+          last_login_type: typeof user.last_login,
+          date_joined: user.date_joined,
+        }))
+      )
 
       // 加载每个用户的角色信息
       await loadAllUserRoles()
@@ -450,7 +412,7 @@ const loadUsers = async () => {
 
 // 加载所有用户的角色信息
 const loadAllUserRoles = async () => {
-  const rolePromises = users.value.map(async (user) => {
+  const rolePromises = users.value.map(async user => {
     try {
       const response = await authApi.getUserRoles(user.id)
       if (response.code === 200) {
@@ -484,19 +446,19 @@ const handleSearch = () => {
 }
 
 // 分页处理
-const handleSizeChange = (size) => {
+const handleSizeChange = size => {
   pageSize.value = size
   currentPage.value = 1
   loadUsers()
 }
 
-const handleCurrentChange = (page) => {
+const handleCurrentChange = page => {
   currentPage.value = page
   loadUsers()
 }
 
 // 分配角色
-const handleAssignRoles = async (user) => {
+const handleAssignRoles = async user => {
   console.log('🎯 开始分配角色:', user)
   currentUser.value = user
 
@@ -524,13 +486,10 @@ const handleSaveRoles = async () => {
     console.log('🔄 开始保存角色分配:', {
       userId: currentUser.value.id,
       userEmail: currentUser.value.email,
-      selectedRoleIds: selectedRoleIds.value
+      selectedRoleIds: selectedRoleIds.value,
     })
 
-    const response = await authApi.updateUserRoles(
-      currentUser.value.id,
-      selectedRoleIds.value
-    )
+    const response = await authApi.updateUserRoles(currentUser.value.id, selectedRoleIds.value)
 
     console.log('📝 角色分配API响应:', response)
 
@@ -557,7 +516,7 @@ const handleSaveRoles = async () => {
       console.log('🔍 角色分配错误详情:', {
         status,
         data: errorData,
-        userId: currentUser.value?.id
+        userId: currentUser.value?.id,
       })
 
       let errorMessage = '角色分配失败'
@@ -584,7 +543,7 @@ const handleSaveRoles = async () => {
 }
 
 // 删除用户
-const handleDeleteUser = async (user) => {
+const handleDeleteUser = async user => {
   // 防止删除超级管理员
   if (user.is_superuser) {
     ElMessage.warning('不能删除超级管理员账户')
@@ -598,16 +557,12 @@ const handleDeleteUser = async (user) => {
   }
 
   try {
-    await ElMessageBox.confirm(
-      `确定要删除用户 "${user.email}" 吗？此操作不可恢复。`,
-      '删除用户',
-      {
-        confirmButtonText: '确定删除',
-        cancelButtonText: '取消',
-        type: 'warning',
-        confirmButtonClass: 'el-button--danger'
-      }
-    )
+    await ElMessageBox.confirm(`确定要删除用户 "${user.email}" 吗？此操作不可恢复。`, '删除用户', {
+      confirmButtonText: '确定删除',
+      cancelButtonText: '取消',
+      type: 'warning',
+      confirmButtonClass: 'el-button--danger',
+    })
 
     console.log('🗑️ 开始删除用户:', user)
 
@@ -646,7 +601,7 @@ const handleDeleteUser = async (user) => {
       console.log('🔍 删除用户错误详情:', {
         status,
         data: errorData,
-        userId: user.id
+        userId: user.id,
       })
 
       let errorMessage = '删除用户失败'
@@ -680,7 +635,7 @@ const handleCreateUser = () => {
     password: '',
     password_confirm: '',
     first_name: '',
-    last_name: ''
+    last_name: '',
   }
 
   // 清除表单验证
@@ -735,7 +690,7 @@ const handleSaveUser = async () => {
 
       console.log('🔍 创建用户错误详情:', {
         status,
-        data: errorData
+        data: errorData,
       })
 
       let errorMessage = '创建用户失败'

@@ -9,8 +9,8 @@ export const authApi = {
       data: {
         email: data.email,
         password: data.password,
-        password_confirm: data.confirmPassword
-      }
+        password_confirm: data.confirmPassword,
+      },
     })
   },
 
@@ -21,8 +21,8 @@ export const authApi = {
       method: 'post',
       data: {
         email: data.email,
-        password: data.password
-      }
+        password: data.password,
+      },
     })
   },
 
@@ -30,7 +30,7 @@ export const authApi = {
   logout() {
     return request({
       url: '/auth/logout/',
-      method: 'post'
+      method: 'post',
     })
   },
 
@@ -38,7 +38,7 @@ export const authApi = {
   getUserInfo() {
     return request({
       url: '/auth/user/',
-      method: 'get'
+      method: 'get',
     })
   },
 
@@ -46,7 +46,7 @@ export const authApi = {
   getMe() {
     return request({
       url: '/auth/me/',
-      method: 'get'
+      method: 'get',
     })
   },
 
@@ -54,7 +54,7 @@ export const authApi = {
   getUserPermissions() {
     return request({
       url: '/auth/me/permissions/',
-      method: 'get'
+      method: 'get',
     })
   },
 
@@ -63,7 +63,7 @@ export const authApi = {
     return request({
       url: '/auth/user/',
       method: 'patch',
-      data
+      data,
     })
   },
 
@@ -72,7 +72,7 @@ export const authApi = {
     return request({
       url: '/auth/token/refresh/',
       method: 'post',
-      data
+      data,
     })
   },
 
@@ -81,7 +81,7 @@ export const authApi = {
     return request({
       url: '/auth/users/',
       method: 'get',
-      params
+      params,
     })
   },
 
@@ -89,7 +89,7 @@ export const authApi = {
   getPermissions() {
     return request({
       url: '/auth/permissions/',
-      method: 'get'
+      method: 'get',
     })
   },
 
@@ -98,7 +98,7 @@ export const authApi = {
     return request({
       url: '/auth/roles/',
       method: 'get',
-      params
+      params,
     })
   },
 
@@ -106,7 +106,7 @@ export const authApi = {
   getRoleDetail(roleId) {
     return request({
       url: `/auth/roles/${roleId}/`,
-      method: 'get'
+      method: 'get',
     })
   },
 
@@ -115,7 +115,7 @@ export const authApi = {
     return request({
       url: '/auth/roles/',
       method: 'post',
-      data
+      data,
     })
   },
 
@@ -124,7 +124,7 @@ export const authApi = {
     return request({
       url: `/auth/roles/${roleId}/`,
       method: 'put',
-      data
+      data,
     })
   },
 
@@ -132,7 +132,7 @@ export const authApi = {
   deleteRole(roleId) {
     return request({
       url: `/auth/roles/${roleId}/`,
-      method: 'delete'
+      method: 'delete',
     })
   },
 
@@ -140,7 +140,7 @@ export const authApi = {
   getUserRoles(userId) {
     return request({
       url: `/auth/users/${userId}/roles/`,
-      method: 'get'
+      method: 'get',
     })
   },
 
@@ -149,7 +149,7 @@ export const authApi = {
     return request({
       url: `/auth/users/${userId}/roles/`,
       method: 'post',
-      data: { roles }
+      data: { roles },
     })
   },
 
@@ -158,7 +158,7 @@ export const authApi = {
     return request({
       url: `/auth/users/${userId}/roles/`,
       method: 'put',
-      data: { roles }
+      data: { roles },
     })
   },
 
@@ -166,7 +166,7 @@ export const authApi = {
   removeUserRole(userId, roleId) {
     return request({
       url: `/auth/users/${userId}/roles/${roleId}/`,
-      method: 'delete'
+      method: 'delete',
     })
   },
 
@@ -180,8 +180,8 @@ export const authApi = {
         password: data.password,
         password_confirm: data.password_confirm,
         first_name: data.first_name,
-        last_name: data.last_name
-      }
+        last_name: data.last_name,
+      },
     })
   },
 
@@ -189,7 +189,7 @@ export const authApi = {
   getUserDetail(userId) {
     return request({
       url: `/auth/users-management/${userId}/`,
-      method: 'get'
+      method: 'get',
     })
   },
 
@@ -198,7 +198,7 @@ export const authApi = {
     return request({
       url: `/auth/users-management/${userId}/`,
       method: 'put',
-      data
+      data,
     })
   },
 
@@ -206,7 +206,7 @@ export const authApi = {
   deleteUser(userId) {
     return request({
       url: `/auth/users-management/${userId}/`,
-      method: 'delete'
+      method: 'delete',
     })
   },
 
@@ -220,8 +220,8 @@ export const authApi = {
       method: 'post',
       data: formData,
       headers: {
-        'Content-Type': 'multipart/form-data'
-      }
+        'Content-Type': 'multipart/form-data',
+      },
     })
   },
 
@@ -229,7 +229,7 @@ export const authApi = {
   deleteAvatar() {
     return request({
       url: '/auth/me/avatar/',
-      method: 'delete'
+      method: 'delete',
     })
-  }
+  },
 }

@@ -2,12 +2,7 @@
   <div class="avatar-upload">
     <!-- 头像显示区域 -->
     <div class="avatar-display">
-      <el-avatar
-        :size="size"
-        :src="avatarUrl"
-        class="avatar-image"
-        @error="handleAvatarError"
-      >
+      <el-avatar :size="size" :src="avatarUrl" class="avatar-image" @error="handleAvatarError">
         <el-icon><User /></el-icon>
       </el-avatar>
 
@@ -70,16 +65,16 @@ import { getUserAvatarUrl } from '@/utils/avatar'
 const props = defineProps({
   size: {
     type: Number,
-    default: 100
+    default: 100,
   },
   showActions: {
     type: Boolean,
-    default: true
+    default: true,
   },
   showTips: {
     type: Boolean,
-    default: true
-  }
+    default: true,
+  },
 })
 
 const emit = defineEmits(['upload-success', 'delete-success', 'upload-error'])
@@ -101,7 +96,7 @@ const triggerUpload = () => {
 }
 
 // 处理文件选择
-const handleFileSelect = (event) => {
+const handleFileSelect = event => {
   const file = event.target.files[0]
   if (!file) return
 
@@ -113,24 +108,22 @@ const handleFileSelect = (event) => {
   }
 
   // 确认上传
-  ElMessageBox.confirm(
-    '确定要上传这张图片作为头像吗？',
-    '确认上传',
-    {
-      confirmButtonText: '确定上传',
-      cancelButtonText: '取消',
-      type: 'info'
-    }
-  ).then(() => {
-    uploadAvatar(file)
-  }).catch(() => {
-    // 用户取消，清空input值
-    event.target.value = ''
+  ElMessageBox.confirm('确定要上传这张图片作为头像吗？', '确认上传', {
+    confirmButtonText: '确定上传',
+    cancelButtonText: '取消',
+    type: 'info',
   })
+    .then(() => {
+      uploadAvatar(file)
+    })
+    .catch(() => {
+      // 用户取消，清空input值
+      event.target.value = ''
+    })
 }
 
 // 验证文件
-const validateFile = (file) => {
+const validateFile = file => {
   // 检查文件类型
   const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif']
   if (!validTypes.includes(file.type)) {
@@ -149,7 +142,7 @@ const validateFile = (file) => {
 }
 
 // 上传头像
-const uploadAvatar = async (file) => {
+const uploadAvatar = async file => {
   try {
     uploading.value = true
 
@@ -179,15 +172,11 @@ const uploadAvatar = async (file) => {
 // 删除头像
 const handleDeleteAvatar = async () => {
   try {
-    await ElMessageBox.confirm(
-      '确定要删除当前头像吗？删除后将显示默认头像。',
-      '确认删除',
-      {
-        confirmButtonText: '确定删除',
-        cancelButtonText: '取消',
-        type: 'warning'
-      }
-    )
+    await ElMessageBox.confirm('确定要删除当前头像吗？删除后将显示默认头像。', '确认删除', {
+      confirmButtonText: '确定删除',
+      cancelButtonText: '取消',
+      type: 'warning',
+    })
 
     deleting.value = true
 

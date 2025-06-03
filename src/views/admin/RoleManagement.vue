@@ -52,10 +52,7 @@
             <div class="role-info">
               <div class="role-header">
                 <h3>{{ role.name }}</h3>
-                <el-tag
-                  :type="role.is_active ? 'success' : 'danger'"
-                  size="small"
-                >
+                <el-tag :type="role.is_active ? 'success' : 'danger'" size="small">
                   {{ role.is_active ? '启用' : '禁用' }}
                 </el-tag>
               </div>
@@ -65,9 +62,7 @@
                   <el-icon><Key /></el-icon>
                   {{ role.permission_count || 0 }} 个权限
                 </span>
-                <span class="created-time">
-                  创建于 {{ formatDate(role.created_at) }}
-                </span>
+                <span class="created-time">创建于 {{ formatDate(role.created_at) }}</span>
               </div>
             </div>
             <div class="role-actions">
@@ -134,11 +129,7 @@
           </el-col>
           <el-col :span="12">
             <el-form-item label="状态">
-              <el-switch
-                v-model="roleForm.is_active"
-                active-text="启用"
-                inactive-text="禁用"
-              />
+              <el-switch v-model="roleForm.is_active" active-text="启用" inactive-text="禁用" />
             </el-form-item>
           </el-col>
         </el-row>
@@ -178,11 +169,7 @@
     </el-dialog>
 
     <!-- 权限查看对话框 -->
-    <el-dialog
-      v-model="permissionDialogVisible"
-      title="角色权限详情"
-      width="600px"
-    >
+    <el-dialog v-model="permissionDialogVisible" title="角色权限详情" width="600px">
       <div v-if="currentRolePermissions">
         <PermissionTree
           :permissions="currentRolePermissions"
@@ -201,12 +188,7 @@ import { useAuthStore } from '@/stores/auth'
 import { authApi } from '@/api/auth'
 import PermissionTree from '@/components/PermissionTree.vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import {
-  Plus,
-  Search,
-  Refresh,
-  Key
-} from '@element-plus/icons-vue'
+import { Plus, Search, Refresh, Key } from '@element-plus/icons-vue'
 
 const authStore = useAuthStore()
 
@@ -231,35 +213,34 @@ const roleForm = ref({
   name: '',
   description: '',
   is_active: true,
-  permission_codes: []
+  permission_codes: [],
 })
 
 // 表单验证规则
 const formRules = {
   name: [
     { required: true, message: '请输入角色名称', trigger: 'blur' },
-    { min: 2, max: 50, message: '角色名称长度在 2 到 50 个字符', trigger: 'blur' }
+    { min: 2, max: 50, message: '角色名称长度在 2 到 50 个字符', trigger: 'blur' },
   ],
-  description: [
-    { max: 200, message: '描述长度不能超过 200 个字符', trigger: 'blur' }
-  ]
+  description: [{ max: 200, message: '描述长度不能超过 200 个字符', trigger: 'blur' }],
 }
 
 // 计算属性
-const dialogTitle = computed(() => isEdit.value ? '编辑角色' : '新建角色')
+const dialogTitle = computed(() => (isEdit.value ? '编辑角色' : '新建角色'))
 
 const filteredRoles = computed(() => {
   if (!searchQuery.value) return roles.value
 
   const query = searchQuery.value.toLowerCase()
-  return roles.value.filter(role =>
-    role.name.toLowerCase().includes(query) ||
-    (role.description && role.description.toLowerCase().includes(query))
+  return roles.value.filter(
+    role =>
+      role.name.toLowerCase().includes(query) ||
+      (role.description && role.description.toLowerCase().includes(query))
   )
 })
 
 // 格式化日期
-const formatDate = (dateString) => {
+const formatDate = dateString => {
   if (!dateString) return ''
   return new Date(dateString).toLocaleDateString('zh-CN')
 }
@@ -306,13 +287,13 @@ const handleCreate = async () => {
     name: '',
     description: '',
     is_active: true,
-    permission_codes: []
+    permission_codes: [],
   }
   dialogVisible.value = true
 }
 
 // 编辑角色
-const handleEdit = async (role) => {
+const handleEdit = async role => {
   try {
     await loadAllPermissions()
 
@@ -327,7 +308,7 @@ const handleEdit = async (role) => {
         name: roleDetail.name,
         description: roleDetail.description || '',
         is_active: roleDetail.is_active,
-        permission_codes: roleDetail.permissions?.map(p => p.code) || []
+        permission_codes: roleDetail.permissions?.map(p => p.code) || [],
       }
       dialogVisible.value = true
     }
@@ -338,7 +319,7 @@ const handleEdit = async (role) => {
 }
 
 // 查看权限
-const handleViewPermissions = async (role) => {
+const handleViewPermissions = async role => {
   try {
     const response = await authApi.getRoleDetail(role.id)
     if (response.code === 200) {
@@ -365,7 +346,7 @@ const handleViewPermissions = async (role) => {
 }
 
 // 删除角色
-const handleDelete = async (roleId) => {
+const handleDelete = async roleId => {
   try {
     console.log('🗑️ 开始删除角色:', roleId)
 
@@ -390,7 +371,7 @@ const handleDelete = async (roleId) => {
       console.log('🔍 错误详情:', {
         status,
         data: errorData,
-        roleId
+        roleId,
       })
 
       let errorMessage = '删除角色失败'
@@ -423,7 +404,7 @@ const handleDelete = async (roleId) => {
 }
 
 // 权限变化处理
-const handlePermissionChange = (permissionCodes) => {
+const handlePermissionChange = permissionCodes => {
   roleForm.value.permission_codes = permissionCodes
 }
 
@@ -460,7 +441,7 @@ const handleSubmit = async () => {
       name: roleForm.value.name,
       description: roleForm.value.description,
       is_active: roleForm.value.is_active,
-      permission_codes: roleForm.value.permission_codes
+      permission_codes: roleForm.value.permission_codes,
     }
 
     let response

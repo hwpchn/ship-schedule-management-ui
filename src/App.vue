@@ -99,7 +99,8 @@ onMounted(async () => {
       }
     } else if (!hasToken) {
       console.log('📭 未发现本地token，用户需要重新登录')
-      authStore.authStatus = 'unauthenticated'
+      // 修复：使用正确的方式设置authStatus
+      authStore.clearToken()
     } else {
       console.log('🔄 认证状态已存在，跳过初始化')
     }

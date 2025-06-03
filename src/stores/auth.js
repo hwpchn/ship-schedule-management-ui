@@ -5,11 +5,11 @@ import { ElMessage } from 'element-plus'
 
 // 认证状态枚举
 const AUTH_STATUS = {
-  UNKNOWN: 'unknown',        // 未知状态（刚启动）
+  UNKNOWN: 'unknown', // 未知状态（刚启动）
   INITIALIZING: 'initializing', // 正在初始化
   AUTHENTICATED: 'authenticated', // 已认证
   UNAUTHENTICATED: 'unauthenticated', // 未认证
-  NETWORK_ERROR: 'network_error' // 网络错误（保持之前状态）
+  NETWORK_ERROR: 'network_error', // 网络错误（保持之前状态）
 }
 
 export const useAuthStore = defineStore('auth', () => {
@@ -38,7 +38,7 @@ export const useAuthStore = defineStore('auth', () => {
   const isSuperAdmin = computed(() => user.value?.is_superuser || false)
 
   // 检测错误类型
-  const isNetworkErrorType = (error) => {
+  const isNetworkErrorType = error => {
     // 网络连接错误
     if (error.code === 'ECONNREFUSED' || error.code === 'ENOTFOUND' || error.code === 'ETIMEDOUT') {
       return true
@@ -59,7 +59,7 @@ export const useAuthStore = defineStore('auth', () => {
   }
 
   // 检测认证错误
-  const isAuthErrorType = (error) => {
+  const isAuthErrorType = error => {
     // 401 未授权
     if (error.response?.status === 401) {
       return true
@@ -73,19 +73,19 @@ export const useAuthStore = defineStore('auth', () => {
       'Token expired',
       'Invalid token',
       'Authentication failed',
-      'Unauthorized'
+      'Unauthorized',
     ]
     return authErrorMessages.some(msg => error.message?.includes(msg))
   }
 
   // 检查是否有特定权限
-  const hasPermission = (permission) => {
+  const hasPermission = permission => {
     if (isSuperAdmin.value) return true
     return permissions.value.includes(permission)
   }
 
   // 检查是否有任一权限
-  const hasAnyPermission = (permissionList) => {
+  const hasAnyPermission = permissionList => {
     if (isSuperAdmin.value) return true
     return permissionList.some(permission => permissions.value.includes(permission))
   }
@@ -130,7 +130,7 @@ export const useAuthStore = defineStore('auth', () => {
   }
 
   // 用户登录
-  const login = async (credentials) => {
+  const login = async credentials => {
     try {
       loading.value = true
       console.log('🔐 开始用户登录...')
@@ -143,14 +143,14 @@ export const useAuthStore = defineStore('auth', () => {
       console.log('📦 响应数据结构:', {
         data: response.data,
         dataType: typeof response.data,
-        dataKeys: response.data ? Object.keys(response.data) : 'data为空'
+        dataKeys: response.data ? Object.keys(response.data) : 'data为空',
       })
 
       if (response.code === 200) {
         console.log('✅ 登录API调用成功，响应数据:', {
-          access: (response.data.access || response.data.tokens?.access) ? '已提供' : '缺失',
-          refresh: (response.data.refresh || response.data.tokens?.refresh) ? '已提供' : '缺失',
-          user: response.data.user ? '已提供' : '缺失'
+          access: response.data.access || response.data.tokens?.access ? '已提供' : '缺失',
+          refresh: response.data.refresh || response.data.tokens?.refresh ? '已提供' : '缺失',
+          user: response.data.user ? '已提供' : '缺失',
         })
 
         // 适配后端返回的数据结构
@@ -194,7 +194,7 @@ export const useAuthStore = defineStore('auth', () => {
           userSet: !!user.value,
           authStatus: authStatus.value,
           userEmail: user.value?.email,
-          isAuthenticated: isAuthenticated.value
+          isAuthenticated: isAuthenticated.value,
         })
 
         // 获取权限信息
@@ -212,7 +212,7 @@ export const useAuthStore = defineStore('auth', () => {
           token: !!token.value,
           user: !!user.value,
           isAuthenticated: isAuthenticated.value,
-          permissions: permissions.value.length
+          permissions: permissions.value.length,
         }
 
         console.log('🎉 登录流程完成，最终认证状态:', finalAuthState)
@@ -270,7 +270,7 @@ export const useAuthStore = defineStore('auth', () => {
   }
 
   // 用户注册
-  const register = async (userData) => {
+  const register = async userData => {
     try {
       loading.value = true
       const response = await authApi.register(userData)
@@ -374,7 +374,7 @@ export const useAuthStore = defineStore('auth', () => {
   }
 
   // 更新用户信息
-  const updateUserInfo = (newUserInfo) => {
+  const updateUserInfo = newUserInfo => {
     if (user.value) {
       user.value = { ...user.value, ...newUserInfo }
       console.log('用户信息已更新:', newUserInfo)
@@ -382,7 +382,7 @@ export const useAuthStore = defineStore('auth', () => {
   }
 
   // 上传用户头像
-  const uploadAvatar = async (file) => {
+  const uploadAvatar = async file => {
     try {
       const response = await authApi.uploadAvatar(file)
       console.log('头像上传响应:', response)
@@ -399,7 +399,7 @@ export const useAuthStore = defineStore('auth', () => {
         return {
           success: true,
           message: response.message || '头像上传成功',
-          data: response.data
+          data: response.data,
         }
       } else {
         throw new Error(response.message || response.data?.message || '头像上传失败')
@@ -427,7 +427,7 @@ export const useAuthStore = defineStore('auth', () => {
         return {
           success: true,
           message: response.message || '头像删除成功',
-          data: response.data
+          data: response.data,
         }
       } else {
         throw new Error(response.message || response.data?.message || '头像删除失败')
@@ -654,6 +654,6 @@ export const useAuthStore = defineStore('auth', () => {
 
     // 工具方法
     isNetworkErrorType,
-    isAuthErrorType
+    isAuthErrorType,
   }
 })

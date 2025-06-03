@@ -6,7 +6,7 @@
       <div class="wave wave2"></div>
       <div class="wave wave3"></div>
     </div>
-    
+
     <!-- 注册卡片 -->
     <div class="register-card">
       <div class="register-header">
@@ -76,13 +76,7 @@
 
       <div class="register-footer">
         <span>已有账户？</span>
-        <el-link 
-          type="primary" 
-          underline="never"
-          @click="$router.push('/login')"
-        >
-          立即登录
-        </el-link>
+        <el-link type="primary" underline="never" @click="$router.push('/login')">立即登录</el-link>
       </div>
     </div>
 
@@ -108,7 +102,7 @@ const registerFormRef = ref()
 const registerForm = reactive({
   email: '',
   password: '',
-  confirmPassword: ''
+  confirmPassword: '',
 })
 
 // 自定义验证函数
@@ -126,17 +120,17 @@ const validateConfirmPassword = (rule, value, callback) => {
 const registerRules = {
   email: [
     { required: true, message: '请输入邮箱地址', trigger: 'blur' },
-    { type: 'email', message: '请输入正确的邮箱格式', trigger: 'blur' }
+    { type: 'email', message: '请输入正确的邮箱格式', trigger: 'blur' },
   ],
   password: [
     { required: true, message: '请输入密码', trigger: 'blur' },
     { min: 6, message: '密码长度至少6位', trigger: 'blur' },
-    { max: 20, message: '密码长度不能超过20位', trigger: 'blur' }
+    { max: 20, message: '密码长度不能超过20位', trigger: 'blur' },
   ],
   confirmPassword: [
     { required: true, message: '请确认密码', trigger: 'blur' },
-    { validator: validateConfirmPassword, trigger: 'blur' }
-  ]
+    { validator: validateConfirmPassword, trigger: 'blur' },
+  ],
 }
 
 // 处理注册
@@ -148,9 +142,9 @@ const handleRegister = async () => {
     const result = await authStore.register({
       email: registerForm.email,
       password: registerForm.password,
-      confirmPassword: registerForm.confirmPassword
+      confirmPassword: registerForm.confirmPassword,
     })
-    
+
     if (result.success) {
       // 注册成功，跳转到登录页面
       router.push('/login')
@@ -183,7 +177,7 @@ const handleRegister = async () => {
   height: 100%;
   overflow: hidden;
   z-index: 0;
-  
+
   .wave {
     position: absolute;
     width: 200%;
@@ -191,20 +185,20 @@ const handleRegister = async () => {
     background: rgba(255, 255, 255, 0.05);
     border-radius: 45%;
     animation: wave 20s linear infinite;
-    
+
     &.wave1 {
       top: -60%;
       left: -50%;
       animation-duration: 25s;
     }
-    
+
     &.wave2 {
       top: -70%;
       right: -50%;
       animation-duration: 30s;
       animation-direction: reverse;
     }
-    
+
     &.wave3 {
       bottom: -60%;
       left: -30%;
@@ -249,12 +243,12 @@ const handleRegister = async () => {
 .register-header {
   text-align: center;
   margin-bottom: 40px;
-  
+
   .logo {
     margin-bottom: 20px;
     animation: logoFloat 3s ease-in-out infinite;
   }
-  
+
   .title {
     font-size: 28px;
     font-weight: 600;
@@ -262,7 +256,7 @@ const handleRegister = async () => {
     margin-bottom: 8px;
     letter-spacing: 1px;
   }
-  
+
   .subtitle {
     color: #666;
     font-size: 14px;
@@ -271,7 +265,8 @@ const handleRegister = async () => {
 }
 
 @keyframes logoFloat {
-  0%, 100% {
+  0%,
+  100% {
     transform: translateY(0);
   }
   50% {
@@ -282,25 +277,25 @@ const handleRegister = async () => {
 .register-form {
   .el-form-item {
     margin-bottom: 24px;
-    
+
     :deep(.el-input__inner) {
       height: 50px;
       border-radius: 12px;
       border: 1px solid #e0e6ed;
       transition: all 0.3s ease;
-      
+
       &:focus {
         border-color: #409eff;
         box-shadow: 0 0 0 2px rgba(64, 158, 255, 0.1);
       }
     }
-    
+
     :deep(.el-input__prefix) {
       display: flex;
       align-items: center;
     }
   }
-  
+
   .register-btn {
     width: 100%;
     height: 50px;
@@ -310,12 +305,12 @@ const handleRegister = async () => {
     background: linear-gradient(135deg, #409eff, #5470c6);
     border: none;
     transition: all 0.3s ease;
-    
+
     &:hover {
       transform: translateY(-2px);
       box-shadow: 0 8px 25px rgba(64, 158, 255, 0.3);
     }
-    
+
     &:active {
       transform: translateY(0);
     }
@@ -327,7 +322,7 @@ const handleRegister = async () => {
   margin-top: 30px;
   color: #666;
   font-size: 14px;
-  
+
   .el-link {
     margin-left: 8px;
     font-weight: 500;
@@ -350,9 +345,9 @@ const handleRegister = async () => {
     padding: 30px 20px;
     margin: 0 20px;
   }
-  
+
   .register-header .title {
     font-size: 24px;
   }
 }
-</style> 
+</style>

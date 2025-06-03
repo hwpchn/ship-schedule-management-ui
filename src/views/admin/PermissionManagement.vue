@@ -65,12 +65,7 @@
           style="width: 200px"
           @change="handleCategoryFilter"
         >
-          <el-option
-            v-for="(label, key) in categoryMap"
-            :key="key"
-            :label="label"
-            :value="key"
-          />
+          <el-option v-for="(label, key) in categoryMap" :key="key" :label="label" :value="key" />
         </el-select>
       </div>
 
@@ -145,11 +140,7 @@
     </div>
 
     <!-- 权限详情对话框 -->
-    <el-dialog
-      v-model="detailDialogVisible"
-      title="权限详情"
-      width="600px"
-    >
+    <el-dialog v-model="detailDialogVisible" title="权限详情" width="600px">
       <div v-if="currentPermission" class="permission-detail">
         <el-descriptions :column="1" border>
           <el-descriptions-item label="权限代码">
@@ -197,12 +188,7 @@ import { ref, computed, onMounted } from 'vue'
 import { useAuthStore } from '@/stores/auth'
 import { authApi } from '@/api/auth'
 import { ElMessage } from 'element-plus'
-import {
-  Refresh,
-  Search,
-  Folder,
-  Key
-} from '@element-plus/icons-vue'
+import { Refresh, Search, Folder, Key } from '@element-plus/icons-vue'
 
 const authStore = useAuthStore()
 
@@ -224,7 +210,7 @@ const permissionTreeRef = ref()
 // 树组件属性
 const treeProps = {
   children: 'children',
-  label: 'name'
+  label: 'name',
 }
 
 // 权限分类映射
@@ -234,7 +220,7 @@ const categoryMap = {
   permission_management: '权限管理',
   user_role_management: '用户角色管理',
   schedule_management: '船期管理',
-  system_management: '系统管理'
+  system_management: '系统管理',
 }
 
 // 计算属性
@@ -273,7 +259,7 @@ const treeData = computed(() => {
       code: categoryKey,
       name: categoryMap[categoryKey] || categoryKey,
       category: true,
-      children: []
+      children: [],
     }
 
     // 添加分类下的权限
@@ -281,7 +267,7 @@ const treeData = computed(() => {
       permissionList.forEach(permission => {
         categoryNode.children.push({
           ...permission,
-          category: false
+          category: false,
         })
       })
     }
@@ -304,40 +290,43 @@ const filteredTreeData = computed(() => {
   // 搜索过滤
   if (searchQuery.value) {
     const query = searchQuery.value.toLowerCase()
-    data = data.map(categoryNode => {
-      const filteredChildren = categoryNode.children.filter(permission =>
-        permission.name.toLowerCase().includes(query) ||
-        permission.code.toLowerCase().includes(query) ||
-        (permission.description && permission.description.toLowerCase().includes(query))
-      )
+    data = data
+      .map(categoryNode => {
+        const filteredChildren = categoryNode.children.filter(
+          permission =>
+            permission.name.toLowerCase().includes(query) ||
+            permission.code.toLowerCase().includes(query) ||
+            (permission.description && permission.description.toLowerCase().includes(query))
+        )
 
-      if (filteredChildren.length > 0) {
-        return {
-          ...categoryNode,
-          children: filteredChildren
+        if (filteredChildren.length > 0) {
+          return {
+            ...categoryNode,
+            children: filteredChildren,
+          }
         }
-      }
-      return null
-    }).filter(Boolean)
+        return null
+      })
+      .filter(Boolean)
   }
 
   return data
 })
 
 // 检查当前用户是否拥有权限
-const hasCurrentPermission = (permissionCode) => {
+const hasCurrentPermission = permissionCode => {
   return authStore.hasPermission(permissionCode)
 }
 
 // 格式化日期
-const formatDate = (dateString) => {
+const formatDate = dateString => {
   if (!dateString) return ''
   return new Date(dateString).toLocaleDateString('zh-CN', {
     year: 'numeric',
     month: '2-digit',
     day: '2-digit',
     hour: '2-digit',
-    minute: '2-digit'
+    minute: '2-digit',
   })
 }
 
@@ -400,7 +389,7 @@ const collapseAll = () => {
 }
 
 // 显示权限详情
-const showPermissionDetail = async (permission) => {
+const showPermissionDetail = async permission => {
   currentPermission.value = permission
 
   // 查找拥有此权限的角色
@@ -415,10 +404,7 @@ const showPermissionDetail = async (permission) => {
 
 // 页面初始化
 onMounted(async () => {
-  await Promise.all([
-    loadPermissions(),
-    loadRoles()
-  ])
+  await Promise.all([loadPermissions(), loadRoles()])
 })
 </script>
 

@@ -1,7 +1,7 @@
 <template>
   <div class="test-local-fee">
     <h2>本地费用API测试</h2>
-    
+
     <el-card class="test-card">
       <h3>测试参数</h3>
       <el-form :model="testParams" label-width="120px">
@@ -24,11 +24,20 @@
     <el-card class="result-card" v-if="apiResult">
       <h3>API响应结果</h3>
       <div class="result-info">
-        <p><strong>状态:</strong> {{ apiResult.success ? '成功' : '失败' }}</p>
-        <p><strong>响应时间:</strong> {{ apiResult.responseTime }}ms</p>
-        <p v-if="apiResult.error"><strong>错误信息:</strong> {{ apiResult.error }}</p>
+        <p>
+          <strong>状态:</strong>
+          {{ apiResult.success ? '成功' : '失败' }}
+        </p>
+        <p>
+          <strong>响应时间:</strong>
+          {{ apiResult.responseTime }}ms
+        </p>
+        <p v-if="apiResult.error">
+          <strong>错误信息:</strong>
+          {{ apiResult.error }}
+        </p>
       </div>
-      
+
       <div v-if="apiResult.data" class="data-section">
         <h4>返回数据 ({{ apiResult.data.length }} 条记录)</h4>
         <el-table :data="apiResult.data" border style="width: 100%">
@@ -42,7 +51,7 @@
           <el-table-column prop="币种" label="币种" width="80" />
         </el-table>
       </div>
-      
+
       <div class="raw-response">
         <h4>原始响应数据</h4>
         <pre>{{ JSON.stringify(apiResult.rawResponse, null, 2) }}</pre>
@@ -62,7 +71,7 @@ const apiResult = ref(null)
 const testParams = reactive({
   vesselName: 'MSC MERAVIGLIA',
   polCd: 'CNSHK',
-  podCd: 'USLA'
+  podCd: 'USLA',
 })
 
 const testAPI = async () => {
@@ -73,7 +82,7 @@ const testAPI = async () => {
 
   loading.value = true
   const startTime = Date.now()
-  
+
   try {
     console.log('开始测试API...')
     const data = await getLocalFeesByVessel(
@@ -81,27 +90,27 @@ const testAPI = async () => {
       testParams.polCd,
       testParams.podCd
     )
-    
+
     const responseTime = Date.now() - startTime
-    
+
     apiResult.value = {
       success: true,
       responseTime,
       data: data,
-      rawResponse: data
+      rawResponse: data,
     }
-    
+
     ElMessage.success(`API调用成功，返回 ${data.length} 条记录`)
   } catch (error) {
     const responseTime = Date.now() - startTime
-    
+
     apiResult.value = {
       success: false,
       responseTime,
       error: error.message || '未知错误',
-      rawResponse: error
+      rawResponse: error,
     }
-    
+
     ElMessage.error(`API调用失败: ${error.message}`)
   } finally {
     loading.value = false
@@ -118,7 +127,8 @@ const clearResults = () => {
   padding: 20px;
 }
 
-.test-card, .result-card {
+.test-card,
+.result-card {
   margin-bottom: 20px;
 }
 
@@ -141,4 +151,4 @@ const clearResults = () => {
   overflow-x: auto;
   max-height: 300px;
 }
-</style> 
+</style>

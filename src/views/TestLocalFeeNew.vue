@@ -4,7 +4,7 @@
       <template #header>
         <h2>本地费用新API测试</h2>
       </template>
-      
+
       <el-form :model="testParams" label-width="120px" class="test-form">
         <el-form-item label="起运港:">
           <el-input v-model="testParams.polCd" placeholder="请输入起运港代码" />
@@ -16,15 +16,9 @@
           <el-input v-model="testParams.carriercd" placeholder="请输入船公司代码（可选）" />
         </el-form-item>
         <el-form-item>
-          <el-button type="primary" @click="testQueryAPI" :loading="loading">
-            测试查询API
-          </el-button>
-          <el-button @click="testCreateAPI" :loading="loading">
-            测试创建API
-          </el-button>
-          <el-button @click="clearResults">
-            清空结果
-          </el-button>
+          <el-button type="primary" @click="testQueryAPI" :loading="loading">测试查询API</el-button>
+          <el-button @click="testCreateAPI" :loading="loading">测试创建API</el-button>
+          <el-button @click="clearResults">清空结果</el-button>
         </el-form-item>
       </el-form>
     </el-card>
@@ -34,7 +28,7 @@
       <template #header>
         <h3>查询结果 ({{ queryResults.length }} 条记录)</h3>
       </template>
-      
+
       <el-table :data="queryResults" border stripe>
         <el-table-column prop="id" label="ID" width="60" />
         <el-table-column prop="名称" label="名称" min-width="120" />
@@ -46,17 +40,17 @@
         <el-table-column prop="币种" label="币种" width="80" />
         <el-table-column label="操作" width="200">
           <template #default="scope">
-            <el-button 
-              type="primary" 
-              size="small" 
+            <el-button
+              type="primary"
+              size="small"
               @click="testUpdateAPI(scope.row)"
               :loading="loading"
             >
               测试更新
             </el-button>
-            <el-button 
-              type="danger" 
-              size="small" 
+            <el-button
+              type="danger"
+              size="small"
               @click="testDeleteAPI(scope.row)"
               :loading="loading"
             >
@@ -72,14 +66,9 @@
       <template #header>
         <h3>API调用日志</h3>
       </template>
-      
+
       <div class="log-container">
-        <div 
-          v-for="(log, index) in apiLogs" 
-          :key="index" 
-          class="log-item"
-          :class="log.type"
-        >
+        <div v-for="(log, index) in apiLogs" :key="index" class="log-item" :class="log.type">
           <div class="log-header">
             <span class="log-method">{{ log.method }}</span>
             <span class="log-url">{{ log.url }}</span>
@@ -108,7 +97,7 @@ const apiLogs = ref([])
 const testParams = reactive({
   polCd: 'CNSHK',
   podCd: 'INMAA',
-  carriercd: 'IAL'
+  carriercd: 'IAL',
 })
 
 // 工具函数
@@ -118,9 +107,9 @@ const addLog = (method, url, data, type = 'success') => {
     url,
     data,
     type,
-    time: new Date().toLocaleTimeString()
+    time: new Date().toLocaleTimeString(),
   })
-  
+
   // 限制日志数量
   if (apiLogs.value.length > 10) {
     apiLogs.value = apiLogs.value.slice(0, 10)
@@ -133,23 +122,19 @@ const testQueryAPI = async () => {
     ElMessage.warning('请输入起运港和目的港')
     return
   }
-  
+
   loading.value = true
-  
+
   try {
-    const result = await queryLocalFees(
-      testParams.polCd, 
-      testParams.podCd, 
-      testParams.carriercd
-    )
-    
+    const result = await queryLocalFees(testParams.polCd, testParams.podCd, testParams.carriercd)
+
     addLog(
-      'GET', 
+      'GET',
       `/api/local-fees/local-fees/query/?polCd=${testParams.polCd}&podCd=${testParams.podCd}&carriercd=${testParams.carriercd}`,
       result,
       'success'
     )
-    
+
     if (result && result.data) {
       queryResults.value = result.data
       ElMessage.success(`查询成功，获取到 ${result.data.length} 条记录`)
@@ -159,12 +144,12 @@ const testQueryAPI = async () => {
     }
   } catch (error) {
     addLog(
-      'GET', 
+      'GET',
       `/api/local-fees/local-fees/query/?polCd=${testParams.polCd}&podCd=${testParams.podCd}&carriercd=${testParams.carriercd}`,
       { error: error.message },
       'error'
     )
-    
+
     ElMessage.error('查询失败: ' + error.message)
     console.error('查询API测试失败:', error)
   } finally {
@@ -178,9 +163,9 @@ const testCreateAPI = async () => {
     ElMessage.warning('请输入起运港和目的港')
     return
   }
-  
+
   loading.value = true
-  
+
   try {
     const createData = {
       polCd: testParams.polCd,
@@ -191,30 +176,25 @@ const testCreateAPI = async () => {
       price_20gp: '100.00',
       price_40gp: '200.00',
       price_40hq: '200.00',
-      currency: 'CNY'
+      currency: 'CNY',
     }
-    
+
     const result = await localFeeApi.create(createData)
-    
+
     addLog(
-      'POST', 
+      'POST',
       '/api/local-fees/local-fees/',
       { request: createData, response: result },
       'success'
     )
-    
+
     ElMessage.success('创建成功')
-    
+
     // 重新查询以更新列表
     await testQueryAPI()
   } catch (error) {
-    addLog(
-      'POST', 
-      '/api/local-fees/local-fees/',
-      { error: error.message },
-      'error'
-    )
-    
+    addLog('POST', '/api/local-fees/local-fees/', { error: error.message }, 'error')
+
     ElMessage.error('创建失败: ' + error.message)
     console.error('创建API测试失败:', error)
   } finally {
@@ -223,9 +203,9 @@ const testCreateAPI = async () => {
 }
 
 // 测试更新API
-const testUpdateAPI = async (row) => {
+const testUpdateAPI = async row => {
   loading.value = true
-  
+
   try {
     const updateData = {
       polCd: testParams.polCd,
@@ -237,30 +217,25 @@ const testUpdateAPI = async (row) => {
       price_40gp: row['40GP'],
       price_40hq: row['40HQ'],
       price_per_bill: row.单票价格,
-      currency: row.币种
+      currency: row.币种,
     }
-    
+
     const result = await localFeeApi.update(row.id, updateData)
-    
+
     addLog(
-      'PUT', 
+      'PUT',
       `/api/local-fees/local-fees/${row.id}/`,
       { request: updateData, response: result },
       'success'
     )
-    
+
     ElMessage.success('更新成功')
-    
+
     // 重新查询以更新列表
     await testQueryAPI()
   } catch (error) {
-    addLog(
-      'PUT', 
-      `/api/local-fees/local-fees/${row.id}/`,
-      { error: error.message },
-      'error'
-    )
-    
+    addLog('PUT', `/api/local-fees/local-fees/${row.id}/`, { error: error.message }, 'error')
+
     ElMessage.error('更新失败: ' + error.message)
     console.error('更新API测试失败:', error)
   } finally {
@@ -269,42 +244,28 @@ const testUpdateAPI = async (row) => {
 }
 
 // 测试删除API
-const testDeleteAPI = async (row) => {
+const testDeleteAPI = async row => {
   try {
-    await ElMessageBox.confirm(
-      `确定要删除"${row.名称}"吗？`,
-      '确认删除',
-      {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning',
-      }
-    )
-    
+    await ElMessageBox.confirm(`确定要删除"${row.名称}"吗？`, '确认删除', {
+      confirmButtonText: '确定',
+      cancelButtonText: '取消',
+      type: 'warning',
+    })
+
     loading.value = true
-    
+
     const result = await localFeeApi.delete(row.id)
-    
-    addLog(
-      'DELETE', 
-      `/api/local-fees/local-fees/${row.id}/`,
-      result,
-      'success'
-    )
-    
+
+    addLog('DELETE', `/api/local-fees/local-fees/${row.id}/`, result, 'success')
+
     ElMessage.success('删除成功')
-    
+
     // 重新查询以更新列表
     await testQueryAPI()
   } catch (error) {
     if (error !== 'cancel') {
-      addLog(
-        'DELETE', 
-        `/api/local-fees/local-fees/${row.id}/`,
-        { error: error.message },
-        'error'
-      )
-      
+      addLog('DELETE', `/api/local-fees/local-fees/${row.id}/`, { error: error.message }, 'error')
+
       ElMessage.error('删除失败: ' + error.message)
       console.error('删除API测试失败:', error)
     }
@@ -408,15 +369,15 @@ const clearResults = () => {
   .test-local-fee-new {
     padding: 10px;
   }
-  
+
   .log-header {
     flex-direction: column;
     align-items: flex-start;
     gap: 4px;
   }
-  
+
   .log-time {
     margin-left: 0;
   }
 }
-</style> 
+</style>

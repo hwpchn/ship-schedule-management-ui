@@ -10,11 +10,7 @@
           <span class="title">环海运通管理系统 - 系统管理</span>
         </div>
         <div class="header-right">
-          <el-button
-            link
-            @click="$router.push('/dashboard')"
-            class="back-btn"
-          >
+          <el-button link @click="$router.push('/dashboard')" class="back-btn">
             <el-icon><ArrowLeft /></el-icon>
             返回首页
           </el-button>
@@ -46,12 +42,7 @@
       <el-container class="admin-body">
         <!-- 左侧导航 -->
         <el-aside class="admin-aside" width="240px">
-          <el-menu
-            :default-active="$route.path"
-            class="admin-menu"
-            router
-            :unique-opened="true"
-          >
+          <el-menu :default-active="$route.path" class="admin-menu" router :unique-opened="true">
             <el-menu-item index="/admin/users" v-if="authStore.hasPermission('user.list')">
               <el-icon><User /></el-icon>
               <span>用户管理</span>
@@ -62,7 +53,10 @@
               <span>角色管理</span>
             </el-menu-item>
 
-            <el-menu-item index="/admin/permissions" v-if="authStore.hasPermission('permission.list')">
+            <el-menu-item
+              index="/admin/permissions"
+              v-if="authStore.hasPermission('permission.list')"
+            >
               <el-icon><Lock /></el-icon>
               <span>权限管理</span>
             </el-menu-item>
@@ -95,7 +89,7 @@ import {
   Lock,
   ArrowLeft,
   ArrowDown,
-  SwitchButton
+  SwitchButton,
 } from '@element-plus/icons-vue'
 import { ElMessageBox } from 'element-plus'
 import { getUserAvatarUrl } from '@/utils/avatar'
@@ -104,7 +98,9 @@ const router = useRouter()
 const authStore = useAuthStore()
 
 // 计算头像URL
-const userAvatarUrl = computed(() => getUserAvatarUrl(authStore.user, 'http://127.0.0.1:8000', authStore.avatarVersion))
+const userAvatarUrl = computed(() =>
+  getUserAvatarUrl(authStore.user, 'http://127.0.0.1:8000', authStore.avatarVersion)
+)
 
 // 跳转到个人资料页面
 const goToProfile = () => {
@@ -114,15 +110,11 @@ const goToProfile = () => {
 // 处理登出
 const handleLogout = async () => {
   try {
-    await ElMessageBox.confirm(
-      '确定要退出登录吗？',
-      '提示',
-      {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning',
-      }
-    )
+    await ElMessageBox.confirm('确定要退出登录吗？', '提示', {
+      confirmButtonText: '确定',
+      cancelButtonText: '取消',
+      type: 'warning',
+    })
 
     await authStore.logout()
     router.push('/login')

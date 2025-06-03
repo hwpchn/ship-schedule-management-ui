@@ -41,147 +41,107 @@
       <div class="right-section">
         <!-- 基本信息卡片 -->
         <el-card class="info-card" shadow="never">
-        <template #header>
-          <div class="card-header">
-            <el-icon><InfoFilled /></el-icon>
-            <span>基本信息</span>
-            <el-button
-              type="primary"
-              size="small"
-              @click="editMode = !editMode"
-              :icon="editMode ? Close : Edit"
-            >
-              {{ editMode ? '取消编辑' : '编辑信息' }}
-            </el-button>
-          </div>
-        </template>
-
-        <div class="info-content">
-          <!-- 查看模式 -->
-          <div v-if="!editMode" class="view-mode">
-            <div class="info-item">
-              <label>邮箱地址：</label>
-              <span>{{ userInfo.email }}</span>
-            </div>
-
-            <div class="info-item">
-              <label>姓名：</label>
-              <span>{{ userInfo.full_name || userInfo.short_name || '未设置' }}</span>
-            </div>
-
-            <div class="info-item">
-              <label>注册时间：</label>
-              <span>{{ formatDate(userInfo.date_joined) }}</span>
-            </div>
-
-            <div class="info-item">
-              <label>最后登录：</label>
-              <span>{{ formatDate(userInfo.last_login) || '从未登录' }}</span>
-            </div>
-
-            <div class="info-item">
-              <label>账户状态：</label>
-              <el-tag :type="userInfo.is_active ? 'success' : 'danger'" size="small">
-                {{ userInfo.is_active ? '正常' : '已禁用' }}
-              </el-tag>
-            </div>
-
-            <div class="info-item">
-              <label>用户类型：</label>
-              <el-tag
-                v-if="userInfo.is_superuser"
-                type="danger"
-                size="small"
-              >
-                超级管理员
-              </el-tag>
-              <el-tag
-                v-else-if="userInfo.is_staff"
-                type="warning"
-                size="small"
-              >
-                管理员
-              </el-tag>
-              <el-tag
-                v-else
-                type="info"
-                size="small"
-              >
-                普通用户
-              </el-tag>
-            </div>
-          </div>
-
-          <!-- 编辑模式 -->
-          <div v-else class="edit-mode">
-            <el-form
-              ref="formRef"
-              :model="editForm"
-              :rules="formRules"
-              label-width="100px"
-              label-position="left"
-            >
-              <el-form-item label="邮箱地址">
-                <el-input
-                  v-model="editForm.email"
-                  disabled
-                  placeholder="邮箱地址不可修改"
-                />
-              </el-form-item>
-
-              <el-form-item label="名字" prop="first_name">
-                <el-input
-                  v-model="editForm.first_name"
-                  placeholder="请输入名字"
-                  clearable
-                />
-              </el-form-item>
-
-              <el-form-item label="姓氏" prop="last_name">
-                <el-input
-                  v-model="editForm.last_name"
-                  placeholder="请输入姓氏"
-                  clearable
-                />
-              </el-form-item>
-            </el-form>
-
-            <div class="edit-actions">
+          <template #header>
+            <div class="card-header">
+              <el-icon><InfoFilled /></el-icon>
+              <span>基本信息</span>
               <el-button
                 type="primary"
-                @click="handleSaveInfo"
-                :loading="saving"
+                size="small"
+                @click="editMode = !editMode"
+                :icon="editMode ? Close : Edit"
               >
-                保存修改
-              </el-button>
-              <el-button @click="cancelEdit">
-                取消
+                {{ editMode ? '取消编辑' : '编辑信息' }}
               </el-button>
             </div>
-          </div>
-        </div>
-      </el-card>
+          </template>
 
-      <!-- 密码修改卡片 -->
-      <el-card class="password-card" shadow="never">
-        <template #header>
-          <div class="card-header">
-            <el-icon><Lock /></el-icon>
-            <span>密码设置</span>
-          </div>
-        </template>
+          <div class="info-content">
+            <!-- 查看模式 -->
+            <div v-if="!editMode" class="view-mode">
+              <div class="info-item">
+                <label>邮箱地址：</label>
+                <span>{{ userInfo.email }}</span>
+              </div>
 
-        <div class="password-content">
-          <el-button
-            type="warning"
-            @click="showPasswordDialog = true"
-            :icon="Key"
-          >
-            修改密码
-          </el-button>
-          <p class="password-tip">为了账户安全，建议定期更换密码</p>
-        </div>
-      </el-card>
+              <div class="info-item">
+                <label>姓名：</label>
+                <span>{{ userInfo.full_name || userInfo.short_name || '未设置' }}</span>
+              </div>
+
+              <div class="info-item">
+                <label>注册时间：</label>
+                <span>{{ formatDate(userInfo.date_joined) }}</span>
+              </div>
+
+              <div class="info-item">
+                <label>最后登录：</label>
+                <span>{{ formatDate(userInfo.last_login) || '从未登录' }}</span>
+              </div>
+
+              <div class="info-item">
+                <label>账户状态：</label>
+                <el-tag :type="userInfo.is_active ? 'success' : 'danger'" size="small">
+                  {{ userInfo.is_active ? '正常' : '已禁用' }}
+                </el-tag>
+              </div>
+
+              <div class="info-item">
+                <label>用户类型：</label>
+                <el-tag v-if="userInfo.is_superuser" type="danger" size="small">超级管理员</el-tag>
+                <el-tag v-else-if="userInfo.is_staff" type="warning" size="small">管理员</el-tag>
+                <el-tag v-else type="info" size="small">普通用户</el-tag>
+              </div>
+            </div>
+
+            <!-- 编辑模式 -->
+            <div v-else class="edit-mode">
+              <el-form
+                ref="formRef"
+                :model="editForm"
+                :rules="formRules"
+                label-width="100px"
+                label-position="left"
+              >
+                <el-form-item label="邮箱地址">
+                  <el-input v-model="editForm.email" disabled placeholder="邮箱地址不可修改" />
+                </el-form-item>
+
+                <el-form-item label="名字" prop="first_name">
+                  <el-input v-model="editForm.first_name" placeholder="请输入名字" clearable />
+                </el-form-item>
+
+                <el-form-item label="姓氏" prop="last_name">
+                  <el-input v-model="editForm.last_name" placeholder="请输入姓氏" clearable />
+                </el-form-item>
+              </el-form>
+
+              <div class="edit-actions">
+                <el-button type="primary" @click="handleSaveInfo" :loading="saving">
+                  保存修改
+                </el-button>
+                <el-button @click="cancelEdit">取消</el-button>
+              </div>
+            </div>
+          </div>
+        </el-card>
+
+        <!-- 密码修改卡片 -->
+        <el-card class="password-card" shadow="never">
+          <template #header>
+            <div class="card-header">
+              <el-icon><Lock /></el-icon>
+              <span>密码设置</span>
+            </div>
+          </template>
+
+          <div class="password-content">
+            <el-button type="warning" @click="showPasswordDialog = true" :icon="Key">
+              修改密码
+            </el-button>
+            <p class="password-tip">为了账户安全，建议定期更换密码</p>
+          </div>
+        </el-card>
       </div>
     </div>
 
@@ -228,11 +188,7 @@
 
       <template #footer>
         <el-button @click="showPasswordDialog = false">取消</el-button>
-        <el-button
-          type="primary"
-          @click="handleChangePassword"
-          :loading="changingPassword"
-        >
+        <el-button type="primary" @click="handleChangePassword" :loading="changingPassword">
           确认修改
         </el-button>
       </template>
@@ -244,15 +200,7 @@
 import { ref, computed, reactive } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
-import {
-  User,
-  InfoFilled,
-  Edit,
-  Close,
-  Lock,
-  Key,
-  ArrowLeft
-} from '@element-plus/icons-vue'
+import { User, InfoFilled, Edit, Close, Lock, Key, ArrowLeft } from '@element-plus/icons-vue'
 import { useAuthStore } from '@/stores/auth'
 import { authApi } from '@/api/auth'
 import AvatarUpload from '@/components/AvatarUpload.vue'
@@ -277,33 +225,27 @@ const userInfo = computed(() => authStore.user || {})
 const editForm = reactive({
   email: '',
   first_name: '',
-  last_name: ''
+  last_name: '',
 })
 
 // 密码表单
 const passwordForm = reactive({
   current_password: '',
   new_password: '',
-  confirm_password: ''
+  confirm_password: '',
 })
 
 // 表单验证规则
 const formRules = {
-  first_name: [
-    { max: 30, message: '名字长度不能超过30个字符', trigger: 'blur' }
-  ],
-  last_name: [
-    { max: 30, message: '姓氏长度不能超过30个字符', trigger: 'blur' }
-  ]
+  first_name: [{ max: 30, message: '名字长度不能超过30个字符', trigger: 'blur' }],
+  last_name: [{ max: 30, message: '姓氏长度不能超过30个字符', trigger: 'blur' }],
 }
 
 const passwordRules = {
-  current_password: [
-    { required: true, message: '请输入当前密码', trigger: 'blur' }
-  ],
+  current_password: [{ required: true, message: '请输入当前密码', trigger: 'blur' }],
   new_password: [
     { required: true, message: '请输入新密码', trigger: 'blur' },
-    { min: 8, message: '密码长度不能少于8位', trigger: 'blur' }
+    { min: 8, message: '密码长度不能少于8位', trigger: 'blur' },
   ],
   confirm_password: [
     { required: true, message: '请确认新密码', trigger: 'blur' },
@@ -315,9 +257,9 @@ const passwordRules = {
           callback()
         }
       },
-      trigger: 'blur'
-    }
-  ]
+      trigger: 'blur',
+    },
+  ],
 }
 
 // 初始化编辑表单
@@ -344,7 +286,7 @@ const goBack = () => {
 }
 
 // 格式化日期
-const formatDate = (dateString) => {
+const formatDate = dateString => {
   if (!dateString) return ''
   return new Date(dateString).toLocaleString('zh-CN')
 }
@@ -364,7 +306,7 @@ const handleSaveInfo = async () => {
 
     const response = await authApi.updateUser({
       first_name: editForm.first_name,
-      last_name: editForm.last_name
+      last_name: editForm.last_name,
     })
 
     if (response.code === 200) {
@@ -392,7 +334,7 @@ const handleChangePassword = async () => {
 
     const response = await authApi.updateUser({
       current_password: passwordForm.current_password,
-      new_password: passwordForm.new_password
+      new_password: passwordForm.new_password,
     })
 
     if (response.code === 200) {
@@ -403,7 +345,7 @@ const handleChangePassword = async () => {
       Object.assign(passwordForm, {
         current_password: '',
         new_password: '',
-        confirm_password: ''
+        confirm_password: '',
       })
     } else {
       ElMessage.error(response.message || '密码修改失败')

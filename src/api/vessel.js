@@ -14,7 +14,7 @@ export const vesselApi = {
     return request({
       url: '/schedules/cabin-grouping-with-info/',
       method: 'GET',
-      params: { polCd, podCd }
+      params: { polCd, podCd },
     })
   },
 
@@ -23,11 +23,11 @@ export const vesselApi = {
    * @param {number} scheduleId 航班ID
    * @returns {Promise} API响应
    */
-  getVesselInfoBySchedule: (scheduleId) => {
+  getVesselInfoBySchedule: scheduleId => {
     return request({
       url: '/vessel-info/',
       method: 'GET',
-      params: { schedule_id: scheduleId }
+      params: { schedule_id: scheduleId },
     })
   },
 
@@ -41,7 +41,7 @@ export const vesselApi = {
     // 验证只更新允许的字段
     const allowedFields = ['price', 'gp_20', 'hq_40', 'cut_off_time']
     const validData = {}
-    
+
     allowedFields.forEach(field => {
       if (updateData.hasOwnProperty(field)) {
         validData[field] = updateData[field]
@@ -51,7 +51,7 @@ export const vesselApi = {
     return request({
       url: `/vessel-info/${vesselInfoId}/`,
       method: 'PATCH',
-      data: validData
+      data: validData,
     })
   },
 
@@ -60,9 +60,9 @@ export const vesselApi = {
    * @param {Array} updates 批量更新数据
    * @returns {Promise} API响应
    */
-  batchUpdateVesselInfo: (updates) => {
+  batchUpdateVesselInfo: updates => {
     const allowedFields = ['price', 'gp_20', 'hq_40', 'cut_off_time']
-    
+
     // 预处理更新数据，确保只更新可编辑字段
     const validUpdates = updates.map(item => {
       const validFields = {}
@@ -73,16 +73,16 @@ export const vesselApi = {
       })
       return {
         id: item.id,
-        ...validFields
+        ...validFields,
       }
     })
 
     return request({
       url: '/vessel-info/bulk-update/',
       method: 'POST',
-      data: { updates: validUpdates }
+      data: { updates: validUpdates },
     })
-  }
+  },
 }
 
 /**
@@ -90,7 +90,7 @@ export const vesselApi = {
  * @param {number} scheduleId 航班ID
  * @returns {Promise<number|null>} vessel_info的ID
  */
-export const getVesselInfoId = async (scheduleId) => {
+export const getVesselInfoId = async scheduleId => {
   try {
     const response = await vesselApi.getVesselInfoBySchedule(scheduleId)
     if (response.code === 200 && response.data.results?.length > 0) {

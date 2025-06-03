@@ -6,7 +6,12 @@ export const portData = [
   { code: 'VNHPH', name: 'HAIPHONG(海防,越南)', country: '越南', city: '海防' },
   { code: 'VNDAD', name: 'DANANG(岘港,越南)', country: '越南', city: '岘港' },
   { code: 'VNHAN', name: 'HANOI(河内,越南)', country: '越南', city: '河内' },
-  { code: 'VNPHG', name: 'HOCHIMINH--PHUOC LONG(胡志明芙蓉港,越南)', country: '越南', city: '胡志明' },
+  {
+    code: 'VNPHG',
+    name: 'HOCHIMINH--PHUOC LONG(胡志明芙蓉港,越南)',
+    country: '越南',
+    city: '胡志明',
+  },
   { code: 'VNSGN', name: 'HOCHIMINH(胡志明,越南)', country: '越南', city: '胡志明' },
 
   // 泰国
@@ -24,10 +29,20 @@ export const portData = [
   { code: 'MYPGU', name: 'PASIR GUDANG(巴西古单,马来西亚)', country: '马来西亚', city: '巴西古单' },
   { code: 'MYPEN', name: 'PENANG(槟城,马来西亚)', country: '马来西亚', city: '槟城' },
   { code: 'MYKCH', name: 'KUCHING(古晋,马来西亚)', country: '马来西亚', city: '古晋' },
-  { code: 'MYBKI', name: 'KOTA KINABALU(哥打基纳巴卢,马来西亚)', country: '马来西亚', city: '哥打基纳巴卢' },
+  {
+    code: 'MYBKI',
+    name: 'KOTA KINABALU(哥打基纳巴卢,马来西亚)',
+    country: '马来西亚',
+    city: '哥打基纳巴卢',
+  },
   { code: 'MYBTU', name: 'BINTULU(民都鲁,马来西亚)', country: '马来西亚', city: '民都鲁' },
   { code: 'MYMYY', name: 'MIRI(米里,马来西亚)', country: '马来西亚', city: '米里' },
-  { code: 'MYTPP', name: 'TANJUNG PELEPAS(丹戎帕拉帕斯,马来西亚)', country: '马来西亚', city: '丹戎帕拉帕斯' },
+  {
+    code: 'MYTPP',
+    name: 'TANJUNG PELEPAS(丹戎帕拉帕斯,马来西亚)',
+    country: '马来西亚',
+    city: '丹戎帕拉帕斯',
+  },
 
   // 印度尼西亚
   { code: 'IDJKT', name: 'JAKARTA(雅加达,印度尼西亚)', country: '印度尼西亚', city: '雅加达' },
@@ -71,7 +86,12 @@ export const portData = [
   { code: 'INBOM', name: 'MUMBAI(孟买,印度)', country: '印度', city: '孟买' },
   { code: 'INICD', name: 'NEW DELHI(新德里,印度)', country: '印度', city: '新德里' },
   { code: 'INBLR', name: 'BANGALORE(班加罗尔,印度)', country: '印度', city: '班加罗尔' },
-  { code: 'INVTZ', name: 'VISAKHAPATNAM(维沙卡帕特南,印度)', country: '印度', city: '维沙卡帕特南' },
+  {
+    code: 'INVTZ',
+    name: 'VISAKHAPATNAM(维沙卡帕特南,印度)',
+    country: '印度',
+    city: '维沙卡帕特南',
+  },
   { code: 'INNSA', name: 'NHAVA SHEVA(那瓦西瓦,印度)', country: '印度', city: '那瓦西瓦' },
 
   // 斯里兰卡
@@ -112,7 +132,12 @@ export const portData = [
   { code: 'BHBAH', name: 'BAHRAIN(巴林,巴林)', country: '巴林', city: '巴林' },
 
   // 科威特
-  { code: 'KWSWK', name: 'KUWAIT–SHUWAIKH(科威特舒瓦克,科威特)', country: '科威特', city: '科威特' },
+  {
+    code: 'KWSWK',
+    name: 'KUWAIT–SHUWAIKH(科威特舒瓦克,科威特)',
+    country: '科威特',
+    city: '科威特',
+  },
   { code: 'KWSAA', name: 'KUWAIT–SHUAIBA(科威特舒艾拜,科威特)', country: '科威特', city: '科威特' },
 
   // 伊拉克
@@ -125,35 +150,33 @@ export const portData = [
   { code: 'DJJIB', name: 'DJIBOUTI(吉布提,吉布提)', country: '吉布提', city: '吉布提' },
 
   // 埃及
-  { code: 'EGSOK', name: 'SOKHNA(苏科纳,埃及)', country: '埃及', city: '苏科纳' }
+  { code: 'EGSOK', name: 'SOKHNA(苏科纳,埃及)', country: '埃及', city: '苏科纳' },
 ]
 
 // 中国港口数据（包含城市和具体港口映射）
 export const chineseCityPorts = [
-  { 
-    code: 'SHENZHEN', 
-    name: 'SHENZHEN(深圳)', 
+  {
+    code: 'SHENZHEN',
+    name: 'SHENZHEN(深圳)',
     country: '中国',
     terminals: [
       { code: 'CNSHK', name: '蛇口' },
       { code: 'CNDCB', name: '大铲湾' },
-      { code: 'CNYTN', name: '盐田' }
-    ]
+      { code: 'CNYTN', name: '盐田' },
+    ],
   },
-  { 
-    code: 'NANSHA', 
-    name: 'NANSHA(广州南沙)', 
+  {
+    code: 'NANSHA',
+    name: 'NANSHA(广州南沙)',
     country: '中国',
-    terminals: [
-      { code: 'CNNAN', name: '广州南沙' }
-    ]
-  }
+    terminals: [{ code: 'CNNAN', name: '广州南沙' }],
+  },
 ]
 
 // 获取所有港口（包含中国港口的具体码头）
 export const getAllPorts = () => {
   const allPorts = [...portData]
-  
+
   // 添加中国港口的具体码头
   chineseCityPorts.forEach(city => {
     city.terminals.forEach(terminal => {
@@ -162,26 +185,28 @@ export const getAllPorts = () => {
         name: `${terminal.name}(${city.name})`,
         country: city.country,
         city: terminal.name,
-        parentCity: city.code
+        parentCity: city.code,
       })
     })
   })
-  
+
   return allPorts
 }
 
 // 搜索港口
-export const searchPorts = (searchTerm) => {
+export const searchPorts = searchTerm => {
   if (!searchTerm) return getAllPorts()
-  
+
   const term = searchTerm.toLowerCase()
   const allPorts = getAllPorts()
-  
+
   return allPorts.filter(port => {
-    return port.name.toLowerCase().includes(term) ||
-           port.code.toLowerCase().includes(term) ||
-           port.country.toLowerCase().includes(term) ||
-           port.city.toLowerCase().includes(term)
+    return (
+      port.name.toLowerCase().includes(term) ||
+      port.code.toLowerCase().includes(term) ||
+      port.country.toLowerCase().includes(term) ||
+      port.city.toLowerCase().includes(term)
+    )
   })
 }
 
@@ -189,13 +214,13 @@ export const searchPorts = (searchTerm) => {
 export const getPortsByCountry = () => {
   const allPorts = getAllPorts()
   const grouped = {}
-  
+
   allPorts.forEach(port => {
     if (!grouped[port.country]) {
       grouped[port.country] = []
     }
     grouped[port.country].push(port)
   })
-  
+
   return grouped
-} 
+}

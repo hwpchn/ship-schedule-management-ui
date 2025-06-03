@@ -8,10 +8,10 @@ export const permission = {
   mounted(el, binding) {
     checkPermission(el, binding)
   },
-  
+
   updated(el, binding) {
     checkPermission(el, binding)
-  }
+  },
 }
 
 /**
@@ -22,15 +22,15 @@ export const permission = {
 function checkPermission(el, binding) {
   const permissionStore = usePermissionStore()
   const requiredPermission = binding.value
-  
+
   if (!requiredPermission) {
     console.warn('权限指令需要提供权限代码')
     return
   }
-  
+
   // 检查权限
   const hasPermission = permissionStore.hasPermission(requiredPermission)
-  
+
   if (!hasPermission) {
     // 没有权限则隐藏元素
     el.style.display = 'none'
@@ -57,10 +57,10 @@ export const permissionAny = {
   mounted(el, binding) {
     checkAnyPermission(el, binding)
   },
-  
+
   updated(el, binding) {
     checkAnyPermission(el, binding)
-  }
+  },
 }
 
 /**
@@ -69,14 +69,14 @@ export const permissionAny = {
 function checkAnyPermission(el, binding) {
   const permissionStore = usePermissionStore()
   const requiredPermissions = binding.value
-  
+
   if (!Array.isArray(requiredPermissions)) {
     console.warn('permission-any指令需要提供权限代码数组')
     return
   }
-  
+
   const hasAnyPermission = permissionStore.hasAnyPermission(requiredPermissions)
-  
+
   if (!hasAnyPermission) {
     el.style.display = 'none'
     el.setAttribute('data-permission-any-hidden', requiredPermissions.join(','))
@@ -93,10 +93,10 @@ export const permissionAll = {
   mounted(el, binding) {
     checkAllPermissions(el, binding)
   },
-  
+
   updated(el, binding) {
     checkAllPermissions(el, binding)
-  }
+  },
 }
 
 /**
@@ -105,16 +105,16 @@ export const permissionAll = {
 function checkAllPermissions(el, binding) {
   const permissionStore = usePermissionStore()
   const requiredPermissions = binding.value
-  
+
   if (!Array.isArray(requiredPermissions)) {
     console.warn('permission-all指令需要提供权限代码数组')
     return
   }
-  
-  const hasAllPermissions = requiredPermissions.every(permission => 
+
+  const hasAllPermissions = requiredPermissions.every(permission =>
     permissionStore.hasPermission(permission)
   )
-  
+
   if (!hasAllPermissions) {
     el.style.display = 'none'
     el.setAttribute('data-permission-all-hidden', requiredPermissions.join(','))
@@ -132,10 +132,10 @@ export const permissionRole = {
   mounted(el, binding) {
     checkRolePermission(el, binding)
   },
-  
+
   updated(el, binding) {
     checkRolePermission(el, binding)
-  }
+  },
 }
 
 /**
@@ -144,13 +144,13 @@ export const permissionRole = {
 function checkRolePermission(el, binding) {
   const permissionStore = usePermissionStore()
   const requiredRole = binding.value
-  
+
   let hasRole = false
-  
+
   if (requiredRole === 'admin' || requiredRole === 'superuser') {
     hasRole = permissionStore.isAdmin
   }
-  
+
   if (!hasRole) {
     el.style.display = 'none'
     el.setAttribute('data-role-hidden', requiredRole)

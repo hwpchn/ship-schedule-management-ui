@@ -12,20 +12,20 @@ export default defineConfig({
     AutoImport({
       resolvers: [ElementPlusResolver()],
       imports: ['vue', 'vue-router', 'pinia'],
-      dts: true
+      dts: true,
     }),
     Components({
       resolvers: [ElementPlusResolver()],
-      dts: true
+      dts: true,
     }),
     ElementPlus({
-      useSource: true
-    })
+      useSource: true,
+    }),
   ],
   resolve: {
     alias: {
-      '@': resolve(__dirname, 'src')
-    }
+      '@': resolve(__dirname, 'src'),
+    },
   },
   server: {
     port: 3000,
@@ -34,9 +34,9 @@ export default defineConfig({
       '/api': {
         target: 'http://localhost:8000',
         changeOrigin: true,
-        secure: false
-      }
-    }
+        secure: false,
+      },
+    },
   },
   build: {
     outDir: 'dist',
@@ -45,9 +45,9 @@ export default defineConfig({
       output: {
         manualChunks: {
           vendor: ['vue', 'vue-router', 'pinia'],
-          elementPlus: ['element-plus']
-        }
-      }
-    }
-  }
-}) 
+          elementPlus: ['element-plus'],
+        },
+      },
+    },
+  },
+})
