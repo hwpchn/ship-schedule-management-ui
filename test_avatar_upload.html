@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>头像上传测试</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background: #f9f9f9;
+        }
+        .test-section h3 {
+            margin-top: 0;
+            color: #333;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        .log {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        .file-input {
+            margin: 10px 0;
+        }
+        .avatar-preview {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            border: 2px solid #ddd;
+            object-fit: cover;
+            margin: 10px 0;
+        }
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+        }
+        .success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .warning {
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🖼️ 头像上传功能测试</h1>
+        <p>这个工具用于诊断头像上传功能的问题。</p>
+
+        <div class="test-section">
+            <h3>步骤 1: 检查认证状态</h3>
+            <button onclick="checkAuthStatus()">检查认证状态</button>
+            <div id="authStatus" class="log"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>步骤 2: 测试文件选择</h3>
+            <input type="file" id="fileInput" accept=".jpg,.jpeg,.png,.gif" class="file-input" onchange="handleFileSelect(event)">
+            <button onclick="triggerFileSelect()">触发文件选择</button>
+            <div id="fileStatus" class="log"></div>
+            <img id="preview" class="avatar-preview" style="display: none;">
+        </div>
+
+        <div class="test-section">
+            <h3>步骤 3: 测试文件验证</h3>
+            <button onclick="testFileValidation()" id="validateBtn" disabled>验证选中的文件</button>
+            <div id="validationResult" class="log"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>步骤 4: 测试 API 上传</h3>
+            <button onclick="testApiUpload()" id="uploadBtn" disabled>测试 API 上传</button>
+            <div id="uploadResult" class="log"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>步骤 5: 访问实际页面</h3>
+            <button onclick="openProfilePage()">打开个人资料页面</button>
+            <div id="pageResult" class="log"></div>
+        </div>
+    </div>
+
+    <script>
+        let selectedFile = null;
+
+        function log(elementId, message, type = 'info') {
+            const element = document.getElementById(elementId);
+            const timestamp = new Date().toLocaleTimeString();
+            const logMessage = `[${timestamp}] ${message}\n`;
+            element.textContent += logMessage;
+            element.scrollTop = element.scrollHeight;
+        }
+
+        function checkAuthStatus() {
+            const element = document.getElementById('authStatus');
+            element.textContent = '';
+            
+            log('authStatus', '🔍 检查认证状态...');
+            
+            const token = localStorage.getItem('token');
+            const refreshToken = localStorage.getItem('refreshToken');
+            
+            log('authStatus', `Access Token: ${token ? '存在' : '不存在'}`);
+            log('authStatus', `Refresh Token: ${refreshToken ? '存在' : '不存在'}`);
+            
+            if (token && refreshToken) {
+                log('authStatus', '✅ 认证信息完整，可以进行头像上传测试');
+            } else {
+                log('authStatus', '❌ 认证信息不完整，请先登录');
+                log('authStatus', '💡 请访问 http://localhost:3000/login 登录后再测试');
+            }
+        }
+
+        function triggerFileSelect() {
+            log('fileStatus', '🖱️ 触发文件选择...');
+            document.getElementById('fileInput').click();
+        }
+
+        function handleFileSelect(event) {
+            const file = event.target.files[0];
+            const element = document.getElementById('fileStatus');
+            
+            if (!file) {
+                log('fileStatus', '❌ 没有选择文件');
+                selectedFile = null;
+                document.getElementById('validateBtn').disabled = true;
+                document.getElementById('uploadBtn').disabled = true;
+                return;
+            }
+
+            selectedFile = file;
+            log('fileStatus', `✅ 文件选择成功:`);
+            log('fileStatus', `  文件名: ${file.name}`);
+            log('fileStatus', `  文件类型: ${file.type}`);
+            log('fileStatus', `  文件大小: ${(file.size / 1024 / 1024).toFixed(2)} MB`);
+            
+            // 显示预览
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const preview = document.getElementById('preview');
+                preview.src = e.target.result;
+                preview.style.display = 'block';
+            };
+            reader.readAsDataURL(file);
+            
+            document.getElementById('validateBtn').disabled = false;
+        }
+
+        function testFileValidation() {
+            const element = document.getElementById('validationResult');
+            element.textContent = '';
+            
+            if (!selectedFile) {
+                log('validationResult', '❌ 没有选择文件');
+                return;
+            }
+
+            log('validationResult', '🔍 开始文件验证...');
+            
+            // 检查文件类型
+            const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'];
+            if (!validTypes.includes(selectedFile.type)) {
+                log('validationResult', `❌ 文件类型不支持: ${selectedFile.type}`);
+                log('validationResult', `✅ 支持的类型: ${validTypes.join(', ')}`);
+                return;
+            }
+            
+            // 检查文件大小 (5MB)
+            const maxSize = 5 * 1024 * 1024;
+            if (selectedFile.size > maxSize) {
+                log('validationResult', `❌ 文件过大: ${(selectedFile.size / 1024 / 1024).toFixed(2)} MB`);
+                log('validationResult', `✅ 最大允许: 5 MB`);
+                return;
+            }
+            
+            log('validationResult', '✅ 文件验证通过');
+            log('validationResult', '🚀 可以进行上传测试');
+            document.getElementById('uploadBtn').disabled = false;
+        }
+
+        async function testApiUpload() {
+            const element = document.getElementById('uploadResult');
+            element.textContent = '';
+
+            if (!selectedFile) {
+                log('uploadResult', '❌ 没有选择文件');
+                return;
+            }
+
+            const token = localStorage.getItem('token');
+            if (!token) {
+                log('uploadResult', '❌ 没有认证 token，请先登录');
+                return;
+            }
+
+            log('uploadResult', '🚀 开始 API 上传测试...');
+            log('uploadResult', `📁 文件信息: ${selectedFile.name} (${selectedFile.type}, ${(selectedFile.size/1024/1024).toFixed(2)}MB)`);
+
+            try {
+                const formData = new FormData();
+                formData.append('avatar', selectedFile);
+
+                log('uploadResult', '📤 发送上传请求到: http://localhost:3000/api/auth/me/avatar/');
+
+                const response = await fetch('/api/auth/me/avatar/', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: formData
+                });
+
+                log('uploadResult', `📥 收到响应: ${response.status} ${response.statusText}`);
+
+                let result;
+                try {
+                    result = await response.json();
+                    log('uploadResult', `📋 响应内容: ${JSON.stringify(result, null, 2)}`);
+                } catch (parseError) {
+                    const text = await response.text();
+                    log('uploadResult', `📋 响应文本: ${text}`);
+                    result = { message: '响应格式错误' };
+                }
+
+                if (response.ok) {
+                    log('uploadResult', '✅ 上传成功！');
+
+                    // 尝试验证头像文件是否真的存在
+                    if (result.data && result.data.avatar_url) {
+                        const avatarUrl = result.data.avatar_url.replace('http://127.0.0.1:8000', '');
+                        log('uploadResult', `🔍 验证头像文件: ${avatarUrl}`);
+
+                        // 测试头像文件是否可访问
+                        fetch(avatarUrl)
+                            .then(avatarResponse => {
+                                if (avatarResponse.ok) {
+                                    log('uploadResult', '✅ 头像文件验证成功，可以正常访问');
+                                } else {
+                                    log('uploadResult', `❌ 头像文件验证失败: ${avatarResponse.status} ${avatarResponse.statusText}`);
+                                }
+                            })
+                            .catch(error => {
+                                log('uploadResult', `❌ 头像文件验证出错: ${error.message}`);
+                            });
+                    }
+
+                    log('uploadResult', '🔄 建议刷新页面查看头像更新');
+                } else {
+                    log('uploadResult', `❌ 上传失败: ${result.message || result.detail || '未知错误'}`);
+                    if (result.errors) {
+                        log('uploadResult', `📝 详细错误: ${JSON.stringify(result.errors, null, 2)}`);
+                    }
+                }
+
+            } catch (error) {
+                log('uploadResult', `💥 上传出错: ${error.message}`);
+                console.error('上传错误:', error);
+            }
+        }
+
+        function openProfilePage() {
+            const element = document.getElementById('pageResult');
+            element.textContent = '';
+            
+            log('pageResult', '🌐 打开个人资料页面...');
+            log('pageResult', '请在新窗口中查看头像上传功能');
+            
+            window.open('http://localhost:3000/profile', '_blank');
+        }
+
+        // 页面加载时自动检查认证状态
+        window.onload = function() {
+            checkAuthStatus();
+        };
+    </script>
+</body>
+</html>

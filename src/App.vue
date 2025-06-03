@@ -76,30 +76,42 @@ onMounted(async () => {
   try {
     // 检查localStorage中是否有token
     const hasToken = localStorage.getItem('token')
+    const hasRefreshToken = localStorage.getItem('refreshToken')
+
+    console.log('🔍 本地认证信息检查:', { hasToken: !!hasToken, hasRefreshToken: !!hasRefreshToken })
 
     if (hasToken && authStore.authStatus === 'unknown') {
-      console.log('📦 发现本地token，尝试初始化认证状态...')
+      console.log('📦 发现本地token，验证完整性并尝试初始化认证状态...')
 
-      // 尝试初始化认证状态
-      const success = await authStore.initAuth()
-      if (success) {
-        console.log('✅ 认证状态初始化成功')
-
-        // 认证成功后初始化权限
-        try {
-          await permissionStore.loadUserPermissions()
-          console.log('🔑 权限初始化完成')
-        } catch (permError) {
-          console.warn('⚠️ 权限初始化失败，但不影响应用启动:', permError)
-        }
-      } else if (authStore.authStatus === 'network_error') {
-        console.log('🌐 网络错误导致初始化失败，将在网络恢复后重试')
+      // 预先检查认证数据完整性
+      if (!hasRefreshToken) {
+        console.log('⚠️ 发现不完整的本地认证信息，将清理并要求重新登录')
+        localStorage.removeItem('token')
+        // 使用 validateAndCleanAuthData 来正确设置状态
+        authStore.validateAndCleanAuthData()
       } else {
-        console.log('❌ 认证状态初始化失败')
+        // 尝试初始化认证状态
+        const success = await authStore.initAuth()
+        if (success) {
+          console.log('✅ 认证状态初始化成功')
+
+          // 认证成功后初始化权限
+          try {
+            await permissionStore.loadUserPermissions()
+            console.log('🔑 权限初始化完成')
+          } catch (permError) {
+            console.warn('⚠️ 权限初始化失败，但不影响应用启动:', permError)
+          }
+        } else if (authStore.authStatus === 'network_error') {
+          console.log('🌐 网络错误导致初始化失败，将在网络恢复后重试')
+        } else {
+          console.log('❌ 认证状态初始化失败')
+        }
       }
     } else if (!hasToken) {
       console.log('📭 未发现本地token，用户需要重新登录')
-      authStore.authStatus = 'unauthenticated'
+      // 使用 validateAndCleanAuthData 来正确设置状态
+      authStore.validateAndCleanAuthData()
     } else {
       console.log('🔄 认证状态已存在，跳过初始化')
     }
