@@ -85,12 +85,33 @@ onMounted(async () => {
 
       // 预先检查认证数据完整性
       if (!hasRefreshToken) {
-        console.log('⚠️ 发现不完整的本地认证信息，将清理并要求重新登录')
-        localStorage.removeItem('token')
-        // 使用 validateAndCleanAuthData 来正确设置状态
-        authStore.validateAndCleanAuthData()
+        console.log('⚠️ 发现不完整的本地认证信息，尝试使用现有token验证身份...')
+
+        // 不立即清理，先尝试用现有token验证身份
+        try {
+          // 允许使用部分token进行验证
+          const success = await authStore.initAuth(true)
+          if (success) {
+            console.log('✅ 使用现有token认证成功')
+            // 认证成功后初始化权限
+            try {
+              await permissionStore.loadUserPermissions()
+              console.log('🔑 权限初始化完成')
+            } catch (permError) {
+              console.warn('⚠️ 权限初始化失败，但不影响应用启动:', permError)
+            }
+          } else {
+            console.log('❌ 现有token验证失败，清理认证信息')
+            // 只有在验证失败后才清理
+            authStore.validateAndCleanAuthData()
+          }
+        } catch (error) {
+          console.error('💥 token验证过程出错:', error)
+          // 出错时也清理认证信息
+          authStore.validateAndCleanAuthData()
+        }
       } else {
-        // 尝试初始化认证状态
+        // 认证信息完整，正常初始化
         const success = await authStore.initAuth()
         if (success) {
           console.log('✅ 认证状态初始化成功')

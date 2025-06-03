@@ -92,10 +92,25 @@ export const useAuthStore = defineStore('auth', () => {
 
   // 设置token
   const setToken = (newToken, newRefreshToken) => {
+    console.log('🔑 设置认证token:', {
+      hasAccessToken: !!newToken,
+      hasRefreshToken: !!newRefreshToken,
+      accessTokenLength: newToken?.length,
+      refreshTokenLength: newRefreshToken?.length
+    })
+
     token.value = newToken
     refreshToken.value = newRefreshToken
     localStorage.setItem('token', newToken)
     localStorage.setItem('refreshToken', newRefreshToken)
+
+    // 验证存储是否成功
+    const storedToken = localStorage.getItem('token')
+    const storedRefreshToken = localStorage.getItem('refreshToken')
+    console.log('💾 token存储验证:', {
+      tokenStored: !!storedToken,
+      refreshTokenStored: !!storedRefreshToken
+    })
   }
 
   // 清除token（只在确认认证失败时调用）
@@ -119,11 +134,17 @@ export const useAuthStore = defineStore('auth', () => {
   }
 
   // 检查并清理不完整的认证信息
-  const validateAndCleanAuthData = () => {
+  const validateAndCleanAuthData = (allowPartialToken = false) => {
     const hasToken = !!token.value
     const hasRefreshToken = !!refreshToken.value
 
-    console.log('🔍 检查认证数据完整性:', { hasToken, hasRefreshToken })
+    console.log('🔍 检查认证数据完整性:', { hasToken, hasRefreshToken, allowPartialToken })
+
+    // 如果允许部分token（仅用于特殊情况下的验证）
+    if (allowPartialToken && hasToken && !hasRefreshToken) {
+      console.log('🔄 允许使用部分认证信息进行验证')
+      return true
+    }
 
     // 如果只有其中一个 token，说明认证信息不完整
     if (hasToken && !hasRefreshToken) {
@@ -538,11 +559,11 @@ export const useAuthStore = defineStore('auth', () => {
   }
 
   // 初始化认证状态
-  const initAuth = async () => {
-    console.log('🔐 开始初始化认证状态...')
+  const initAuth = async (allowPartialToken = false) => {
+    console.log('🔐 开始初始化认证状态...', { allowPartialToken })
 
     // 首先检查认证数据的完整性
-    if (!validateAndCleanAuthData()) {
+    if (!validateAndCleanAuthData(allowPartialToken)) {
       // 如果认证数据不完整，validateAndCleanAuthData 已经处理了清理工作
       if (token.value || refreshToken.value) {
         // 如果之前有不完整的数据被清理，给用户提示
