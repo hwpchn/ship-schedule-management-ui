@@ -133,32 +133,65 @@ export const useAuthStore = defineStore('auth', () => {
     networkAvailable.value = false
   }
 
+  // 简化的认证状态检查
+  const hasValidToken = () => {
+    const hasToken = !!token.value
+    console.log('🔍 检查token状态:', { hasToken, tokenLength: token.value?.length })
+    return hasToken
+  }
+
+  // 清理所有认证信息
+  const cleanAuthData = () => {
+    console.log('🧹 清理所有认证信息')
+    token.value = ''
+    refreshToken.value = ''
+    user.value = null
+    permissions.value = []
+    roles.value = []
+    authStatus.value = AUTH_STATUS.UNAUTHENTICATED
+    localStorage.removeItem('token')
+    localStorage.removeItem('refreshToken')
+  }
+
   // 检查并清理不完整的认证信息
   const validateAndCleanAuthData = (allowPartialToken = false) => {
     const hasToken = !!token.value
     const hasRefreshToken = !!refreshToken.value
 
-    console.log('🔍 检查认证数据完整性:', { hasToken, hasRefreshToken, allowPartialToken })
+    console.log('🔍 检查认证数据完整性:', {
+      hasToken,
+      hasRefreshToken,
+      allowPartialToken,
+      tokenLength: token.value?.length,
+      refreshTokenLength: refreshToken.value?.length
+    })
+
+    // 如果没有任何认证信息
+    if (!hasToken && !hasRefreshToken) {
+      console.log('📭 没有任何认证信息')
+      authStatus.value = AUTH_STATUS.UNAUTHENTICATED
+      return false
+    }
 
     // 如果允许部分token（仅用于特殊情况下的验证）
-    if (allowPartialToken && hasToken && !hasRefreshToken) {
+    if (allowPartialToken && hasToken) {
       console.log('🔄 允许使用部分认证信息进行验证')
       return true
     }
 
-    // 如果只有其中一个 token，说明认证信息不完整
+    // 如果只有 access token 但没有 refresh token
     if (hasToken && !hasRefreshToken) {
       console.log('⚠️ 发现不完整的认证信息：有 access token 但缺少 refresh token')
-      clearToken()
-      return false
-    } else if (!hasToken && hasRefreshToken) {
+      // 不立即清理，而是标记为需要验证
+      console.log('💡 将尝试使用现有 access token 验证身份')
+      return allowPartialToken
+    }
+
+    // 如果只有 refresh token 但没有 access token
+    if (!hasToken && hasRefreshToken) {
       console.log('⚠️ 发现不完整的认证信息：有 refresh token 但缺少 access token')
-      clearToken()
-      return false
-    } else if (!hasToken && !hasRefreshToken) {
-      console.log('📭 没有任何认证信息')
-      authStatus.value = AUTH_STATUS.UNAUTHENTICATED
-      return false
+      console.log('💡 将尝试使用 refresh token 获取新的 access token')
+      return true // 允许通过，让后续逻辑处理
     }
 
     console.log('✅ 认证数据完整性检查通过')
@@ -529,9 +562,19 @@ export const useAuthStore = defineStore('auth', () => {
       const response = await authApi.refreshToken({ refresh: refreshToken.value })
 
       if (response.code === 200) {
+        // 更新 access token
         token.value = response.data.access
         localStorage.setItem('token', response.data.access)
-        console.log('Token刷新成功')
+
+        // 如果响应中包含新的 refresh token，也要更新
+        if (response.data.refresh) {
+          refreshToken.value = response.data.refresh
+          localStorage.setItem('refreshToken', response.data.refresh)
+          console.log('Token刷新成功，同时更新了 refresh token')
+        } else {
+          console.log('Token刷新成功，保持原有 refresh token')
+        }
+
         return true
       } else {
         console.log('Token刷新失败，响应码:', response.code, '消息:', response.message)

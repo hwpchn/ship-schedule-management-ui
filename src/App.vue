@@ -78,7 +78,14 @@ onMounted(async () => {
     const hasToken = localStorage.getItem('token')
     const hasRefreshToken = localStorage.getItem('refreshToken')
 
-    console.log('🔍 本地认证信息检查:', { hasToken: !!hasToken, hasRefreshToken: !!hasRefreshToken })
+    console.log('🔍 本地认证信息检查:', {
+      hasToken: !!hasToken,
+      hasRefreshToken: !!hasRefreshToken,
+      tokenLength: hasToken?.length,
+      refreshTokenLength: hasRefreshToken?.length,
+      authStoreStatus: authStore.authStatus,
+      timestamp: new Date().toISOString()
+    })
 
     if (hasToken && authStore.authStatus === 'unknown') {
       console.log('📦 发现本地token，验证完整性并尝试初始化认证状态...')
