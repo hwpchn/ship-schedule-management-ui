@@ -119,7 +119,7 @@
                   <el-button
                     v-if="!data.category"
                     size="small"
-                    type="link"
+                    link
                     @click="showPermissionDetail(data)"
                   >
                     详情
