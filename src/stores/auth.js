@@ -92,30 +92,14 @@ export const useAuthStore = defineStore('auth', () => {
 
   // 设置token
   const setToken = (newToken, newRefreshToken) => {
-    console.log('🔑 设置认证token:', {
-      hasAccessToken: !!newToken,
-      hasRefreshToken: !!newRefreshToken,
-      accessTokenLength: newToken?.length,
-      refreshTokenLength: newRefreshToken?.length
-    })
-
     token.value = newToken
     refreshToken.value = newRefreshToken
     localStorage.setItem('token', newToken)
     localStorage.setItem('refreshToken', newRefreshToken)
-
-    // 验证存储是否成功
-    const storedToken = localStorage.getItem('token')
-    const storedRefreshToken = localStorage.getItem('refreshToken')
-    console.log('💾 token存储验证:', {
-      tokenStored: !!storedToken,
-      refreshTokenStored: !!storedRefreshToken
-    })
   }
 
   // 清除token（只在确认认证失败时调用）
   const clearToken = () => {
-    console.log('🗑️ 清除认证状态')
     token.value = ''
     refreshToken.value = ''
     user.value = null
@@ -128,21 +112,17 @@ export const useAuthStore = defineStore('auth', () => {
 
   // 设置网络错误状态（保持认证信息）
   const setNetworkError = () => {
-    console.log('🌐 网络错误，保持认证状态')
     authStatus.value = AUTH_STATUS.NETWORK_ERROR
     networkAvailable.value = false
   }
 
   // 简化的认证状态检查
   const hasValidToken = () => {
-    const hasToken = !!token.value
-    console.log('🔍 检查token状态:', { hasToken, tokenLength: token.value?.length })
-    return hasToken
+    return !!token.value
   }
 
   // 清理所有认证信息
   const cleanAuthData = () => {
-    console.log('🧹 清理所有认证信息')
     token.value = ''
     refreshToken.value = ''
     user.value = null
@@ -158,49 +138,32 @@ export const useAuthStore = defineStore('auth', () => {
     const hasToken = !!token.value
     const hasRefreshToken = !!refreshToken.value
 
-    console.log('🔍 检查认证数据完整性:', {
-      hasToken,
-      hasRefreshToken,
-      allowPartialToken,
-      tokenLength: token.value?.length,
-      refreshTokenLength: refreshToken.value?.length
-    })
-
     // 如果没有任何认证信息
     if (!hasToken && !hasRefreshToken) {
-      console.log('📭 没有任何认证信息')
       authStatus.value = AUTH_STATUS.UNAUTHENTICATED
       return false
     }
 
     // 如果允许部分token（仅用于特殊情况下的验证）
     if (allowPartialToken && hasToken) {
-      console.log('🔄 允许使用部分认证信息进行验证')
       return true
     }
 
     // 如果只有 access token 但没有 refresh token
     if (hasToken && !hasRefreshToken) {
-      console.log('⚠️ 发现不完整的认证信息：有 access token 但缺少 refresh token')
-      // 不立即清理，而是标记为需要验证
-      console.log('💡 将尝试使用现有 access token 验证身份')
       return allowPartialToken
     }
 
     // 如果只有 refresh token 但没有 access token
     if (!hasToken && hasRefreshToken) {
-      console.log('⚠️ 发现不完整的认证信息：有 refresh token 但缺少 access token')
-      console.log('💡 将尝试使用 refresh token 获取新的 access token')
       return true // 允许通过，让后续逻辑处理
     }
 
-    console.log('✅ 认证数据完整性检查通过')
     return true
   }
 
   // 恢复网络状态
   const restoreFromNetworkError = () => {
-    console.log('🌐 网络恢复，恢复认证状态')
     if (token.value && user.value) {
       authStatus.value = AUTH_STATUS.AUTHENTICATED
     } else {
@@ -213,25 +176,9 @@ export const useAuthStore = defineStore('auth', () => {
   const login = async credentials => {
     try {
       loading.value = true
-      console.log('🔐 开始用户登录...')
-
       const response = await authApi.login(credentials)
 
-      // 添加原始响应数据的详细日志
-      console.log('📦 原始API响应:', response)
-      console.log('📦 响应状态码:', response.code)
-      console.log('📦 响应数据结构:', {
-        data: response.data,
-        dataType: typeof response.data,
-        dataKeys: response.data ? Object.keys(response.data) : 'data为空',
-      })
-
       if (response.code === 200) {
-        console.log('✅ 登录API调用成功，响应数据:', {
-          access: response.data.access || response.data.tokens?.access ? '已提供' : '缺失',
-          refresh: response.data.refresh || response.data.tokens?.refresh ? '已提供' : '缺失',
-          user: response.data.user ? '已提供' : '缺失',
-        })
 
         // 适配后端返回的数据结构
         // 后端可能返回两种格式：
@@ -265,44 +212,21 @@ export const useAuthStore = defineStore('auth', () => {
         // 设置认证信息
         setToken(accessToken, refreshToken)
         user.value = userInfo
-
-        // 🔑 关键修复：设置认证状态为已认证
         authStatus.value = AUTH_STATUS.AUTHENTICATED
 
-        console.log('🎯 认证信息设置完成:', {
-          tokenSet: !!token.value,
-          userSet: !!user.value,
-          authStatus: authStatus.value,
-          userEmail: user.value?.email,
-          isAuthenticated: isAuthenticated.value,
-        })
-
         // 获取权限信息
-        console.log('🔑 开始获取用户权限...')
         try {
           await getUserPermissions()
-          console.log('✅ 权限获取成功，权限数量:', permissions.value.length)
         } catch (permError) {
-          console.warn('⚠️ 权限获取失败，但不影响登录:', permError)
-          // 权限获取失败不应该影响登录成功
+          console.warn('权限获取失败，但不影响登录:', permError)
         }
 
-        // 最终状态检查
-        const finalAuthState = {
-          token: !!token.value,
-          user: !!user.value,
-          isAuthenticated: isAuthenticated.value,
-          permissions: permissions.value.length,
-        }
-
-        console.log('🎉 登录流程完成，最终认证状态:', finalAuthState)
-
-        if (!finalAuthState.isAuthenticated) {
+        if (!isAuthenticated.value) {
           throw new Error('登录后认证状态异常')
         }
 
         ElMessage.success('登录成功！')
-        return { success: true, authState: finalAuthState }
+        return { success: true }
       } else {
         console.log('❌ 登录失败，响应码:', response.code, '消息:', response.message)
         const friendlyMessage = response.message || '登录失败'
@@ -419,7 +343,6 @@ export const useAuthStore = defineStore('auth', () => {
   const getUserInfo = async () => {
     try {
       if (!token.value) {
-        console.log('没有token，无法获取用户信息')
         return false
       }
 
@@ -429,10 +352,8 @@ export const useAuthStore = defineStore('auth', () => {
         // 根据API文档，响应格式是 { user: {...} }
         const userData = response.data.user || response.data
         user.value = userData
-        console.log('用户信息获取成功:', userData.email, '头像URL:', userData.avatar_url)
         return true
       } else {
-        console.log('获取用户信息失败，响应码:', response.code)
         return false
       }
     } catch (error) {
@@ -440,14 +361,8 @@ export const useAuthStore = defineStore('auth', () => {
 
       // 区分错误类型
       if (isNetworkErrorType(error)) {
-        console.log('🌐 网络错误，不清除认证状态')
         throw error // 抛出网络错误，让上层处理
-      } else if (isAuthErrorType(error)) {
-        console.log('🔐 认证错误，token可能已过期')
-        // 不在这里清除token，让上层决定是否需要刷新
-        return false
       } else {
-        console.log('❓ 其他错误，保守处理')
         return false
       }
     }
@@ -457,7 +372,6 @@ export const useAuthStore = defineStore('auth', () => {
   const updateUserInfo = newUserInfo => {
     if (user.value) {
       user.value = { ...user.value, ...newUserInfo }
-      console.log('用户信息已更新:', newUserInfo)
     }
   }
 
@@ -465,7 +379,6 @@ export const useAuthStore = defineStore('auth', () => {
   const uploadAvatar = async file => {
     try {
       const response = await authApi.uploadAvatar(file)
-      console.log('头像上传响应:', response)
 
       // 根据API文档处理响应格式
       if (response.code === 200) {
@@ -474,7 +387,6 @@ export const useAuthStore = defineStore('auth', () => {
 
         // 更新头像版本号，强制刷新所有头像显示
         avatarVersion.value = Date.now()
-        console.log('头像版本号已更新:', avatarVersion.value)
 
         return {
           success: true,
@@ -494,7 +406,6 @@ export const useAuthStore = defineStore('auth', () => {
   const deleteAvatar = async () => {
     try {
       const response = await authApi.deleteAvatar()
-      console.log('头像删除响应:', response)
 
       if (response.code === 200) {
         // 无论响应格式如何，都重新获取用户信息以确保头像URL更新
@@ -502,7 +413,6 @@ export const useAuthStore = defineStore('auth', () => {
 
         // 更新头像版本号，强制刷新所有头像显示
         avatarVersion.value = Date.now()
-        console.log('头像版本号已更新:', avatarVersion.value)
 
         return {
           success: true,
@@ -546,19 +456,13 @@ export const useAuthStore = defineStore('auth', () => {
   const refreshAccessToken = async () => {
     try {
       if (!refreshToken.value) {
-        console.log('❌ 没有refresh token，无法刷新认证状态')
-        console.log('💡 这通常意味着：1) 用户需要重新登录，2) 认证信息不完整，3) refresh token 已过期被清除')
-
         // 清除可能存在的不完整认证信息
         if (token.value) {
-          console.log('🧹 清除不完整的认证信息')
           clearToken()
         }
-
         return false
       }
 
-      console.log('开始刷新access token...')
       const response = await authApi.refreshToken({ refresh: refreshToken.value })
 
       if (response.code === 200) {
@@ -570,14 +474,10 @@ export const useAuthStore = defineStore('auth', () => {
         if (response.data.refresh) {
           refreshToken.value = response.data.refresh
           localStorage.setItem('refreshToken', response.data.refresh)
-          console.log('Token刷新成功，同时更新了 refresh token')
-        } else {
-          console.log('Token刷新成功，保持原有 refresh token')
         }
 
         return true
       } else {
-        console.log('Token刷新失败，响应码:', response.code, '消息:', response.message)
         // 刷新失败，清除认证状态
         clearToken()
         return false
@@ -587,14 +487,8 @@ export const useAuthStore = defineStore('auth', () => {
 
       // 区分错误类型
       if (isNetworkErrorType(error)) {
-        console.log('🌐 网络错误导致token刷新失败，保持当前状态')
         throw error // 抛出网络错误，让上层处理
-      } else if (isAuthErrorType(error)) {
-        console.log('🔐 认证错误，refresh token已过期，清除所有认证信息')
-        clearToken()
-        return false
       } else {
-        console.log('❓ 其他错误导致token刷新失败')
         clearToken()
         return false
       }
@@ -603,8 +497,6 @@ export const useAuthStore = defineStore('auth', () => {
 
   // 初始化认证状态
   const initAuth = async (allowPartialToken = false) => {
-    console.log('🔐 开始初始化认证状态...', { allowPartialToken })
-
     // 首先检查认证数据的完整性
     if (!validateAndCleanAuthData(allowPartialToken)) {
       // 如果认证数据不完整，validateAndCleanAuthData 已经处理了清理工作
@@ -617,7 +509,6 @@ export const useAuthStore = defineStore('auth', () => {
 
     // 如果正在初始化，避免重复调用
     if (authStatus.value === AUTH_STATUS.INITIALIZING) {
-      console.log('🔄 认证状态正在初始化中，等待完成...')
       // 等待初始化完成
       while (authStatus.value === AUTH_STATUS.INITIALIZING) {
         await new Promise(resolve => setTimeout(resolve, 100))
@@ -627,18 +518,13 @@ export const useAuthStore = defineStore('auth', () => {
 
     // 如果已经有完整的认证信息，无需重新初始化
     if (authStatus.value === AUTH_STATUS.AUTHENTICATED && user.value) {
-      console.log('✅ 认证状态已完整，跳过初始化')
       return true
     }
 
     // 如果是网络错误状态，尝试恢复
     if (authStatus.value === AUTH_STATUS.NETWORK_ERROR) {
-      console.log('🌐 尝试从网络错误状态恢复...')
       // 检查网络状态
-      if (navigator.onLine) {
-        console.log('📶 网络已恢复，尝试重新验证认证状态')
-      } else {
-        console.log('📵 网络仍然不可用，保持当前状态')
+      if (!navigator.onLine) {
         return false
       }
     }
@@ -647,66 +533,50 @@ export const useAuthStore = defineStore('auth', () => {
       authStatus.value = AUTH_STATUS.INITIALIZING
       lastAuthCheck.value = new Date()
 
-      console.log('🔐 开始初始化认证状态...')
-
       // 尝试获取用户信息
       const userInfoSuccess = await getUserInfo()
 
       if (userInfoSuccess) {
-        console.log('✅ 用户信息获取成功')
         // 尝试获取权限信息
         try {
           await getUserPermissions()
-          console.log('🔑 权限信息获取成功')
         } catch (permError) {
-          console.warn('⚠️ 权限获取失败，但不影响认证状态:', permError)
-          // 权限获取失败不影响认证状态
+          console.warn('权限获取失败，但不影响认证状态:', permError)
         }
 
         authStatus.value = AUTH_STATUS.AUTHENTICATED
-        console.log('🎉 认证状态初始化完成')
         return true
       } else {
-        console.log('❌ 用户信息获取失败，尝试刷新token...')
-
         // 尝试刷新token
         const refreshSuccess = await refreshAccessToken()
         if (refreshSuccess) {
-          console.log('🔄 Token刷新成功，重新获取用户信息...')
           const retrySuccess = await getUserInfo()
           if (retrySuccess) {
             await getUserPermissions()
             authStatus.value = AUTH_STATUS.AUTHENTICATED
-            console.log('🎉 认证状态初始化完成（通过token刷新）')
             return true
           } else {
-            console.log('❌ Token刷新后仍无法获取用户信息')
             authStatus.value = AUTH_STATUS.UNAUTHENTICATED
             clearToken()
             return false
           }
         } else {
-          console.log('❌ Token刷新失败')
           authStatus.value = AUTH_STATUS.UNAUTHENTICATED
-          // clearToken() 已在 refreshAccessToken 中处理
           return false
         }
       }
     } catch (error) {
-      console.error('💥 认证状态初始化失败:', error)
+      console.error('认证状态初始化失败:', error)
 
       // 判断错误类型
       if (isNetworkErrorType(error)) {
-        console.log('🌐 网络错误，保持认证状态不变')
         setNetworkError()
         return false
       } else if (isAuthErrorType(error)) {
-        console.log('🔐 认证错误，清除认证状态')
         authStatus.value = AUTH_STATUS.UNAUTHENTICATED
         clearToken()
         return false
       } else {
-        console.log('❓ 未知错误，保持认证状态不变')
         // 对于未知错误，保守处理，不清除认证状态
         if (token.value && user.value) {
           authStatus.value = AUTH_STATUS.AUTHENTICATED
