@@ -1,14 +1,14 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
-import { usePermissionStore } from '@/stores/permission'
 import { routerLogger } from '@/utils/logger'
+import { canAccessRoute } from '@/utils/permissionChecker'
 import NProgress from 'nprogress'
 
 const routes = [
   {
     path: '/',
     name: 'Root',
-    redirect: to => {
+    redirect: () => {
       // 动态重定向：根据用户登录状态决定跳转地址
       // 检查localStorage中是否有token来决定重定向
       const hasToken = localStorage.getItem('token')
@@ -58,42 +58,6 @@ const routes = [
     component: () => import('@/views/UserProfile.vue'),
     meta: {
       title: '个人资料',
-      requiresAuth: true,
-    },
-  },
-  {
-    path: '/test-local-fee',
-    name: 'TestLocalFee',
-    component: () => import('@/views/TestLocalFee.vue'),
-    meta: {
-      title: '本地费用API测试',
-      requiresAuth: true,
-    },
-  },
-  {
-    path: '/test-local-fee-new',
-    name: 'TestLocalFeeNew',
-    component: () => import('@/views/TestLocalFeeNew.vue'),
-    meta: {
-      title: '本地费用新API测试',
-      requiresAuth: true,
-    },
-  },
-  {
-    path: '/test-local-fee-api',
-    name: 'TestLocalFeeApi',
-    component: () => import('@/views/TestLocalFeeApi.vue'),
-    meta: {
-      title: '本地费用API直接测试',
-      requiresAuth: true,
-    },
-  },
-  {
-    path: '/test-local-fee-update',
-    name: 'TestLocalFeeUpdate',
-    component: () => import('@/views/TestLocalFeeUpdate.vue'),
-    meta: {
-      title: '本地费用更新API测试',
       requiresAuth: true,
     },
   },
@@ -247,39 +211,18 @@ router.beforeEach(async (to, from, next) => {
     // 检查权限
     if (to.meta.permission) {
       routerLogger.debug('🔍 路由权限检查 - 用户信息:', authStore.user)
-      routerLogger.debug('🔍 路由权限检查 - is_superuser字段:', authStore.user?.is_superuser)
-      routerLogger.debug('🔍 路由权限检查 - is_staff字段:', authStore.user?.is_staff)
       routerLogger.debug('🔍 路由权限检查 - 需要权限:', to.meta.permission)
 
-      // 检查超级管理员状态
-      const isSuperAdmin = authStore.user?.is_superuser === true
-      const isAdminUser = authStore.user?.email === 'admin@example.com'
+      // 使用统一的权限检查工具
+      const hasRoutePermission = canAccessRoute(to, authStore.user)
 
-      routerLogger.debug('🔍 路由权限检查 - 是否超级管理员:', isSuperAdmin)
-      routerLogger.debug('🔍 路由权限检查 - 是否admin用户:', isAdminUser)
-
-      if (isSuperAdmin || isAdminUser) {
-        routerLogger.debug('👑 超级管理员或admin用户，跳过权限检查')
-      } else {
-        // 确保权限Store已初始化
-        const permissionStore = usePermissionStore()
-        try {
-          if (!permissionStore.isPermissionsInitialized) {
-            await permissionStore.loadUserPermissions()
-          }
-
-          if (!permissionStore.hasPermission(to.meta.permission)) {
-            routerLogger.debug(
-              `❌ 用户无权限访问 ${to.path}，需要权限: ${to.meta.permission}。系统设置无法进入，使用超级管理员`
-            )
-            next('/dashboard')
-            return
-          }
-        } catch (error) {
-          routerLogger.warn('⚠️ 权限检查失败，但允许访问:', error)
-          // 权限检查失败不阻止访问，避免因网络问题导致无法使用系统
-        }
+      if (!hasRoutePermission) {
+        routerLogger.debug(`❌ 用户无权限访问 ${to.path}，需要权限: ${to.meta.permission}`)
+        next('/dashboard')
+        return
       }
+
+      routerLogger.debug('✅ 权限检查通过')
     }
 
     routerLogger.debug('✅ 认证和权限检查通过')

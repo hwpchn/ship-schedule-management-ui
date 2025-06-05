@@ -104,7 +104,6 @@ const checkedKeys = computed(() => {
 
 // 处理权限选择变化
 const handleCheck = (data, checkState) => {
-  const checkedKeys = checkState.checkedKeys
   const checkedNodes = checkState.checkedNodes
 
   // 过滤出权限节点（非分类节点）

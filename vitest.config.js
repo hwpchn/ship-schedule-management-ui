@@ -14,7 +14,7 @@ export default defineConfig({
       '**/cypress/**',
       '**/.{idea,git,cache,output,temp}/**',
       '**/e2e/**',
-      '**/*.e2e.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}'
+      '**/*.e2e.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}',
     ],
     coverage: {
       provider: 'v8',
@@ -27,16 +27,16 @@ export default defineConfig({
         '**/*.d.ts',
         'vite.config.js',
         'vitest.config.js',
-        'eslint.config.js'
+        'eslint.config.js',
       ],
       threshold: {
         global: {
           branches: 80,
           functions: 80,
           lines: 80,
-          statements: 80
-        }
-      }
+          statements: 80,
+        },
+      },
     },
     testTimeout: 10000,
     hookTimeout: 10000,
@@ -47,9 +47,9 @@ export default defineConfig({
       threads: {
         singleThread: false,
         minThreads: 1,
-        maxThreads: 4
-      }
-    }
+        maxThreads: 4,
+      },
+    },
   },
   resolve: {
     alias: {

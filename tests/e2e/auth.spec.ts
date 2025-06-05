@@ -109,10 +109,10 @@ test.describe('Authentication', () => {
               last_name: 'User',
               is_active: true,
               is_staff: false,
-              is_superuser: false
-            }
-          }
-        })
+              is_superuser: false,
+            },
+          },
+        }),
       })
     })
 
@@ -132,10 +132,10 @@ test.describe('Authentication', () => {
               last_name: 'User',
               is_active: true,
               is_staff: false,
-              is_superuser: false
-            }
-          }
-        })
+              is_superuser: false,
+            },
+          },
+        }),
       })
     })
 
@@ -148,9 +148,9 @@ test.describe('Authentication', () => {
           code: 200,
           data: {
             permissions: ['vessel.view', 'vessel.edit'],
-            roles: ['operator']
-          }
-        })
+            roles: ['operator'],
+          },
+        }),
       })
     })
 
@@ -160,7 +160,7 @@ test.describe('Authentication', () => {
     await page.fill('input[placeholder="请输入邮箱地址"]', 'test@example.com')
     await page.fill('input[placeholder="请输入密码"]', 'password123')
     await page.click('button:has-text("登录")')
-    
+
     // 等待跳转到仪表盘 - 增加更长的等待时间
     await page.waitForURL(/.*\/dashboard/, { timeout: 10000 })
 
@@ -195,10 +195,10 @@ test.describe('Authentication', () => {
               last_name: 'User',
               is_active: true,
               is_staff: false,
-              is_superuser: false
-            }
-          }
-        })
+              is_superuser: false,
+            },
+          },
+        }),
       })
     })
 
@@ -211,9 +211,9 @@ test.describe('Authentication', () => {
           code: 200,
           data: {
             permissions: ['vessel.view'],
-            roles: ['user']
-          }
-        })
+            roles: ['user'],
+          },
+        }),
       })
     })
 
@@ -225,8 +225,8 @@ test.describe('Authentication', () => {
         contentType: 'application/json',
         body: JSON.stringify({
           code: 200,
-          message: '登出成功'
-        })
+          message: '登出成功',
+        }),
       })
     })
 

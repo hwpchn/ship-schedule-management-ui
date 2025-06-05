@@ -10,68 +10,80 @@ vi.mock('element-plus', () => ({
   ElMessage: {
     success: vi.fn(),
     error: vi.fn(),
-    info: vi.fn()
+    info: vi.fn(),
   },
   ElMessageBox: {
-    confirm: vi.fn()
+    confirm: vi.fn(),
   },
   ElDialog: {
     name: 'ElDialog',
-    template: '<div class="el-dialog" v-if="modelValue"><slot /><div class="el-dialog__footer"><slot name="footer" /></div></div>',
+    template:
+      '<div class="el-dialog" v-if="modelValue"><slot /><div class="el-dialog__footer"><slot name="footer" /></div></div>',
     props: ['modelValue', 'title', 'width', 'beforeClose', 'destroyOnClose'],
-    emits: ['update:modelValue']
+    emits: ['update:modelValue'],
   },
   ElForm: {
     name: 'ElForm',
     template: '<form class="el-form"><slot /></form>',
     props: ['model', 'labelWidth', 'rules'],
     methods: {
-      validate: vi.fn(() => Promise.resolve(true))
-    }
+      validate: vi.fn(() => Promise.resolve(true)),
+    },
   },
   ElFormItem: {
     name: 'ElFormItem',
     template: '<div class="el-form-item"><label>{{ label }}</label><slot /></div>',
-    props: ['label', 'prop']
+    props: ['label', 'prop'],
   },
   ElInputNumber: {
     name: 'ElInputNumber',
-    template: '<input class="el-input-number" type="number" :value="modelValue" @input="$emit(\'update:modelValue\', $event.target.value)" />',
+    template:
+      '<input class="el-input-number" type="number" :value="modelValue" @input="$emit(\'update:modelValue\', $event.target.value)" />',
     props: ['modelValue', 'min', 'precision', 'step', 'placeholder', 'disabled'],
-    emits: ['update:modelValue']
+    emits: ['update:modelValue'],
   },
   ElInput: {
     name: 'ElInput',
-    template: '<input class="el-input" :value="modelValue" @input="$emit(\'update:modelValue\', $event.target.value)" />',
+    template:
+      '<input class="el-input" :value="modelValue" @input="$emit(\'update:modelValue\', $event.target.value)" />',
     props: ['modelValue', 'placeholder', 'disabled', 'maxlength', 'showWordLimit'],
-    emits: ['update:modelValue']
+    emits: ['update:modelValue'],
   },
   ElDatePicker: {
     name: 'ElDatePicker',
-    template: '<input class="el-date-picker" type="date" :value="modelValue" @input="$emit(\'update:modelValue\', $event.target.value)" />',
-    props: ['modelValue', 'type', 'placeholder', 'format', 'valueFormat', 'disabled', 'disabledDate'],
-    emits: ['update:modelValue']
+    template:
+      '<input class="el-date-picker" type="date" :value="modelValue" @input="$emit(\'update:modelValue\', $event.target.value)" />',
+    props: [
+      'modelValue',
+      'type',
+      'placeholder',
+      'format',
+      'valueFormat',
+      'disabled',
+      'disabledDate',
+    ],
+    emits: ['update:modelValue'],
   },
   ElButton: {
     name: 'ElButton',
     template: '<button class="el-button" :disabled="disabled || loading"><slot /></button>',
-    props: ['type', 'disabled', 'loading']
+    props: ['type', 'disabled', 'loading'],
   },
   ElAlert: {
     name: 'ElAlert',
     template: '<div class="el-alert" :class="`el-alert--${type}`"><slot /></div>',
-    props: ['title', 'type', 'closable', 'showIcon']
+    props: ['title', 'type', 'closable', 'showIcon'],
   },
   ElSkeleton: {
     name: 'ElSkeleton',
     template: '<div class="el-skeleton"></div>',
-    props: ['rows', 'animated']
+    props: ['rows', 'animated'],
   },
   ElDivider: {
     name: 'ElDivider',
     template: '<div class="el-divider"><slot /></div>',
-    props: ['contentPosition']
-  }
+    props: ['contentPosition'],
+  },
 }))
 
 // Mock stores
@@ -82,17 +94,17 @@ vi.mock('@/composables/useVesselEdit', () => ({
   useVesselEdit: () => ({
     editVesselInfo: vi.fn(),
     loading: false,
-    errors: {}
+    errors: {},
   }),
-  useVesselForm: (initialData) => ({
+  useVesselForm: initialData => ({
     form: { ...initialData },
     originalData: { ...initialData },
     resetForm: vi.fn(),
     updateOriginalData: vi.fn(),
     hasChanges: { value: false },
     getChanges: vi.fn(() => ({})),
-    validateForm: vi.fn(() => ({ valid: true, errors: {} }))
-  })
+    validateForm: vi.fn(() => ({ valid: true, errors: {} })),
+  }),
 }))
 
 describe('EditVesselDialog Component', () => {
@@ -108,21 +120,21 @@ describe('EditVesselDialog Component', () => {
       price: 1500,
       gp_20: '100',
       hq_40: '50',
-      cut_off_time: '2024-02-01'
-    }
+      cut_off_time: '2024-02-01',
+    },
   }
 
   beforeEach(() => {
     setActivePinia(createPinia())
-    
+
     mockPermissionStore = {
       isPermissionsInitialized: true,
       canEditVesselInfo: true,
-      loadUserPermissions: vi.fn()
+      loadUserPermissions: vi.fn(),
     }
-    
+
     usePermissionStore.mockReturnValue(mockPermissionStore)
-    
+
     vi.clearAllMocks()
   })
 
@@ -137,8 +149,8 @@ describe('EditVesselDialog Component', () => {
       wrapper = mount(EditVesselDialog, {
         props: {
           visible: true,
-          vessel: mockVessel
-        }
+          vessel: mockVessel,
+        },
       })
 
       // Wait for component to update
@@ -153,8 +165,8 @@ describe('EditVesselDialog Component', () => {
       wrapper = mount(EditVesselDialog, {
         props: {
           visible: false,
-          vessel: mockVessel
-        }
+          vessel: mockVessel,
+        },
       })
 
       expect(wrapper.props('visible')).toBe(false)
@@ -166,8 +178,8 @@ describe('EditVesselDialog Component', () => {
       wrapper = mount(EditVesselDialog, {
         props: {
           visible: true,
-          vessel: mockVessel
-        }
+          vessel: mockVessel,
+        },
       })
 
       await wrapper.vm.$nextTick()
@@ -184,8 +196,8 @@ describe('EditVesselDialog Component', () => {
       wrapper = mount(EditVesselDialog, {
         props: {
           visible: true,
-          vessel: mockVessel
-        }
+          vessel: mockVessel,
+        },
       })
 
       await wrapper.vm.$nextTick()
@@ -201,8 +213,8 @@ describe('EditVesselDialog Component', () => {
       wrapper = mount(EditVesselDialog, {
         props: {
           visible: true,
-          vessel: mockVessel
-        }
+          vessel: mockVessel,
+        },
       })
 
       await wrapper.vm.$nextTick()
@@ -217,8 +229,8 @@ describe('EditVesselDialog Component', () => {
       wrapper = mount(EditVesselDialog, {
         props: {
           visible: true,
-          vessel: mockVessel
-        }
+          vessel: mockVessel,
+        },
       })
 
       await wrapper.vm.$nextTick()
@@ -234,8 +246,8 @@ describe('EditVesselDialog Component', () => {
       wrapper = mount(EditVesselDialog, {
         props: {
           visible: true,
-          vessel: mockVessel
-        }
+          vessel: mockVessel,
+        },
       })
       await wrapper.vm.$nextTick()
     })
@@ -265,8 +277,8 @@ describe('EditVesselDialog Component', () => {
       wrapper = mount(EditVesselDialog, {
         props: {
           visible: true,
-          vessel: mockVessel
-        }
+          vessel: mockVessel,
+        },
       })
       await wrapper.vm.$nextTick()
     })
@@ -283,8 +295,8 @@ describe('EditVesselDialog Component', () => {
       wrapper = mount(EditVesselDialog, {
         props: {
           visible: true,
-          vessel: mockVessel
-        }
+          vessel: mockVessel,
+        },
       })
 
       await wrapper.vm.$nextTick()
@@ -307,8 +319,8 @@ describe('EditVesselDialog Component', () => {
       wrapper = mount(EditVesselDialog, {
         props: {
           visible: true,
-          vessel: mockVessel
-        }
+          vessel: mockVessel,
+        },
       })
       await wrapper.vm.$nextTick()
     })
@@ -332,14 +344,14 @@ describe('EditVesselDialog Component', () => {
       wrapper = mount(EditVesselDialog, {
         props: {
           visible: true,
-          vessel: mockVessel
-        }
+          vessel: mockVessel,
+        },
       })
     })
 
     it('should emit update:visible when dialog visibility changes', async () => {
       await wrapper.setProps({ visible: false })
-      
+
       expect(wrapper.emitted('update:visible')).toBeTruthy()
     })
 
@@ -361,8 +373,8 @@ describe('EditVesselDialog Component', () => {
       wrapper = mount(EditVesselDialog, {
         props: {
           visible: true,
-          vessel: mockVessel
-        }
+          vessel: mockVessel,
+        },
       })
       await wrapper.vm.$nextTick()
     })
@@ -371,8 +383,8 @@ describe('EditVesselDialog Component', () => {
       wrapper = mount(EditVesselDialog, {
         props: {
           visible: true,
-          vessel: null
-        }
+          vessel: null,
+        },
       })
 
       await wrapper.vm.$nextTick()
@@ -383,14 +395,14 @@ describe('EditVesselDialog Component', () => {
       const vesselWithoutInfo = {
         id: 1,
         vessel: 'Test Vessel',
-        voyage: 'TV001'
+        voyage: 'TV001',
       }
 
       wrapper = mount(EditVesselDialog, {
         props: {
           visible: true,
-          vessel: vesselWithoutInfo
-        }
+          vessel: vesselWithoutInfo,
+        },
       })
 
       await wrapper.vm.$nextTick()
@@ -406,8 +418,8 @@ describe('EditVesselDialog Component', () => {
       wrapper = mount(EditVesselDialog, {
         props: {
           visible: true,
-          vessel: mockVessel
-        }
+          vessel: mockVessel,
+        },
       })
 
       await wrapper.vm.$nextTick()
@@ -422,8 +434,8 @@ describe('EditVesselDialog Component', () => {
       wrapper = mount(EditVesselDialog, {
         props: {
           visible: true,
-          vessel: mockVessel
-        }
+          vessel: mockVessel,
+        },
       })
 
       await wrapper.vm.$nextTick()

@@ -117,12 +117,12 @@ export const useAuthStore = defineStore('auth', () => {
   }
 
   // 简化的认证状态检查
-  const hasValidToken = () => {
+  const _hasValidToken = () => {
     return !!token.value
   }
 
   // 清理所有认证信息
-  const cleanAuthData = () => {
+  const _cleanAuthData = () => {
     token.value = ''
     refreshToken.value = ''
     user.value = null
@@ -179,7 +179,6 @@ export const useAuthStore = defineStore('auth', () => {
       const response = await authApi.login(credentials)
 
       if (response.code === 200) {
-
         // 适配后端返回的数据结构
         // 后端可能返回两种格式：
         // 1. { data: { access, refresh, user } }

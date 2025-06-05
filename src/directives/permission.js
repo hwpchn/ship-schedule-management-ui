@@ -1,175 +1,157 @@
-import { usePermissionStore } from '@/stores/permission'
-
 /**
  * 权限指令
- * 用法：v-permission="'permission_code'"
+ * 用于在模板中进行权限控制
+ *
+ * 使用方式:
+ * v-permission="'user.create'" - 检查单个权限
+ * v-permission="['user.create', 'user.update']" - 检查多个权限(任一)
+ * v-permission:all="['user.create', 'user.update']" - 检查多个权限(全部)
+ * v-permission:role="'admin'" - 检查角色
  */
-export const permission = {
-  mounted(el, binding) {
-    checkPermission(el, binding)
-  },
 
-  updated(el, binding) {
-    checkPermission(el, binding)
-  },
-}
+import {
+  hasPermission,
+  hasAnyPermission,
+  hasAllPermissions,
+  hasRole,
+} from '@/utils/permissionChecker'
 
 /**
- * 检查权限并控制元素显示
+ * 检查权限并控制元素显示/隐藏
  * @param {HTMLElement} el DOM元素
  * @param {Object} binding 指令绑定对象
  */
-function checkPermission(el, binding) {
-  const permissionStore = usePermissionStore()
-  const requiredPermission = binding.value
+const checkPermission = (el, binding) => {
+  const { value, arg, modifiers } = binding
 
-  if (!requiredPermission) {
-    console.warn('权限指令需要提供权限代码')
+  if (!value) {
+    console.warn('v-permission 指令需要提供权限值')
     return
   }
 
-  // 检查权限
-  const hasPermission = permissionStore.hasPermission(requiredPermission)
+  let hasPermissionResult = false
 
-  if (!hasPermission) {
-    // 没有权限则隐藏元素
+  try {
+    if (arg === 'role') {
+      // 角色检查
+      hasPermissionResult = hasRole(value)
+    } else if (arg === 'all') {
+      // 检查所有权限
+      hasPermissionResult = hasAllPermissions(Array.isArray(value) ? value : [value])
+    } else {
+      // 默认检查权限（单个或任一）
+      if (Array.isArray(value)) {
+        hasPermissionResult = hasAnyPermission(value)
+      } else {
+        hasPermissionResult = hasPermission(value)
+      }
+    }
+
+    // 根据权限结果控制元素
+    if (hasPermissionResult) {
+      // 有权限，显示元素
+      el.style.display = ''
+      el.removeAttribute('disabled')
+
+      // 移除无权限样式
+      el.classList.remove('permission-disabled')
+    } else {
+      // 无权限，根据修饰符决定处理方式
+      if (modifiers.hide) {
+        // 隐藏元素
+        el.style.display = 'none'
+      } else if (modifiers.disable) {
+        // 禁用元素
+        el.setAttribute('disabled', 'disabled')
+        el.classList.add('permission-disabled')
+      } else {
+        // 默认隐藏
+        el.style.display = 'none'
+      }
+    }
+  } catch (error) {
+    console.error('权限指令检查失败:', error)
+    // 发生错误时隐藏元素，确保安全
     el.style.display = 'none'
-    // 添加data属性标记，便于调试
-    el.setAttribute('data-permission-hidden', requiredPermission)
-  } else {
-    // 有权限则显示元素
-    el.style.display = ''
-    // 移除隐藏标记
-    el.removeAttribute('data-permission-hidden')
   }
 }
 
 /**
- * 权限指令组 - 支持多权限控制
- * 用法：v-permission-any="['perm1', 'perm2']" (有任一权限即可)
- * 用法：v-permission-all="['perm1', 'perm2']" (需要所有权限)
+ * 权限指令定义
  */
-
-/**
- * 任一权限指令
- */
-export const permissionAny = {
+export const permission = {
+  // Vue 3 指令生命周期
   mounted(el, binding) {
-    checkAnyPermission(el, binding)
+    checkPermission(el, binding)
   },
 
   updated(el, binding) {
-    checkAnyPermission(el, binding)
+    checkPermission(el, binding)
+  },
+
+  // Vue 2 兼容（如果需要）
+  inserted(el, binding) {
+    checkPermission(el, binding)
+  },
+
+  update(el, binding) {
+    checkPermission(el, binding)
   },
 }
 
 /**
- * 检查任一权限
+ * 简化的权限检查指令
+ * v-show-permission - 有权限时显示
+ * v-hide-permission - 无权限时隐藏
  */
-function checkAnyPermission(el, binding) {
-  const permissionStore = usePermissionStore()
-  const requiredPermissions = binding.value
-
-  if (!Array.isArray(requiredPermissions)) {
-    console.warn('permission-any指令需要提供权限代码数组')
-    return
-  }
-
-  const hasAnyPermission = permissionStore.hasAnyPermission(requiredPermissions)
-
-  if (!hasAnyPermission) {
-    el.style.display = 'none'
-    el.setAttribute('data-permission-any-hidden', requiredPermissions.join(','))
-  } else {
-    el.style.display = ''
-    el.removeAttribute('data-permission-any-hidden')
-  }
-}
-
-/**
- * 所有权限指令
- */
-export const permissionAll = {
+export const showPermission = {
   mounted(el, binding) {
-    checkAllPermissions(el, binding)
+    const hasPermissionResult = Array.isArray(binding.value)
+      ? hasAnyPermission(binding.value)
+      : hasPermission(binding.value)
+
+    if (!hasPermissionResult) {
+      el.style.display = 'none'
+    }
   },
 
   updated(el, binding) {
-    checkAllPermissions(el, binding)
+    const hasPermissionResult = Array.isArray(binding.value)
+      ? hasAnyPermission(binding.value)
+      : hasPermission(binding.value)
+
+    el.style.display = hasPermissionResult ? '' : 'none'
   },
 }
 
-/**
- * 检查所有权限
- */
-function checkAllPermissions(el, binding) {
-  const permissionStore = usePermissionStore()
-  const requiredPermissions = binding.value
-
-  if (!Array.isArray(requiredPermissions)) {
-    console.warn('permission-all指令需要提供权限代码数组')
-    return
-  }
-
-  const hasAllPermissions = requiredPermissions.every(permission =>
-    permissionStore.hasPermission(permission)
-  )
-
-  if (!hasAllPermissions) {
-    el.style.display = 'none'
-    el.setAttribute('data-permission-all-hidden', requiredPermissions.join(','))
-  } else {
-    el.style.display = ''
-    el.removeAttribute('data-permission-all-hidden')
-  }
-}
-
-/**
- * 角色权限指令
- * 用法：v-permission-role="'admin'" (仅超级管理员可见)
- */
-export const permissionRole = {
+export const hidePermission = {
   mounted(el, binding) {
-    checkRolePermission(el, binding)
+    const hasPermissionResult = Array.isArray(binding.value)
+      ? hasAnyPermission(binding.value)
+      : hasPermission(binding.value)
+
+    if (hasPermissionResult) {
+      el.style.display = 'none'
+    }
   },
 
   updated(el, binding) {
-    checkRolePermission(el, binding)
+    const hasPermissionResult = Array.isArray(binding.value)
+      ? hasAnyPermission(binding.value)
+      : hasPermission(binding.value)
+
+    el.style.display = hasPermissionResult ? 'none' : ''
   },
 }
 
 /**
- * 检查角色权限
- */
-function checkRolePermission(el, binding) {
-  const permissionStore = usePermissionStore()
-  const requiredRole = binding.value
-
-  let hasRole = false
-
-  if (requiredRole === 'admin' || requiredRole === 'superuser') {
-    hasRole = permissionStore.isAdmin
-  }
-
-  if (!hasRole) {
-    el.style.display = 'none'
-    el.setAttribute('data-role-hidden', requiredRole)
-  } else {
-    el.style.display = ''
-    el.removeAttribute('data-role-hidden')
-  }
-}
-
-/**
- * 权限指令安装函数
+ * 安装所有权限指令
  * @param {Object} app Vue应用实例
  */
-export function installPermissionDirectives(app) {
+export const installPermissionDirectives = app => {
   app.directive('permission', permission)
-  app.directive('permission-any', permissionAny)
-  app.directive('permission-all', permissionAll)
-  app.directive('permission-role', permissionRole)
+  app.directive('show-permission', showPermission)
+  app.directive('hide-permission', hidePermission)
 }
 
-// 默认导出基础权限指令
 export default permission

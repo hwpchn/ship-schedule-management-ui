@@ -62,7 +62,7 @@ import { Upload, Delete, Camera, User } from '@element-plus/icons-vue'
 import { useAuthStore } from '@/stores/auth'
 import { getUserAvatarUrl } from '@/utils/avatar'
 
-const props = defineProps({
+defineProps({
   size: {
     type: Number,
     default: 100,
@@ -97,7 +97,7 @@ const triggerUpload = () => {
   console.log('🖱️ 触发文件上传，当前状态:', {
     uploading: uploading.value,
     deleting: deleting.value,
-    fileInputRef: !!fileInputRef.value
+    fileInputRef: !!fileInputRef.value,
   })
 
   if (uploading.value || deleting.value) {
@@ -123,7 +123,7 @@ const triggerUpload = () => {
 }
 
 // 处理文件选择
-const handleFileSelect = (event) => {
+const handleFileSelect = event => {
   console.log('📁 文件选择事件触发:', event)
   const file = event.target.files[0]
   if (!file) {
@@ -134,7 +134,7 @@ const handleFileSelect = (event) => {
   console.log('📄 选择的文件:', {
     name: file.name,
     type: file.type,
-    size: `${(file.size / 1024 / 1024).toFixed(2)} MB`
+    size: `${(file.size / 1024 / 1024).toFixed(2)} MB`,
   })
 
   // 验证文件
@@ -148,22 +148,20 @@ const handleFileSelect = (event) => {
   console.log('✅ 文件验证通过，显示确认对话框')
 
   // 确认上传
-  ElMessageBox.confirm(
-    '确定要上传这张图片作为头像吗？',
-    '确认上传',
-    {
-      confirmButtonText: '确定上传',
-      cancelButtonText: '取消',
-      type: 'info'
-    }
-  ).then(() => {
-    console.log('✅ 用户确认上传')
-    uploadAvatar(file)
-  }).catch(() => {
-    console.log('❌ 用户取消上传')
-    // 用户取消，清空input值
-    event.target.value = ''
+  ElMessageBox.confirm('确定要上传这张图片作为头像吗？', '确认上传', {
+    confirmButtonText: '确定上传',
+    cancelButtonText: '取消',
+    type: 'info',
   })
+    .then(() => {
+      console.log('✅ 用户确认上传')
+      uploadAvatar(file)
+    })
+    .catch(() => {
+      console.log('❌ 用户取消上传')
+      // 用户取消，清空input值
+      event.target.value = ''
+    })
 }
 
 // 验证文件
@@ -199,7 +197,7 @@ const uploadAvatar = async file => {
       try {
         const currentAvatarUrl = avatarUrl.value
         if (currentAvatarUrl) {
-          const response = await fetch(currentAvatarUrl, { method: 'HEAD' })
+          const response = await window.fetch(currentAvatarUrl, { method: 'HEAD' })
           if (response.ok) {
             console.log('✅ 头像文件验证成功，可以正常访问')
           } else {
@@ -209,9 +207,10 @@ const uploadAvatar = async file => {
             if (response.status === 404) {
               ElMessage({
                 type: 'warning',
-                message: '头像上传成功，但文件暂时无法访问。这可能是后端配置问题，请联系管理员或稍后重试。',
+                message:
+                  '头像上传成功，但文件暂时无法访问。这可能是后端配置问题，请联系管理员或稍后重试。',
                 duration: 8000,
-                showClose: true
+                showClose: true,
               })
 
               // 尝试重新获取用户信息，看是否有更新
@@ -275,11 +274,11 @@ const handleDeleteAvatar = async () => {
 }
 
 // 头像加载错误处理
-const handleAvatarError = (event) => {
+const handleAvatarError = event => {
   console.warn('🖼️ 头像加载失败:', {
     src: event.target?.src,
     user: authStore.user,
-    avatarVersion: authStore.avatarVersion
+    avatarVersion: authStore.avatarVersion,
   })
 
   // 尝试重新获取用户信息，可能头像URL已更新
@@ -301,7 +300,7 @@ onMounted(() => {
     userAvatar: authStore.user?.avatar,
     userAvatarUrl: authStore.user?.avatar_url,
     avatarVersion: authStore.avatarVersion,
-    isDev: import.meta.env.DEV
+    isDev: import.meta.env.DEV,
   })
 
   // 延迟验证，确保 DOM 完全渲染

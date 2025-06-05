@@ -10,8 +10,8 @@ vi.mock('@/api/auth')
 vi.mock('element-plus', () => ({
   ElMessage: {
     success: vi.fn(),
-    error: vi.fn()
-  }
+    error: vi.fn(),
+  },
 }))
 
 // Mock localStorage
@@ -19,10 +19,10 @@ const localStorageMock = {
   getItem: vi.fn(),
   setItem: vi.fn(),
   removeItem: vi.fn(),
-  clear: vi.fn()
+  clear: vi.fn(),
 }
 Object.defineProperty(window, 'localStorage', {
-  value: localStorageMock
+  value: localStorageMock,
 })
 
 describe('Auth Store', () => {
@@ -96,9 +96,9 @@ describe('Auth Store', () => {
           user: {
             id: 1,
             email: 'test@example.com',
-            username: 'testuser'
-          }
-        }
+            username: 'testuser',
+          },
+        },
       }
 
       authApi.login.mockResolvedValue(mockResponse)
@@ -106,13 +106,13 @@ describe('Auth Store', () => {
         code: 200,
         data: {
           permissions: ['vessel.edit'],
-          roles: ['operator']
-        }
+          roles: ['operator'],
+        },
       })
 
       const credentials = {
         email: 'test@example.com',
-        password: 'password123'
+        password: 'password123',
       }
 
       const result = await authStore.login(credentials)
@@ -134,7 +134,7 @@ describe('Auth Store', () => {
 
       const credentials = {
         email: 'invalid@example.com',
-        password: 'wrongpassword'
+        password: 'wrongpassword',
       }
 
       const result = await authStore.login(credentials)
@@ -152,24 +152,24 @@ describe('Auth Store', () => {
         data: {
           tokens: {
             access: 'access-token',
-            refresh: 'refresh-token'
+            refresh: 'refresh-token',
           },
           user: {
             id: 1,
-            email: 'test@example.com'
-          }
-        }
+            email: 'test@example.com',
+          },
+        },
       }
 
       authApi.login.mockResolvedValue(mockResponse)
       authApi.getUserPermissions.mockResolvedValue({
         code: 200,
-        data: { permissions: [], roles: [] }
+        data: { permissions: [], roles: [] },
       })
 
       const result = await authStore.login({
         email: 'test@example.com',
-        password: 'password123'
+        password: 'password123',
       })
 
       expect(result.success).toBe(true)

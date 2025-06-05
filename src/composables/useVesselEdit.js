@@ -211,7 +211,7 @@ export function useVesselForm(initialData = {}) {
    */
   const updateOriginalData = newData => {
     Object.keys(newData).forEach(key => {
-      if (form.hasOwnProperty(key)) {
+      if (Object.prototype.hasOwnProperty.call(form, key)) {
         originalData[key] = newData[key]
         form[key] = newData[key]
       }

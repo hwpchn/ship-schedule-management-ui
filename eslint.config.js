@@ -10,7 +10,15 @@ export default [
 
   {
     name: 'app/files-to-ignore',
-    ignores: ['**/dist/**', '**/dist-ssr/**', '**/coverage/**', '**/node_modules/**'],
+    ignores: [
+      '**/dist/**',
+      '**/dist-ssr/**',
+      '**/coverage/**',
+      '**/node_modules/**',
+      '**/auto-imports.d.ts',
+      '**/components.d.ts',
+      '**/src/types/**',
+    ],
   },
 
   js.configs.recommended,
@@ -33,6 +41,9 @@ export default [
         setInterval: 'readonly',
         clearInterval: 'readonly',
         FormData: 'readonly',
+        fetch: 'readonly',
+        Blob: 'readonly',
+        URL: 'readonly',
         // Node.js globals for config files
         process: 'readonly',
         __dirname: 'readonly',

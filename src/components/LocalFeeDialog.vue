@@ -236,7 +236,7 @@
 <script setup>
 import { ref, computed, watch, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { Ship, Plus, Download } from '@element-plus/icons-vue'
+import { Ship, Plus } from '@element-plus/icons-vue'
 import { usePermissionStore } from '@/stores/permission'
 import { useAuthStore } from '@/stores/auth'
 import request from '@/api/request'
@@ -341,7 +341,7 @@ const loadLocalFeeData = async () => {
 
     if (apiData && Array.isArray(apiData)) {
       // 根据文档，API返回的是前端格式的数据
-      localFeeData.value = apiData.map((item, index) => ({
+      localFeeData.value = apiData.map(item => ({
         ...item,
         // 确保数字字段是数字类型而不是字符串
         '20GP': item['20GP'] ? parseFloat(item['20GP']) : null,
@@ -472,7 +472,7 @@ const handleDeleteRow = async row => {
         loading.value = false
       }
     }
-  } catch (error) {
+  } catch {
     // 用户取消操作
   }
 }
@@ -620,9 +620,9 @@ const handleExport = () => {
     ),
   ].join('\n')
 
-  const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' })
+  const blob = new window.Blob([csvContent], { type: 'text/csv;charset=utf-8;' })
   const link = document.createElement('a')
-  const url = URL.createObjectURL(blob)
+  const url = window.URL.createObjectURL(blob)
   link.setAttribute('href', url)
 
   // 构建文件名

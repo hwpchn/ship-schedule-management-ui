@@ -43,7 +43,7 @@ export const vesselApi = {
     const validData = {}
 
     allowedFields.forEach(field => {
-      if (updateData.hasOwnProperty(field)) {
+      if (Object.prototype.hasOwnProperty.call(updateData, field)) {
         validData[field] = updateData[field]
       }
     })

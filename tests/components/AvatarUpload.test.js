@@ -9,11 +9,11 @@ import { useAuthStore } from '@/stores/auth'
 vi.mock('element-plus', () => ({
   ElMessage: {
     success: vi.fn(),
-    error: vi.fn()
+    error: vi.fn(),
   },
   ElMessageBox: {
-    confirm: vi.fn()
-  }
+    confirm: vi.fn(),
+  },
 }))
 
 // Mock icons
@@ -21,7 +21,7 @@ vi.mock('@element-plus/icons-vue', () => ({
   Upload: { name: 'Upload' },
   Delete: { name: 'Delete' },
   Camera: { name: 'Camera' },
-  User: { name: 'User' }
+  User: { name: 'User' },
 }))
 
 // Mock auth store
@@ -29,7 +29,7 @@ vi.mock('@/stores/auth')
 
 // Mock avatar utils
 vi.mock('@/utils/avatar', () => ({
-  getUserAvatarUrl: vi.fn(() => 'https://example.com/avatar.jpg')
+  getUserAvatarUrl: vi.fn(() => 'https://example.com/avatar.jpg'),
 }))
 
 describe('AvatarUpload Component', () => {
@@ -38,17 +38,17 @@ describe('AvatarUpload Component', () => {
 
   beforeEach(() => {
     setActivePinia(createPinia())
-    
+
     // Mock auth store
     mockAuthStore = {
       user: { id: 1, email: 'test@example.com' },
       avatarVersion: 1,
       uploadAvatar: vi.fn(),
-      deleteAvatar: vi.fn()
+      deleteAvatar: vi.fn(),
     }
-    
+
     useAuthStore.mockReturnValue(mockAuthStore)
-    
+
     vi.clearAllMocks()
   })
 
@@ -66,21 +66,21 @@ describe('AvatarUpload Component', () => {
 
     it('should accept size prop', () => {
       wrapper = mount(AvatarUpload, {
-        props: { size: 150 }
+        props: { size: 150 },
       })
       expect(wrapper.props('size')).toBe(150)
     })
 
     it('should accept showActions prop', () => {
       wrapper = mount(AvatarUpload, {
-        props: { showActions: false }
+        props: { showActions: false },
       })
       expect(wrapper.props('showActions')).toBe(false)
     })
 
     it('should accept showTips prop', () => {
       wrapper = mount(AvatarUpload, {
-        props: { showTips: false }
+        props: { showTips: false },
       })
       expect(wrapper.props('showTips')).toBe(false)
     })
@@ -105,7 +105,7 @@ describe('AvatarUpload Component', () => {
     it('should validate file size correctly', async () => {
       // Test oversized file (6MB)
       const oversizedFile = new File(['x'.repeat(6 * 1024 * 1024)], 'test.jpg', {
-        type: 'image/jpeg'
+        type: 'image/jpeg',
       })
 
       const isValid = wrapper.vm.validateFile(oversizedFile)

@@ -169,7 +169,7 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed, watch } from 'vue'
+import { ref, computed, watch } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { usePermissionStore } from '@/stores/permission'
 import { useVesselEdit, useVesselForm } from '@/composables/useVesselEdit'
@@ -206,8 +206,9 @@ const initialFormData = computed(() => ({
 }))
 
 // 使用表单组合式函数
-const { form, originalData, resetForm, updateOriginalData, hasChanges, getChanges, validateForm } =
-  useVesselForm(initialFormData.value)
+const { form, resetForm, updateOriginalData, hasChanges, getChanges, validateForm } = useVesselForm(
+  initialFormData.value
+)
 
 // 表单验证规则
 const formRules = {

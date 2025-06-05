@@ -8,37 +8,37 @@ vi.mock('axios', () => ({
     create: vi.fn(() => ({
       interceptors: {
         request: {
-          use: vi.fn()
+          use: vi.fn(),
         },
         response: {
-          use: vi.fn()
-        }
-      }
-    }))
-  }
+          use: vi.fn(),
+        },
+      },
+    })),
+  },
 }))
 
 // Mock Element Plus
 vi.mock('element-plus', () => ({
   ElMessage: {
     error: vi.fn(),
-    success: vi.fn()
-  }
+    success: vi.fn(),
+  },
 }))
 
 // Mock auth store
 vi.mock('@/stores/auth', () => ({
-  useAuthStore: vi.fn()
+  useAuthStore: vi.fn(),
 }))
 
 // Mock window.location
 const mockLocation = {
   pathname: '/dashboard',
-  href: ''
+  href: '',
 }
 Object.defineProperty(window, 'location', {
   value: mockLocation,
-  writable: true
+  writable: true,
 })
 
 describe('Request Interceptors', () => {
@@ -57,7 +57,7 @@ describe('Request Interceptors', () => {
       token: 'test-token',
       refreshToken: 'refresh-token',
       clearToken: vi.fn(),
-      refreshAccessToken: vi.fn()
+      refreshAccessToken: vi.fn(),
     }
 
     const { useAuthStore } = await import('@/stores/auth')
@@ -67,12 +67,12 @@ describe('Request Interceptors', () => {
     mockAxiosInstance = {
       interceptors: {
         request: {
-          use: vi.fn()
+          use: vi.fn(),
         },
         response: {
-          use: vi.fn()
-        }
-      }
+          use: vi.fn(),
+        },
+      },
     }
     axios.create.mockReturnValue(mockAxiosInstance)
 
@@ -107,8 +107,8 @@ describe('Request Interceptors', () => {
         baseURL: '/api',
         timeout: 15000,
         headers: {
-          'Content-Type': 'application/json;charset=UTF-8'
-        }
+          'Content-Type': 'application/json;charset=UTF-8',
+        },
       })
     })
 
@@ -156,7 +156,7 @@ describe('Request Interceptors', () => {
       const config = {
         url: '/test',
         method: 'GET',
-        headers: { 'Custom-Header': 'value' }
+        headers: { 'Custom-Header': 'value' },
       }
       mockAuthStore.token = 'test-token'
 
@@ -180,8 +180,8 @@ describe('Request Interceptors', () => {
         data: {
           code: 200,
           message: 'Success',
-          data: { id: 1, name: 'test' }
-        }
+          data: { id: 1, name: 'test' },
+        },
       }
 
       const result = responseSuccessInterceptor(response)
@@ -197,7 +197,7 @@ describe('Request Interceptors', () => {
 
       const response = {
         status: 200,
-        data: { id: 1, name: 'test' }
+        data: { id: 1, name: 'test' },
       }
 
       const result = responseSuccessInterceptor(response)
@@ -205,7 +205,7 @@ describe('Request Interceptors', () => {
       expect(result).toEqual({
         code: 200,
         message: '请求成功',
-        data: { id: 1, name: 'test' }
+        data: { id: 1, name: 'test' },
       })
     })
 
@@ -219,8 +219,8 @@ describe('Request Interceptors', () => {
         data: {
           code: 0,
           message: 'Success',
-          data: null
-        }
+          data: null,
+        },
       }
 
       const result = responseSuccessInterceptor(response)
@@ -242,14 +242,14 @@ describe('Request Interceptors', () => {
         const error = {
           response: {
             status: 400,
-            data: { message: 'Invalid credentials' }
+            data: { message: 'Invalid credentials' },
           },
-          config: { url: '/auth/login/' }
+          config: { url: '/auth/login/' },
         }
 
         await expect(responseErrorInterceptor(error)).rejects.toMatchObject({
           code: 400,
-          message: '邮箱或密码错误，请重新输入'
+          message: '邮箱或密码错误，请重新输入',
         })
       })
 
@@ -257,14 +257,14 @@ describe('Request Interceptors', () => {
         const error = {
           response: {
             status: 400,
-            data: { message: 'Email already exists' }
+            data: { message: 'Email already exists' },
           },
-          config: { url: '/auth/register/' }
+          config: { url: '/auth/register/' },
         }
 
         await expect(responseErrorInterceptor(error)).rejects.toMatchObject({
           code: 400,
-          message: '该邮箱已被注册，请使用其他邮箱'
+          message: '该邮箱已被注册，请使用其他邮箱',
         })
       })
 
@@ -274,15 +274,15 @@ describe('Request Interceptors', () => {
             status: 400,
             data: {
               email: ['邮箱格式不正确'],
-              password: ['密码长度至少8位']
-            }
+              password: ['密码长度至少8位'],
+            },
           },
-          config: { url: '/auth/register/' }
+          config: { url: '/auth/register/' },
         }
 
         await expect(responseErrorInterceptor(error)).rejects.toMatchObject({
           code: 400,
-          message: '邮箱: 邮箱格式不正确; 密码: 密码长度至少8位'
+          message: '邮箱: 邮箱格式不正确; 密码: 密码长度至少8位',
         })
       })
     })
@@ -291,7 +291,7 @@ describe('Request Interceptors', () => {
       it('should handle refresh token failure', async () => {
         const error = {
           response: { status: 401 },
-          config: { url: '/auth/token/refresh/' }
+          config: { url: '/auth/token/refresh/' },
         }
 
         await expect(responseErrorInterceptor(error)).rejects.toBeDefined()
@@ -312,8 +312,8 @@ describe('Request Interceptors', () => {
           response: { status: 401 },
           config: {
             url: '/api/test',
-            headers: {}
-          }
+            headers: {},
+          },
         }
 
         // This test is complex due to the async nature and would need more setup
@@ -327,7 +327,7 @@ describe('Request Interceptors', () => {
 
         const error = {
           response: { status: 401 },
-          config: { url: '/api/test' }
+          config: { url: '/api/test' },
         }
 
         await expect(responseErrorInterceptor(error)).rejects.toBeDefined()
@@ -341,7 +341,7 @@ describe('Request Interceptors', () => {
       it('should handle 403 Forbidden', async () => {
         const error = {
           response: { status: 403 },
-          config: { url: '/api/test' }
+          config: { url: '/api/test' },
         }
 
         await expect(responseErrorInterceptor(error)).rejects.toBeDefined()
@@ -352,7 +352,7 @@ describe('Request Interceptors', () => {
       it('should handle 404 Not Found', async () => {
         const error = {
           response: { status: 404 },
-          config: { url: '/api/test' }
+          config: { url: '/api/test' },
         }
 
         await expect(responseErrorInterceptor(error)).rejects.toBeDefined()
@@ -365,10 +365,10 @@ describe('Request Interceptors', () => {
           response: {
             status: 422,
             data: {
-              email: ['邮箱格式不正确']
-            }
+              email: ['邮箱格式不正确'],
+            },
           },
-          config: { url: '/api/test' }
+          config: { url: '/api/test' },
         }
 
         await expect(responseErrorInterceptor(error)).rejects.toBeDefined()
@@ -379,7 +379,7 @@ describe('Request Interceptors', () => {
       it('should handle 500 Server Error', async () => {
         const error = {
           response: { status: 500 },
-          config: { url: '/api/test' }
+          config: { url: '/api/test' },
         }
 
         await expect(responseErrorInterceptor(error)).rejects.toBeDefined()
@@ -391,13 +391,13 @@ describe('Request Interceptors', () => {
     describe('Network Errors', () => {
       it('should handle network connection failures', async () => {
         const error = {
-          config: { url: '/api/test' }
+          config: { url: '/api/test' },
           // No response property indicates network error
         }
 
         await expect(responseErrorInterceptor(error)).rejects.toMatchObject({
           code: -1,
-          message: '网络连接失败'
+          message: '网络连接失败',
         })
 
         expect(ElMessage.error).toHaveBeenCalledWith('网络连接失败，请检查网络')
@@ -420,15 +420,15 @@ describe('Request Interceptors', () => {
           data: {
             email: ['格式不正确'],
             password: ['长度不足'],
-            username: ['已存在']
-          }
+            username: ['已存在'],
+          },
         },
-        config: { url: '/api/test' }
+        config: { url: '/api/test' },
       }
 
       await expect(responseErrorInterceptor(error)).rejects.toMatchObject({
         code: 400,
-        message: '邮箱: 格式不正确; 密码: 长度不足; 用户名: 已存在'
+        message: '邮箱: 格式不正确; 密码: 长度不足; 用户名: 已存在',
       })
     })
 
@@ -437,15 +437,15 @@ describe('Request Interceptors', () => {
         response: {
           status: 400,
           data: {
-            custom_field: ['自定义错误']
-          }
+            custom_field: ['自定义错误'],
+          },
         },
-        config: { url: '/api/test' }
+        config: { url: '/api/test' },
       }
 
       await expect(responseErrorInterceptor(error)).rejects.toMatchObject({
         code: 400,
-        message: 'custom_field: 自定义错误'
+        message: 'custom_field: 自定义错误',
       })
     })
   })

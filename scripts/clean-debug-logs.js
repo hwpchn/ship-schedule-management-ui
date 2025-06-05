@@ -8,13 +8,13 @@ const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 
 // 需要清理的文件模式
-const patterns = [
-  /console\.log\(/g,
-  /console\.warn\(/g,
-  /console\.error\(/g,
-  /console\.info\(/g,
-  /console\.debug\(/g,
-]
+// const patterns = [
+//   /console\.log\(/g,
+//   /console\.warn\(/g,
+//   /console\.error\(/g,
+//   /console\.info\(/g,
+//   /console\.debug\(/g,
+// ]
 
 // 替换映射
 const replacements = {
